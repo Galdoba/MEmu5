@@ -1,0 +1,47 @@
+          
+Host: Fullerton Apartment Building
+Grid: Local Grid
+Host_Atributes:
+  Rating: 4
+  Attack: 4
+  Sleaze: 5
+  Data Processing: 6
+  Firewall: 7
+Host_IC:
+ >Patrol IC
+ >Probe IC
+ >Track IC
+ >Scramble IC
+
+#########################
+          
+Host: Test
+Grid: Wuxing Worldwide
+Host_Atributes:
+  Rating: 5
+  Attack: 1
+  Sleaze: 1
+  Data Processing: 1
+  Firewall: 1
+Host_IC:
+ >Patrol IC
+ >Binder IC
+ >Shoker IC
+ >Probe IC
+ >Catapult IC
+
+#########################
+          
+Host: Unknown Host 36
+Grid: NeoNetwork
+Host_Atributes:
+  Rating: 2
+  Attack: 4
+  Sleaze: 3
+  Data Processing: 2
+  Firewall: 5
+Host_IC:
+ >Patrol IC
+ >Shoker IC
+
+#########################

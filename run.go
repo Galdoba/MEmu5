@@ -1,0 +1,383 @@
+package main
+
+import (
+	"fmt"
+	"sort"
+	"strconv"
+	"time"
+
+	"strings"
+
+	"github.com/Galdoba/ConGo/congo"
+	"github.com/Galdoba/ConGo/utils"
+)
+
+//DeviseMap -
+var (
+	width            int
+	height           int
+	activeBorderName string
+	canClose         bool
+	info             interface{}
+	key              string
+	id               int
+	windowList       []interface{}
+	objectList       []IObj
+	gridList         []IGrid
+	hostList         []IObj
+	DeviseMap        interface{}
+	//MActionsMap      interface{}
+	SourceIcon  IObj
+	TargetIcon  IObj
+	TargetIcon2 IObj
+	player      *TPersona
+	Matrix      *THost
+	STime       string
+	SrTime      time.Time
+	command     string
+)
+
+func init() {
+	//w1 := congo.NewWindow(width - (width*3/10),0,(width*3/10),height, "Log", "Block")
+}
+
+func hold() {
+	dur := time.Second / 3
+	time.Sleep(dur)
+	draw()
+}
+
+func initialize() {
+	//winMap := make([]interface{}, 1)
+	setSeed()
+	congo.InitBorders()
+	width, height = congo.GetSize()
+	congo.SetTBorder("Default")
+	activeBorderName = congo.GetTBorderName()
+	congo.InitWindowsMap()
+	InitDeviceDatabase()
+	DeviseMap := AddDevice()
+	if DeviseMap == nil {
+		panic("INITIATE ERROR: Device map must not be NIL...")
+	}
+	InitMatrixActionMap()
+	//MActions.MActionMap["xxx"] = 1354
+	/*MActions.MActionMap =*/ //AddMAction()
+	/*if MActions.MActionMap == nil {
+		panic("INITIATE ERROR: Matrix Action map must not be NIL...")
+	}*/
+	//deviceDB := make(map[string]*TDevice)
+	//deviceDB["Camera"].SetRunningMode(false)
+
+	//objectList = append(objectList, NewFile("hh"))
+
+	congo.NewKeyboardAction("Choose_next_window", "<TAB>", "", func(ev *congo.KeyboardEvent) bool {
+		windowList := congo.WindowsMap.GetNames()
+		sort.Strings(windowList)
+		activeWindow := 1
+		for i := range windowList {
+			if congo.WindowsMap.ByTitle[windowList[i]].InFocus() == true {
+				activeWindow = i
+			}
+			congo.WindowsMap.ByTitle[windowList[i]].SetFocus(false)
+		}
+		if activeWindow == 4 {
+			activeWindow = 0
+		} else {
+			activeWindow++
+		}
+		congo.WindowsMap.ByTitle[windowList[activeWindow]].SetFocus(true)
+		return true
+	})
+
+	congo.NewKeyboardAction("Exit_Programm", "<esc>", "", func(ev *congo.KeyboardEvent) bool {
+		canClose = true
+		return true
+	})
+
+	congo.NewKeyboardAction("Add Line", "<space>", "", func(ev *congo.KeyboardEvent) bool {
+		congo.WindowsMap.ByTitle["z"].WPrint(" ", congo.ColorGreen)
+		return true
+	})
+
+	congo.NewKeyboardAction("Input", "<ENTER>", "", func(ev *congo.KeyboardEvent) bool {
+		input := congo.WindowsMap.ByTitle["z"].WRead()
+		if len(input) >= 2 {
+			sl := []byte(input)
+			sl = sl[:len(sl)-0]
+			input = string(sl)
+		} else {
+			input = ""
+		}
+		if input != "" {
+			congo.WindowsMap.ByTitle["Log"].SetAutoScroll(true)
+			UserInput(player.GetName() + ">" + input)
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn(input)
+		}
+		congo.WindowsMap.ByTitle["z"].WClear()
+		draw()
+		return true
+	})
+
+	congo.NewKeyboardAction("Delete_input_char", "<BACKSPACE>", "", func(ev *congo.KeyboardEvent) bool {
+		input := congo.WindowsMap.ByTitle["z"].WRead()
+		if len(input) >= 2 {
+			sl := []byte(input)
+			sl = sl[:len(sl)-1]
+			input = string(sl)
+		} else {
+			congo.WindowsMap.ByTitle["z"].WClear()
+		}
+		congo.WindowsMap.ByTitle["z"].WClear()
+		congo.WindowsMap.ByTitle["z"].WPrint(input, congo.ColorGreen)
+		return true
+	})
+
+	congo.NewKeyboardAction("Expand Persona Window", "<F1>", "", func(ev *congo.KeyboardEvent) bool {
+		congo.FillRect(0, 0, width/100*70, height, ' ', congo.ColorBlack, congo.ColorBlack)
+		congo.WindowsMap.ByTitle["Persona"].SetPosition(0, 0)
+		congo.WindowsMap.ByTitle["Persona"].SetSize((width*70)/100, height)
+		congo.WindowsMap.ByTitle["Grid"].SetPosition(width+1, 0)
+		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width, 0)
+		congo.WindowsMap.ByTitle["Process"].SetPosition(width, 0)
+		congo.WindowsMap.ByTitle["Persona"].WDraw()
+		return true
+	})
+
+	congo.NewKeyboardAction("Expand Grid Window", "<F2>", "", func(ev *congo.KeyboardEvent) bool {
+		congo.FillRect(0, 0, width/100*70, height, ' ', congo.ColorBlack, congo.ColorBlack)
+		congo.WindowsMap.ByTitle["Grid"].SetPosition(0, 0)
+		congo.WindowsMap.ByTitle["Grid"].SetSize((width*70)/100, height)
+		congo.WindowsMap.ByTitle["Grid"].WDraw()
+		congo.WindowsMap.ByTitle["Persona"].SetPosition(width, 0)
+		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width, 0)
+		congo.WindowsMap.ByTitle["Process"].SetPosition(width, 0)
+		simpleTest(3, 4, 2)
+		return true
+	})
+
+	congo.NewKeyboardAction("Expand Enviroment Window", "<F3>", "", func(ev *congo.KeyboardEvent) bool {
+		congo.FillRect(0, 0, width/100*70, height, ' ', congo.ColorBlack, congo.ColorBlack)
+		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(0, 0)
+		congo.WindowsMap.ByTitle["Enviroment"].SetSize((width*70)/100, height)
+		congo.WindowsMap.ByTitle["Grid"].SetPosition(0, 0)
+		congo.WindowsMap.ByTitle["Persona"].SetPosition(width, 0)
+		congo.WindowsMap.ByTitle["Grid"].SetSize((width*70)/100, height)
+		congo.WindowsMap.ByTitle["Grid"].WDraw()
+		congo.WindowsMap.ByTitle["Persona"].SetPosition(width, 0)
+		congo.WindowsMap.ByTitle["Process"].SetPosition(width, 0)
+		return true
+	})
+
+	congo.NewKeyboardAction("Defauil View", "<F12>", "", func(ev *congo.KeyboardEvent) bool {
+		congo.FillRect(0, 0, width/100*70, height, ' ', congo.ColorBlack, congo.ColorBlack)
+
+		congo.WindowsMap.ByTitle["Persona"].SetSize(width*20/100, height-height/5+1)
+		congo.WindowsMap.ByTitle["Grid"].SetSize(width*20/100, height*2/10)
+		congo.WindowsMap.ByTitle["Enviroment"].SetSize(width/2, height-height/5+1)
+		//SET POSITION
+
+		congo.WindowsMap.ByTitle["Persona"].SetPosition(0, 0)
+		congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
+		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width*20/100, 0)
+		congo.WindowsMap.ByTitle["Process"].SetPosition(width*20/100, height*8/10+1)
+		//NewFile("File ")
+		//NewDevice("Camera ", 2)
+		//addDevice("Camera3")
+		//addDevice("Camera5")
+		//addDevice("Erika MCD-1")
+		//NewDevice("Erika MCD-1", 4)
+		congo.WindowsMap.ByTitle["z"].WPrint("matrix search>host", congo.ColorGreen)
+		draw()
+		return true
+	})
+
+	congo.NewKeyboardAction("Move_selector_down", "<down>", "", func(ev *congo.KeyboardEvent) bool { //KeyboardEvent
+		windowList := congo.WindowsMap.GetNames()
+		sort.Strings(windowList)
+		for i := range windowList {
+			if congo.WindowsMap.ByTitle[windowList[i]].InFocus() == true {
+				index := congo.WindowsMap.ByTitle[windowList[i]].GetScrollIndex()
+				congo.WindowsMap.ByTitle[windowList[i]].SetScrollIndex(utils.Min(index+1, congo.WindowsMap.ByTitle[windowList[i]].GetStoredRows()-congo.WindowsMap.ByTitle[windowList[i]].GetPrintableHeight()+2))
+				if congo.WindowsMap.ByTitle[windowList[i]].GetStoredRows() < congo.WindowsMap.ByTitle[windowList[i]].GetPrintableHeight() {
+					congo.WindowsMap.ByTitle[windowList[i]].SetScrollIndex(0)
+				}
+				congo.WindowsMap.ByTitle[windowList[i]].WDraw()
+
+			}
+		}
+
+		return true
+	})
+
+	congo.NewKeyboardAction("Move_selector_up", "<up>", "", func(ev *congo.KeyboardEvent) bool {
+		windowList := congo.WindowsMap.GetNames()
+		sort.Strings(windowList)
+		for i := range windowList {
+			if congo.WindowsMap.ByTitle[windowList[i]].InFocus() == true {
+				congo.WindowsMap.ByTitle[windowList[i]].SetAutoScroll(false)
+				index := congo.WindowsMap.ByTitle[windowList[i]].GetScrollIndex()
+				congo.WindowsMap.ByTitle[windowList[i]].SetScrollIndex(utils.Max(index-1, 0))
+				congo.WindowsMap.ByTitle[windowList[i]].WDraw()
+			}
+
+		}
+
+		return true
+	})
+
+	congo.NewResizeAction("Resize_Window", "<Resize>", "", func(ev *congo.ResizeEvent) bool { //KeyboardEvent
+		congo.Flush()
+		width, height = congo.GetSize()
+		if width <= 101 {
+			width = 101
+		}
+		if height <= 11 {
+			height = 11
+		}
+		congo.ClearScreen(' ', congo.GetFgColor(), congo.GetBgColor())
+		//w5 := congo.NewWindow(width*20/100 +1 ,0,width/2,height, "Enviroment", "Block")
+		//SET SIZE
+		congo.WindowsMap.ByTitle["Log"].SetSize((width * 3 / 10), height)
+		congo.WindowsMap.ByTitle["Persona"].SetSize(width*20/100, height-height/5+1)
+		congo.WindowsMap.ByTitle["Grid"].SetSize(width*20/100, height*2/10)
+		congo.WindowsMap.ByTitle["z"].SetSize((width*3/10)-2, 1)
+		congo.WindowsMap.ByTitle["Enviroment"].SetSize(width/2, height-height/5+1)
+		congo.WindowsMap.ByTitle["Process"].SetSize(width/2, height*2/10)
+		congo.WindowsMap.ByTitle["Process"].SetAutoScroll(true)
+		//SET POSITION
+		congo.WindowsMap.ByTitle["Log"].SetPosition(width-width*30/100, 0)
+		congo.WindowsMap.ByTitle["Persona"].SetPosition(0, 0)
+		congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
+		congo.WindowsMap.ByTitle["z"].SetPosition(width-(width*3/10)+1, height-2)
+		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width*20/100, 0)
+		congo.WindowsMap.ByTitle["Process"].SetPosition(width*20/100, height*8/10+1)
+
+		draw()
+		return true
+	})
+
+	congo.ActionMap.Apply()
+}
+
+func draw() {
+
+	congo.WindowsMap.ByTitle["Persona"].WDraw()
+	congo.WindowsMap.ByTitle["Grid"].WDraw()
+	congo.WindowsMap.ByTitle["Enviroment"].WDraw()
+	congo.WindowsMap.ByTitle["Log"].WDraw()
+	congo.WindowsMap.ByTitle["z"].WDraw()
+	congo.WindowsMap.ByTitle["Process"].SetAutoScroll(true)
+	congo.WindowsMap.ByTitle["Process"].WDraw()
+	//windowList[0].(*congo.TWindow).WPrintLn("sdkjf11111111111h")
+	//congo.PrintText(1, 1, fmt.Sprintf("%v-%T-%s ", info, info, info))
+	//congo.PrintText(1, 5, string(key))
+	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(fmt.Sprintf("%v - ", MActions.MActionMap), congo.ColorGreen)
+	refreshEnviromentWin()
+	refreshPersonaWin()
+	refreshGridWin()
+	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(fmt.Sprintf("%v - ", MActions.MActionMap), congo.ColorGreen)
+	congo.Flush()
+}
+
+func main() {
+	err := congo.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer congo.Close()
+	//////////////////////////////////
+	initialize()
+	width, height = congo.GetSize()
+	dur := time.Second / 3
+	STime = generateCurrentTime()
+	w1 := congo.NewWindow(width-(width*3/10), 0, (width * 3 / 10), height, "Log", "Block")
+	w2 := congo.NewWindow(0, 0, width*20/100, height*(8/10)+1, "Persona", "Block")
+	w3 := congo.NewWindow(0, height*8/10, width*20/100, height*2/10, "Grid", "Block")
+	w4 := congo.NewWindow(width-(width*3/10)+1, height-2, (width*3/10)-2, 1, "z", "Block")
+	w5 := congo.NewWindow(width*20/100+1, 0, width/2, height*(8/10)+1, "Enviroment", "Block")
+	w6 := congo.NewWindow(width*20/100, height*8/10+1, width/2, height*2/10, "Process", "Block")
+	w4.SetBorderVisibility(false)
+	windowList = append(windowList, w1)
+	windowList = append(windowList, w2)
+	windowList = append(windowList, w3)
+	windowList = append(windowList, w4)
+	windowList = append(windowList, w5)
+	windowList = append(windowList, w6)
+	w1.SetAutoScroll(true)
+	//Say hello:
+	w1.WPrintLn("Connection to Matrix established...", congo.ColorGreen)
+	w1.WPrintLn("...Identity spoofed", congo.ColorGreen)
+	w1.WPrintLn("...Encryption keys generated", congo.ColorGreen)
+	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)
+	createDefaultGrids()
+	//Matrix = gridList[1].NewHost("Matrix", 0)
+	player = NewPlayer("Andy", "Sony CIY-720")
+	Matrix = player.grid.NewHost("Matrix", 0)
+
+	w1.WPrintLn("Connection to Matrix established...", congo.ColorGreen)
+	time.Sleep(dur)
+	draw()
+	w1.WPrintLn("...Identity spoofed", congo.ColorGreen)
+	time.Sleep(dur)
+	draw()
+	w1.WPrintLn("...Encryption keys generated", congo.ColorGreen)
+	time.Sleep(dur)
+	draw()
+	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)
+	time.Sleep(dur)
+	draw()
+
+	w1.WPrintLn(">>>LOGIN: "+player.GetName(), congo.ColorGreen)
+	w1.WPrintLn(">>>PASSCODE: XXXXXXXXXXXX", congo.ColorGreen)
+	time.Sleep(dur)
+	draw()
+	w1.WPrintLn("...Passcode accepted", congo.ColorGreen)
+	w1.WPrintLn("...Biometric data generated", congo.ColorGreen)
+	time.Sleep(dur)
+	draw()
+
+	w1.WPrintLn("Begin Session:", congo.ColorGreen)
+	w1.WPrintLn(generateCurrentTime(), congo.ColorGreen)
+	//gridList[0].(*TGrid).NewHost("Ares Host", 0)
+
+	//gridList[0].(*TGrid).NewHost("Ares Host", 0)
+
+	/*for i:= 0; i<5; i++ {
+		w1.WPrintLn("ksdfhaksjhfasdfh" + strconv.Itoa(i))
+	}
+	w1.WPrintLn("15")*/
+	//congo.WindowsMap.ByTitle["W1"].WDraw()
+
+	kbd := congo.CreateKeyboard()
+	kbd.StartKeyboard()
+
+	for !canClose {
+		draw()
+		ev := kbd.ReadEvent()
+		if ev.GetEventType() == "Keyboard" {
+			var char string
+			key := ev.(*congo.KeyboardEvent).GetRune()
+			if key != 0 {
+				char = string(key)
+				w4.WPrint(char, congo.ColorGreen)
+				nom := strconv.Itoa(int(key))
+				noms := strings.Split(nom, "")
+				s := 0
+				for i := range noms {
+					g, _ := strconv.Atoi(noms[i])
+					s = s + g
+					if s > 6 {
+						s = s - 6
+					}
+				}
+				w6.WPrint(fmt.Sprintf("%v ", s), congo.ColorGreen)
+			}
+
+		}
+		info = ev
+		congo.HandleEvent(ev)
+
+	}
+
+}
