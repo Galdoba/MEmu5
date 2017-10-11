@@ -179,6 +179,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	if name == "Matrix" {
 		h := THost{}
 		h.name = "Matrix"
+		//h.grid =
 		return &h
 	}
 	h := THost{}
@@ -498,6 +499,31 @@ func ImportHostFromDB(hostName string) *THost {
 			h.name = name
 		default:
 		}
+		//Import Grid
+		switch strings.Contains(lines[i], "Grid: ") {
+		case true:
+			nameS := strings.Split(lines[i], "Grid: ")
+			name := nameS[1]
+			randoGo := true
+			for i := range gridList {
+				if gridForHost, ok := gridList[i].(*TGrid); ok {
+					if gridForHost.name == name {
+						h.grid = *gridForHost
+						randoGo = false
+					}
+				}
+			}
+			//Если сеть не известна - выбираем из известных
+			for randoGo {
+				r := rand.Intn(len(gridList))
+				if gr, ok := gridList[r].(*TGrid); ok {
+					h.grid = *gr
+					randoGo = false
+				}
+			}
+
+		default:
+		}
 		//Import Rating
 		switch strings.Contains(lines[i], "Rating: ") {
 		case true:
@@ -624,4 +650,16 @@ func (h *THost) FillHostWithFiles() {
 		default:
 		}
 	}
+}
+
+func applyGrid(name string) TGrid {
+	for i := range gridList {
+		if grid, ok := gridList[i].(*TGrid); ok {
+			windowList[0].(*congo.TWindow).WPrintLn(grid.GetGridName(), congo.ColorGreen)
+			if grid.GetGridName() == name {
+				return *grid
+			}
+		}
+	}
+	return player.grid
 }

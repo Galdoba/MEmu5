@@ -2570,37 +2570,7 @@ func CrackFile(src IObj, trg IObj) {
 			netHits := suc1 - suc2
 			addOverwatchScore(suc2)
 			if trg.GetDataBombRating() > 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
-				prgBonus := 0
-				if src.(*TPersona).CheckRunningProgram("Armor") {
-					prgBonus = prgBonus + 2
-				}
-				if src.(*TPersona).CheckRunningProgram("Defuse") {
-					prgBonus = prgBonus + 4
-				}
-				resistPool := src.(*TPersona).GetDeviceRating() + src.(*TPersona).GetDeviceFirewall() + prgBonus
-				resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
-				//остановиться и перебросить при необходимости
-				congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(resistHits)+" of incomming Matrix damage has been resisted", congo.ColorGreen)
-				fullDamage := xd6Test(trg.GetDataBombRating())
-				if rgl == true {
-					fullDamage = fullDamage + 2
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Firewall error erupted...", congo.ColorYellow)
-				}
-				if rcgl == true {
-					addOverwatchScore(xd6Test(trg.GetDataBombRating()))
-					fullDamage = fullDamage + xd6Test(trg.GetDataBombRating())
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("Danger!! Critical error erupted...", congo.ColorRed)
-				}
-
-				realDamage := fullDamage - resistHits
-				if realDamage < 0 {
-					realDamage = 0
-				}
-				src.(*TPersona).ReceiveMatrixDamage(realDamage)
-				//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(*TPersona).GetName()+" received "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)
+				src.(*TPersona).TriggerDataBomb(trg.GetDataBombRating())
 				trg.SetDataBombRating(0)
 				canSee := src.(*TPersona).canSee.KnownData[trg.GetID()]
 				canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за рейтинг бомбы
@@ -2796,8 +2766,10 @@ func DisarmDataBomb(src IObj, trg IObj) {
 			trg.SetDataBombRating(0)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb Defused...", congo.ColorGreen)
 		} else {
+			src.(*TPersona).TriggerDataBomb(trg.GetDataBombRating())
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 3 - fail", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
+			//
+			/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Host Alert triggered...", congo.ColorRed)
 			trg.GetHost().SetAlert("Active Alert")
 			prgBonus := 0
@@ -2830,6 +2802,7 @@ func DisarmDataBomb(src IObj, trg IObj) {
 			//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(*TPersona).GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)
+			//*/
 			trg.SetDataBombRating(0)
 			canSee := src.(*TPersona).canSee.KnownData[trg.GetID()]
 			canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за рейтинг бомбы
@@ -2887,7 +2860,7 @@ func SetDatabomb(src IObj, trg IObj) {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb Defused...", congo.ColorGreen)
 		} else {
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 3 - fail", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
+			/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Host Alert triggered...", congo.ColorRed)
 			trg.GetHost().SetAlert("Active Alert")
 			prgBonus := 0
@@ -2919,7 +2892,8 @@ func SetDatabomb(src IObj, trg IObj) {
 			src.(*TPersona).ReceiveMatrixDamage(realDamage)
 			//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(*TPersona).GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)*/
+			src.(*TPersona).TriggerDataBomb(trg.GetDataBombRating())
 			trg.SetDataBombRating(0)
 			canSee := src.(*TPersona).canSee.KnownData[trg.GetID()]
 			canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за рейтинг бомбы
@@ -2933,10 +2907,21 @@ func SetDatabomb(src IObj, trg IObj) {
 
 //Edit -
 func Edit(src IObj, trg IObj) {
+	text := command
+	text = formatString(text)
+	text = cleanText(text)
+	comm := strings.SplitN(text, ">", 4)
+	if len(comm) < 4 {
+		comm = append(comm, "")
+		comm = append(comm, "")
+		comm = append(comm, "")
+		comm = append(comm, "")
+	}
+	//editor := src.(*TPersona)
 	src = SourceIcon.(*TPersona)
 	trg = TargetIcon
 	//attMod, defMod := getModifiers(src, trg)
-	host := src.(*TPersona)
+	host := src.(*TPersona).GetHost()
 	//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 0", congo.ColorYellow)
 	if persona, ok := src.(*TPersona); ok {
 		dp1 := persona.GetComputerSkill() + persona.GetLogic() // + attMod
@@ -2958,27 +2943,62 @@ func Edit(src IObj, trg IObj) {
 			}
 		}
 		if file, ok := trg.(*TFile); ok {
-			//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 1", congo.ColorYellow)
-
-			dp2 := host.GetDeviceRating() + host.GetDeviceFirewall()
-			suc2, glt, cglt := simpleTest(dp2, 1000, 0)
-			if glt == true {
-				addOverwatchScore(-suc2)
-			}
-			if cglt == true {
-				suc1++
-			}
-			//Тут надо остановиться и спросить про перебросс
-
-			netHits := suc1 - suc2
-			addOverwatchScore(suc2)
-			if netHits > 0 {
-				hold()
-				//file.kno
-				//удалось
+			if checkMarks(1) == false {
+				congo.WindowsMap.ByTitle["Log"].WPrintLn("ACCESS DENIDED", congo.ColorRed)
+				congo.WindowsMap.ByTitle["Log"].WPrintLn("Not Enough Marks on "+file.GetName(), congo.ColorYellow)
 			} else {
-				hold()
-				//не удалось
+
+				//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 1", congo.ColorYellow)
+
+				dp2 := host.GetDeviceRating() + host.GetFirewall()
+				suc2, glt, cglt := simpleTest(dp2, 1000, 0)
+				if glt == true {
+					addOverwatchScore(-suc2)
+				}
+				if cglt == true {
+					suc1++
+				}
+				if file.GetEncryptionRating() > 0 {
+					suc1 = 0
+					congo.WindowsMap.ByTitle["Log"].WPrintLn("...error: File Encrypted", congo.ColorGreen)
+				}
+				if file.GetDataBombRating() > 0 {
+					persona.TriggerDataBomb(file.GetDataBombRating())
+					file.SetDataBombRating(0)
+				}
+				//Тут надо остановиться и спросить про перебросс
+
+				netHits := suc1 - suc2
+				addOverwatchScore(suc2)
+				if netHits > 0 {
+					hold()
+					if comm[3] == "COPY" {
+						copy := host.NewFile(file.GetFileName())
+						copy.SetFileName("Copy of " + file.GetFileName())
+						copy.SetDataBombRating(0)
+						copy.SetEncryptionRating(0)
+						copy.SetSize(file.GetSize())
+						copy.SetLastEditDate("STime")
+						copy.markSet.MarksFrom[persona.GetID()] = 4
+
+						data := persona.canSee.KnownData[copy.GetID()]
+						data[0] = "Spotted"
+						congo.WindowsMap.ByTitle["Log"].WPrintLn(data[1], congo.ColorGreen)
+						data[1] = copy.GetLastEditDate()
+						congo.WindowsMap.ByTitle["Log"].WPrintLn(data[3], congo.ColorGreen)
+						data[3] = ""
+						congo.WindowsMap.ByTitle["Log"].WPrintLn(data[3], congo.ColorGreen)
+						data[12] = ""
+						data[13] = ""
+						data[15] = ""
+
+					}
+					//file.kno
+					//удалось
+				} else {
+					hold()
+					//не удалось
+				}
 			}
 			congo.WindowsMap.ByTitle["Log"].WPrintLn(file.GetName(), congo.ColorRed)
 		}
@@ -3560,7 +3580,7 @@ func HackOnTheFly(src IObj, trg IObj) {
 						case 1:
 							if src.host.GetName() == trg.host.GetName() {
 								//canSee[choosen] = "EditDate revealed"
-								canSee[choosen] = generateLastEditTime()
+								canSee[choosen] = trg.GetLastEditDate()
 								congo.WindowsMap.ByTitle["Log"].WPrintLn("Last edit date: "+canSee[choosen], congo.ColorGreen)
 							}
 						case 3:
@@ -3697,7 +3717,7 @@ func MatrixPerception(src IObj, trg IObj) {
 					case 1:
 						if src.GetHost().GetName() == trg.host.GetName() {
 							//canSee[choosen] = "EditDate revealed"
-							canSee[choosen] = generateLastEditTime()
+							canSee[choosen] = trg.GetLastEditDate()
 							congo.WindowsMap.ByTitle["Log"].WPrintLn("Last edit date: "+canSee[choosen], congo.ColorGreen)
 						}
 					case 3:
@@ -4017,6 +4037,7 @@ func MatrixSearch(src IObj, trg IObj) {
 		}
 		file := host.NewFile(fileName)
 		file.SetFileName(host.GetName() + " " + fileName)
+		//file.markSet.MarksFrom[seeker.GetID()] = 4
 		//gridList[0].(*TGrid).NewHost(hostName, 4) // -создаем всегда третий хост
 	}
 

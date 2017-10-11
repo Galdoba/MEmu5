@@ -1900,6 +1900,53 @@ func (p *TPersona) checkConvergence() {
 	}
 }
 
+//TriggerDataBomb -
+func (p *TPersona) TriggerDataBomb(bombRating int) {
+	host := p.GetHost()
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
+	hold()
+	if host.GetHostAlertStatus() != "Active Alert" {
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Host Active Alert triggered...", congo.ColorRed)
+		hold()
+		host.SetAlert("Active Alert")
+	}
+	host.SetAlert("Active Alert")
+	prgBonus := 0
+	if p.CheckRunningProgram("Armor") {
+		prgBonus = prgBonus + 2
+	}
+	if p.CheckRunningProgram("Shell") {
+		prgBonus = prgBonus + 1
+	}
+	if p.CheckRunningProgram("Defuse") {
+		prgBonus = prgBonus + 4
+	}
+	resistPool := p.GetDeviceRating() + p.GetDeviceFirewall() + prgBonus
+	resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
+	//остановиться и перебросить при необходимости
+
+	fullDamage := xd6Test(bombRating)
+	if rgl == true {
+		fullDamage = fullDamage + bombRating
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Firewall error erupted...", congo.ColorYellow)
+	}
+	if rcgl == true {
+		//addOverwatchScore(xd6Test(trg.GetDataBombRating()))
+		fullDamage = fullDamage + xd6Test(bombRating)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Danger!! Critical error erupted...", congo.ColorRed)
+	}
+	congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(resistHits)+" of incomming Matrix damage has been resisted", congo.ColorGreen)
+	realDamage := fullDamage - resistHits
+	if realDamage < 0 {
+		realDamage = 0
+	}
+	p.ReceiveMatrixDamage(realDamage)
+	//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)
+	hold()
+}
+
 //CountMarks -
 func (p *TPersona) CountMarks() int {
 	totalMarks := 0
@@ -1945,7 +1992,7 @@ type TFile struct {
 	dataBombRating   int
 	size             int
 	value            int
-	lastEditTime     int
+	lastEditTime     string
 	TIcon
 	//TObj
 }
@@ -1965,6 +2012,9 @@ type IFile interface {
 	GetDataBombRating() int
 	SetDataBombRating(int)
 	GetSize() int
+	SetSize(int)
+	GetLastEditDate() string
+	SetLastEditDate(string)
 	GetValue() int
 }
 
@@ -1986,6 +2036,7 @@ func (h *THost) NewFile(name string) *TFile {
 	f.encryptionRating = enRat
 	bombRat, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.sleaze, 0)
 	f.dataBombRating = bombRat
+	f.lastEditTime = generateLastEditTime()
 
 	hRatMod := (h.deviceRating-1)/3 + 1
 
@@ -2100,6 +2151,21 @@ func (f *TFile) SetGrid(grid TGrid) {
 //GetSize -
 func (f *TFile) GetSize() int {
 	return f.size
+}
+
+//SetSize -
+func (f *TFile) SetSize(newSize int) {
+	f.size = newSize
+}
+
+//GetLastEditDate -
+func (f *TFile) GetLastEditDate() string {
+	return f.lastEditTime
+}
+
+//SetLastEditDate -
+func (f *TFile) SetLastEditDate(newTime string) {
+	f.lastEditTime = STime
 }
 
 //GetValue -

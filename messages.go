@@ -157,7 +157,20 @@ func refreshGridWin() {
 	if host == "Matrix" {
 		congo.WindowsMap.ByTitle["Grid"].WPrintLn("--not in Host--", congo.ColorGreen)
 	} else {
-		congo.WindowsMap.ByTitle["Grid"].WPrintLn(host, congo.ColorYellow)
+		congo.WindowsMap.ByTitle["Grid"].WPrintLn(" "+host, congo.ColorYellow)
+		congo.WindowsMap.ByTitle["Grid"].WPrintLn("Host Alert Status: ", congo.ColorGreen)
+		statusColor := congo.ColorDefault
+		alert := player.GetHost().GetHostAlertStatus()
+		switch alert {
+		case "No Alert":
+			statusColor = congo.ColorGreen
+		case "Passive Alert":
+			statusColor = congo.ColorYellow
+		case "Active Alert":
+			statusColor = congo.ColorRed
+		default:
+		}
+		congo.WindowsMap.ByTitle["Grid"].WPrintLn(" "+alert, statusColor)
 	}
 
 }
@@ -180,7 +193,8 @@ func refreshEnviromentWin() {
 			checkFoW = sampleCode
 			whatCanSee := player.canSee.KnownData[host.GetID()]
 			if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
-				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Name: "+host.GetName(), congo.ColorGreen)
+				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Icon: "+host.GetName(), congo.ColorGreen)
+				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Type: Host", congo.ColorGreen)
 			}
 			if checkFoW[5] == whatCanSee[5] && checkFoW[5] != "Unknown" {
 				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: "+whatCanSee[5], congo.ColorGreen)
@@ -290,6 +304,7 @@ func refreshEnviromentWin() {
 			var checkFoW [30]string
 			checkFoW = sampleCode
 			whatCanSee := player.canSee.KnownData[ic.GetID()]
+			whatKnowAboutHost := player.canSee.KnownData[ic.GetHost().GetID()]
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("--------------------------------", congo.ColorDefault)
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(ic.GetName()+"actRed: "+strconv.Itoa(ic.actionReady), congo.ColorDefault)
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(ic.GetName()+"Init  : "+strconv.Itoa(ic.initiative), congo.ColorDefault)
@@ -310,7 +325,7 @@ func refreshEnviromentWin() {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Matrix Condition Monitor: "+icMCM, congo.ColorGreen)
 				}
 
-				if whatCanSee[5] != "Unknown" {
+				if whatCanSee[5] != "Unknown" || whatKnowAboutHost[5] != "Unknown" {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Rating: "+strconv.Itoa(ic.GetDeviceRating()), congo.ColorGreen)
 				}
 				Att := "Unknown"
@@ -318,19 +333,19 @@ func refreshEnviromentWin() {
 				DtPrc := "Unknown"
 				Frw := "Unknown"
 				showAttArray := false
-				if whatCanSee[7] != "Unknown" {
+				if whatCanSee[7] != "Unknown" || whatKnowAboutHost[7] != "Unknown" {
 					Att = strconv.Itoa(ic.GetAttack())
 					showAttArray = true
 				}
-				if whatCanSee[8] != "Unknown" {
+				if whatCanSee[8] != "Unknown" || whatKnowAboutHost[8] != "Unknown" {
 					Slz = strconv.Itoa(ic.GetSleaze())
 					showAttArray = true
 				}
-				if whatCanSee[9] != "Unknown" {
+				if whatCanSee[9] != "Unknown" || whatKnowAboutHost[9] != "Unknown" {
 					DtPrc = strconv.Itoa(ic.GetDataProcessing())
 					showAttArray = true
 				}
-				if whatCanSee[10] != "Unknown" {
+				if whatCanSee[10] != "Unknown" || whatKnowAboutHost[10] != "Unknown" {
 					Frw = strconv.Itoa(ic.GetFirewall())
 					showAttArray = true
 				}
@@ -338,28 +353,28 @@ func refreshEnviromentWin() {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("---IC Attribute Array---", congo.ColorGreen)
 
 					//Show Host Attack
-					if whatCanSee[7] != "Unknown" {
+					if whatCanSee[7] != "Unknown" || whatKnowAboutHost[7] != "Unknown" {
 						Att = strconv.Itoa(ic.GetAttack())
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Attack: "+Att, congo.ColorGreen)
 					} else {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Attack: "+Att, congo.ColorYellow)
 					}
 					//Show Host Sleaze
-					if whatCanSee[8] != "Unknown" {
+					if whatCanSee[8] != "Unknown" || whatKnowAboutHost[8] != "Unknown" {
 						Att = strconv.Itoa(ic.GetSleaze())
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Sleaze: "+Slz, congo.ColorGreen)
 					} else {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Sleaze: "+Slz, congo.ColorYellow)
 					}
 					//Show Host DataProcessing
-					if whatCanSee[9] != "Unknown" {
+					if whatCanSee[9] != "Unknown" || whatKnowAboutHost[9] != "Unknown" {
 						Att = strconv.Itoa(ic.GetDataProcessing())
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Data Processing: "+DtPrc, congo.ColorGreen)
 					} else {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Data Processing: "+DtPrc, congo.ColorYellow)
 					}
 					//Show Host Firewall
-					if whatCanSee[10] != "Unknown" {
+					if whatCanSee[10] != "Unknown" || whatKnowAboutHost[10] != "Unknown" {
 						Att = strconv.Itoa(ic.GetFirewall())
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("IC Firewall: "+Frw, congo.ColorGreen)
 					} else {
