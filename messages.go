@@ -438,7 +438,7 @@ func refreshEnviromentWin() {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Icon: "+file.GetType()+" "+strconv.Itoa(file.GetID()), congo.ColorGreen)
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File Name: "+file.GetFileName(), congo.ColorGreen)
 
-					if whatCanSee[3] != "Unknown" {
+					if whatCanSee[3] != "Unknown" || file.GetMarkSet().MarksFrom[player.GetID()] == 4 {
 						b := file.GetDataBombRating()
 						if b > 0 {
 							congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File DataBomb Rating: "+strconv.Itoa(file.GetDataBombRating()), congo.ColorYellow)
@@ -448,7 +448,7 @@ func refreshEnviromentWin() {
 					} else {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File DataBomb Rating: Unknown", congo.ColorYellow)
 					}
-					if whatCanSee[12] != "Unknown" {
+					if whatCanSee[12] != "Unknown" || file.GetMarkSet().MarksFrom[player.GetID()] == 4 {
 						e := file.GetEncryptionRating()
 						if e > 0 {
 							congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File Encryption Rating: "+strconv.Itoa(file.GetEncryptionRating()), congo.ColorYellow)
@@ -458,13 +458,13 @@ func refreshEnviromentWin() {
 					} else {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File Encryption Rating: Unknown", congo.ColorYellow)
 					}
-					if whatCanSee[15] != "Unknown" {
+					if whatCanSee[15] != "Unknown" || file.GetMarkSet().MarksFrom[player.GetID()] == 4 {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File Size: "+strconv.Itoa(file.GetSize())+" Mp", congo.ColorGreen)
 					} else {
 						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("File Size: Unknown", congo.ColorGreen)
 					}
-					if whatCanSee[1] != "Unknown" {
-						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Last Edit Time: "+whatCanSee[1], congo.ColorGreen)
+					if whatCanSee[1] != "Unknown" || file.GetMarkSet().MarksFrom[player.GetID()] == 4 {
+						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Last Edit Time: "+file.GetLastEditDate(), congo.ColorGreen)
 					}
 
 					if file.GetSilentRunningMode() == true {
@@ -482,4 +482,11 @@ func refreshEnviromentWin() {
 func refreshProcessWin() {
 	congo.WindowsMap.ByTitle["Process"].WDraw()
 
+}
+
+func printLog(s string, color congo.TColor) {
+	if SourceIcon.(IObj).GetFaction() == player.GetFaction() {
+		congo.WindowsMap.ByTitle["Log"].WPrintLn(s, color)
+		hold()
+	}
 }

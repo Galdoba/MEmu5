@@ -46,6 +46,7 @@ type IHost interface {
 	GiveMarks()
 	SetAlert(string)
 	DeleteIC(*TIC) bool
+	DeleteFile(*TFile) bool
 	PickPatrolIC()
 }
 
@@ -120,6 +121,28 @@ func (h *THost) DeleteIC(ic *TIC) bool {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn(h.icState.icName[i]+" is NOT loaded", congo.ColorDefault)
 		}
 	}
+	return true
+}
+
+//DeleteFile -
+func (h *THost) DeleteFile(file *TFile) bool {
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("Delete file: "+file.GetName()+"...", congo.ColorGreen)
+	hold()
+	for i := range objectList {
+		if ftDel, ok := objectList[i].(*TFile); ok {
+			congo.WindowsMap.ByTitle["Log"].WPrint(".", congo.ColorGreen)
+			hold()
+			if ftDel.GetName() == file.GetName() {
+				congo.WindowsMap.ByTitle["Log"].WPrintLn(".."+ftDel.GetName()+" deleted", congo.ColorGreen)
+				hold()
+				objectList = append(objectList[:i], objectList[i+1:]...)
+				return true
+			}
+		}
+	}
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("...error: "+file.GetName()+" was not found", congo.ColorGreen)
+	hold()
 	return true
 }
 
@@ -601,7 +624,7 @@ func ImportHostFromDB(hostName string) *THost {
 	data[11] = "Unknown"
 	data[13] = "Unknown"
 	player.canSee.KnownData[h.id] = data
-
+	h.FillHostWithFiles()
 	h.LoadNextIC()
 	gridList = append(gridList, &h)
 	return &h

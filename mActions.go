@@ -2371,7 +2371,7 @@ func doAction(s string) bool {
 }
 
 //BruteForce -
-func BruteForce(src IObj, trg IObj) {
+func BruteForce0(src IObj, trg IObj) {
 	src = SourceIcon
 	trg = TargetIcon
 
@@ -2379,6 +2379,162 @@ func BruteForce(src IObj, trg IObj) {
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
 	//может быть чем угодно.
 	if trg, ok := trg.(*TDevice); ok {
+		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
+		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
+		limit := src.(IPersona).GetDeviceAttack()
+		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
+		netHits := suc1 - suc2
+		if gl == true {
+			addOverwatchScore(2)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
+		}
+		if cgl == true {
+			addOverwatchScore(8)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+		}
+		addOverwatchScore(suc2)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
+		if netHits > 0 {
+			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
+			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
+				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
+			}
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Source put MARK", congo.ColorYellow)
+		} else {
+			src.(IPersona).ReceiveMatrixDamage(-netHits)
+			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
+		}
+
+	}
+	if trg, ok := trg.(*THost); ok {
+		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
+		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
+		limit := src.(IPersona).GetDeviceAttack()
+		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
+		netHits := suc1 - suc2
+		if gl == true {
+			addOverwatchScore(2)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
+		}
+		if cgl == true {
+			addOverwatchScore(8)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+		}
+		addOverwatchScore(suc2)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
+		gridOV := src.(IPersona).GetGrid()
+		src.(IPersona).SetGrid(gridOV)
+
+		if netHits > 0 {
+			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
+			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
+				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
+			}
+			if trg.alert == "No Alert" {
+				trg.alert = "Passive Alert"
+			}
+			if src.(IPersona).GetID() == 0 {
+				congo.WindowsMap.ByTitle["Log"].WPrintLn("MARK was successfuly planted!", congo.ColorGreen)
+			}
+		} else {
+			src.(IPersona).ReceiveMatrixDamage(-netHits)
+			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
+		}
+
+	}
+	if trg, ok := trg.(*TGrid); ok {
+		//panic(0)
+		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
+		dp2 := trg.GetDeviceRating()
+		limit := src.(IPersona).GetDeviceAttack()
+		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
+		netHits := suc1 - suc2
+		if gl == true {
+			addOverwatchScore(2)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
+		}
+		if cgl == true {
+			addOverwatchScore(8)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+		}
+		if netHits > 0 {
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Action succeeded.", congo.ColorGreen)
+			src.(IPersona).SetGrid(*trg)
+		}
+		addOverwatchScore(suc2)
+
+	}
+
+	//присваиваем изменения
+	for i := range objectList {
+		if attacker, ok := objectList[i].(IPersona); ok {
+			if objectList[i].(IIcon).GetID() == src.(IPersona).GetID() {
+				objectList[i] = attacker
+
+			}
+		}
+	}
+	for i := range objectList {
+		if defender, ok := objectList[i].(IIcon); ok {
+			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
+				objectList[i] = defender
+
+			}
+		}
+	}
+	for i := range objectList {
+		if host, ok := objectList[i].(IHost); ok {
+			if objectList[i].(IHost).GetID() == src.(IHost).GetID() {
+				objectList[i] = host
+
+			}
+		}
+	}
+	endAction()
+}
+
+//BruteForce2 -
+func BruteForce(src IObj, trg IObj) {
+	src = SourceIcon
+	trg = TargetIcon
+	var netHits int
+	persona := src.(IPersona)
+	isComplexAction()
+
+	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic() // + attMod
+	limit := persona.GetDeviceAttack()
+
+	suc1, gl, cgl := simpleTest(dp1, limit, 0)
+	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
+
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
+	}
+	if cgl == true {
+		addOverwatchScore(dp1)
+		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
+	}
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+	if device, ok := trg.(IIcon); ok {
+		dp2 := device.GetDeviceRating() + device.GetFirewall()
+		suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
+		if rgl == true {
+			suc1++
+		}
+		if rcgl == true {
+			addOverwatchScore(-dp2)
+		}
+		netHits = suc1 - suc2
+		printLog("..."+persona.GetName()+": "+strconv.Itoa(netHits)+" NetHits", congo.ColorRed)
+		printLog("..."+device.GetType(), congo.ColorRed)
+	}
+
+	//attMod, defMod := getModifiers(src, trg)
+	//isComplexAction() // есть вероятность что стрельнет механизм возврата
+	//может быть чем угодно.
+	/*if trg, ok := trg.(*TDevice); ok {
 		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
 		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
 		limit := src.(IPersona).GetDeviceAttack()
@@ -2488,7 +2644,7 @@ func BruteForce(src IObj, trg IObj) {
 
 			}
 		}
-	}
+	}*/
 	endAction()
 }
 
@@ -2660,7 +2816,7 @@ func DataSpike(src IObj, trg IObj) {
 		}
 	}
 
-	if trg, ok := trg.(IDevice); ok {
+	if trg, ok := trg.(*TDevice); ok {
 		dp2 := trg.GetDeviceRating() + trg.GetFirewall() + defMod
 
 		resistPool := trg.GetDeviceRating() + trg.GetFirewall()
@@ -2819,34 +2975,42 @@ func SetDatabomb(src IObj, trg IObj) {
 	src = SourceIcon.(*TPersona)
 	trg = TargetIcon
 	icon := SourceIcon.(IPersona)
-	attMod, defMod := getModifiers(src, trg)
+	//attMod, defMod := getModifiers(src, trg)
+	host := trg.(IFile).GetHost()
+	dp1 := icon.GetSoftwareSkill() + icon.GetLogic() // + attMod
+	limit := src.(IPersona).GetDeviceSleaze()
 
-	dp1 := icon.GetSoftwareSkill() + icon.GetIntuition() + attMod
-	limit := src.(IPersona).GetDeviceFirewall()
-	if icon.CheckRunningProgram("Defuse") {
-		dp1 = dp1 + 4
-	}
 	suc1, gl, cgl := simpleTest(dp1, limit, 0)
+	if icon.GetFaction() == player.GetFaction() {
+		printLog("Setting up databomb on "+trg.GetName()+"...", congo.ColorGreen)
+		/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Setting up databomb on "+trg.GetName()+"...", congo.ColorGreen)
+		hold()*/
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+icon.GetName()+" "+strconv.Itoa(suc1)+" succeses", congo.ColorGreen)
+		hold()
+	}
+
 	//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 0", congo.ColorYellow)
+	isComplexAction()
 	if trg, ok := trg.(*TFile); ok {
-		dp2 := trg.GetDataBombRating()*2 + defMod
+		printLog("...installing databomb", congo.ColorGreen)
+		dp2 := host.GetDeviceRating() * 2
 		suc2, glt, cglt := simpleTest(dp2, 1000, 0)
 		if gl == true {
 			addOverwatchScore(dp1 - suc1)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Unexpected trigger initiated....", congo.ColorYellow)
+			printLog("...error: Unexpected trigger initiated", congo.ColorYellow)
 		}
 		if cgl == true {
 			addOverwatchScore(dp1 - suc1)
-			suc2++
-			trg.SetDataBombRating(trg.GetDataBombRating() + 1)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+			icon.TriggerDataBomb(suc1)
+			printLog("...critical error erupted", congo.ColorRed)
 		}
 		if glt == true {
 			addOverwatchScore(-suc2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb lag detected....", congo.ColorGreen)
+			suc2--
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("...firewall exploit detected", congo.ColorGreen)
 		}
 		if cglt == true {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb critical lag detected....", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("...exploit critical", congo.ColorGreen)
 			suc1++
 		}
 		//Тут надо остановиться и спросить про перебросс
@@ -2855,50 +3019,14 @@ func SetDatabomb(src IObj, trg IObj) {
 		addOverwatchScore(suc2)
 
 		if netHits > 0 {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 2 - success", congo.ColorYellow)
-			trg.SetDataBombRating(0)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb Defused...", congo.ColorGreen)
+			if icon.CheckRunningProgram("Demolition") {
+				netHits++
+				printLog("...Databomb rating infused by Demolition program", congo.ColorGreen)
+			}
+			trg.SetDataBombRating(netHits)
+			printLog("...Databomb rating "+strconv.Itoa(netHits)+" installed", congo.ColorGreen)
 		} else {
-			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 3 - fail", congo.ColorYellow)
-			/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Host Alert triggered...", congo.ColorRed)
-			trg.GetHost().SetAlert("Active Alert")
-			prgBonus := 0
-			if src.(*TPersona).CheckRunningProgram("Armor") {
-				prgBonus = prgBonus + 2
-			}
-			if src.(*TPersona).CheckRunningProgram("Defuse") {
-				prgBonus = prgBonus + 4
-			}
-			resistPool := src.(*TPersona).GetDeviceRating() + src.(*TPersona).GetDeviceFirewall() + prgBonus
-			resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
-			//остановиться и перебросить при необходимости
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(resistHits)+" of incomming Matrix damage has beeb resisted", congo.ColorGreen)
-			fullDamage := xd6Test(trg.GetDataBombRating())
-			if rgl == true {
-				fullDamage = fullDamage + 2
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Firewall error erupted...", congo.ColorYellow)
-			}
-			if rcgl == true {
-				addOverwatchScore(xd6Test(trg.GetDataBombRating()))
-				fullDamage = fullDamage + xd6Test(trg.GetDataBombRating())
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Danger!! Critical error erupted...", congo.ColorRed)
-			}
-
-			realDamage := fullDamage - resistHits
-			if realDamage < 0 {
-				realDamage = 0
-			}
-			src.(*TPersona).ReceiveMatrixDamage(realDamage)
-			//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(*TPersona).GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)*/
-			src.(*TPersona).TriggerDataBomb(trg.GetDataBombRating())
-			trg.SetDataBombRating(0)
-			canSee := src.(*TPersona).canSee.KnownData[trg.GetID()]
-			canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за рейтинг бомбы
-			src.(*TPersona).canSee.KnownData[trg.GetID()] = canSee
-
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("...Databomb installation failed", congo.ColorGreen)
 		}
 	}
 
@@ -2934,7 +3062,7 @@ func Edit(src IObj, trg IObj) {
 			addOverwatchScore(40)
 		}
 		if persona.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Begin Edit process...", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Enable Edit mode...", congo.ColorGreen)
 			if gl {
 				congo.WindowsMap.ByTitle["Log"].WPrintLn("...unexpected error ocured", congo.ColorYellow)
 			}
@@ -2969,30 +3097,35 @@ func Edit(src IObj, trg IObj) {
 				//Тут надо остановиться и спросить про перебросс
 
 				netHits := suc1 - suc2
-				addOverwatchScore(suc2)
+				//addOverwatchScore(suc2)
 				if netHits > 0 {
 					hold()
 					if comm[3] == "COPY" {
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("...copying", congo.ColorGreen)
+						hold()
 						copy := host.NewFile(file.GetFileName())
 						copy.SetFileName("Copy of " + file.GetFileName())
 						copy.SetDataBombRating(0)
 						copy.SetEncryptionRating(0)
 						copy.SetSize(file.GetSize())
-						copy.SetLastEditDate("STime")
+						copy.SetLastEditDate(STime)
 						copy.markSet.MarksFrom[persona.GetID()] = 4
-
-						data := persona.canSee.KnownData[copy.GetID()]
-						data[0] = "Spotted"
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(data[1], congo.ColorGreen)
-						data[1] = copy.GetLastEditDate()
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(data[3], congo.ColorGreen)
-						data[3] = ""
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(data[3], congo.ColorGreen)
-						data[12] = ""
-						data[13] = ""
-						data[15] = ""
-
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("...completed", congo.ColorGreen)
+						hold()
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("New file spotted:", congo.ColorGreen)
+						hold()
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("Icon: "+copy.GetName(), congo.ColorGreen)
+						hold()
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("File Name: "+copy.GetFileName(), congo.ColorGreen)
+						hold()
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("File Size: "+strconv.Itoa(copy.GetSize())+" Mp", congo.ColorGreen)
+						hold()
+						congo.WindowsMap.ByTitle["Log"].WPrintLn("File Owner: "+persona.GetName(), congo.ColorGreen)
+						hold()
+					} else if comm[3] == "DELETE" {
+						host.DeleteFile(file)
 					}
+
 					//file.kno
 					//удалось
 				} else {
@@ -4015,6 +4148,7 @@ func MatrixSearch(src IObj, trg IObj) {
 
 			//			congo.WindowsMap.ByTitle["Log"].WPrintLn(gridList[0].(*TGrid).GetName(), congo.ColorGreen)
 			ImportHostFromDB(hostName)
+
 			//player.grid.NewHost(name, rating)
 		} else {
 			player.grid.NewHost(hostName, 0) // -создаем всегда третий хост

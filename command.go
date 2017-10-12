@@ -264,6 +264,7 @@ func checkValidTarget(mActionName string) (trgtType []string, valid bool) {
 		trgtType = append(trgtType, "Icon")
 		trgtType = append(trgtType, "Host")
 		trgtType = append(trgtType, "Grid")
+		trgtType = append(trgtType, "File")
 		valid = true
 	case "CRACK_FILE":
 		trgtType = append(trgtType, "File")

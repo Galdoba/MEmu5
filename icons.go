@@ -184,6 +184,7 @@ type TIcon struct {
 	grid            TGrid
 	lastLocation    TGrid
 	host            *THost
+	device          *TDevice
 	simSence        string
 	silentMode      bool
 	initiative      int
@@ -224,11 +225,23 @@ type IIcon interface {
 	GetLastSureOS() int
 	SetLastSureOS(int)
 	GetLongAct() int
+	GetDeviceRating() int
+	GetFirewall() int
 }
 
 //GetOverwatchScore -
 func (i *TIcon) GetOverwatchScore() int {
 	return i.grid.overwatchScore
+}
+
+//GetDeviceRating -
+func (i *TIcon) GetDeviceRating() int {
+	return i.device.deviceRating
+}
+
+//GetFirewall -
+func (i *TIcon) GetFirewall() int {
+	return i.device.firewall
 }
 
 //SetOverwatchScore -
@@ -701,9 +714,9 @@ type TDevice struct {
 //IDevice -
 type IDevice interface {
 	IIcon
-	GetDeviceRating() int
+	//GetDeviceRating() int
 	GetDataProcessing() int
-	GetFirewall() int
+	//GetFirewall() int
 	GetMatrixCM() int
 	SetMatrixCM(int)
 	GetAttack() int
@@ -1009,7 +1022,7 @@ type TPersona struct {
 type IPersona interface {
 	IIcon
 	//IsPlayer() bool
-	GetDeviceRating() int
+	//GetDeviceRating() int
 	GetMatrixCM() int
 	GetHackingSkill() int
 	GetCyberCombatSkill() int
@@ -1056,6 +1069,7 @@ type IPersona interface {
 	CheckRunningProgram(string) bool
 	GetPhysicalLocation() bool
 	SetPhysicalLocation(bool)
+	TriggerDataBomb(int)
 	//GetInitiative() int
 	//SetInitiative(int)
 
@@ -2031,6 +2045,7 @@ func (h *THost) NewFile(name string) *TFile {
 	f.owner = h.GetName()
 	f.host = h
 	f.grid = h.grid
+	f.device = addDevice("noDevice")
 	f.name = f.GetType() + " " + strconv.Itoa(id)
 	enRat, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.dataProcessing, 0)
 	f.encryptionRating = enRat

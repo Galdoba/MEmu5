@@ -50,7 +50,9 @@ func AddDevice() *TDeviceDB {
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
-
+	//////////////
+	DB.DeviceDB["noDevice"] = &TDevice{}
+	DB.DeviceDB["Sony CIY-720"].deviceType = "noDevice"
 	//DB.DeviceDB["Erika MCD-1"].software.programName[0] = "c"
 	//DB.DeviceDB["Erika MCD-1"].programs = 1
 	return &DB
