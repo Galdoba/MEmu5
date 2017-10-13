@@ -44,12 +44,12 @@ func refreshPersonaWin() {
 	}
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn("Total loaded programs: "+strconv.Itoa(loadedPrgsQty), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Attribute Array: ", congo.ColorGreen)
-	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(strconv.Itoa(player.GetDeviceAttack())+" "+strconv.Itoa(player.GetDeviceSleaze())+" "+strconv.Itoa(player.GetDeviceDataProcessing())+" "+strconv.Itoa(player.GetDeviceFirewall()), congo.ColorGreen)
+	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(strconv.Itoa(player.GetAttack())+" "+strconv.Itoa(player.GetSleaze())+" "+strconv.Itoa(player.GetDataProcessing())+" "+strconv.Itoa(player.GetFirewall()), congo.ColorGreen)
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona MCM: " + strconv.Itoa(objectList[0].(IPersona).GetMatrixCM()), congo.ColorYellow)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Att  : "+strconv.Itoa(player.GetDeviceAttack()), congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slz  : "+strconv.Itoa(player.GetDeviceSleaze()), congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" DtPr : "+strconv.Itoa(player.GetDeviceDataProcessing()), congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Fwll : "+strconv.Itoa(player.GetDeviceFirewall()), congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Att  : "+strconv.Itoa(player.GetAttack()), congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slz  : "+strconv.Itoa(player.GetSleaze()), congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" DtPr : "+strconv.Itoa(player.GetDataProcessing()), congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Fwll : "+strconv.Itoa(player.GetFirewall()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--------------------------------------", congo.ColorDefault)
 	col := congo.ColorDefault
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Condition Monitor:", congo.ColorGreen)

@@ -12,6 +12,12 @@ type TGrid struct {
 //IGrid - в икону входят файлы, персоны, айсы и хосты
 type IGrid interface {
 	IObj
+	IGridOnly
+}
+
+//ToDo: перенести DeviceRating в TObj
+
+type IGridOnly interface {
 	GetGridName() string
 	GetDeviceRating() int
 	GetOverwatchScore() int

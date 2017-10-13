@@ -181,10 +181,11 @@ func pickObjByID(id int) IObj {
 //TIcon - в икону входят файлы, персоны, айсы и хосты
 type TIcon struct {
 	TObj
-	grid            TGrid
-	lastLocation    TGrid
-	host            *THost
-	device          *TDevice
+	grid         TGrid
+	lastLocation TGrid
+	host         *THost
+	device       *TDevice
+
 	simSence        string
 	silentMode      bool
 	initiative      int
@@ -199,6 +200,11 @@ type TIcon struct {
 //IIcon - в икону входят файлы, персоны, айсы и хосты
 type IIcon interface {
 	IObj
+	IIconOnly
+}
+
+//IIcon - в икону входят файлы, персоны, айсы и хосты
+type IIconOnly interface {
 	GetSilentRunningMode() bool
 	SetSilentRunningMode(bool)
 	GetGrid() TGrid
@@ -225,8 +231,32 @@ type IIcon interface {
 	GetLastSureOS() int
 	SetLastSureOS(int)
 	GetLongAct() int
+	GetDevice() *TDevice
 	GetDeviceRating() int
+	GetAttack() int
+	GetSleaze() int
+	GetDataProcessing() int
 	GetFirewall() int
+	CheckRunningProgram(string) bool
+	ResistMatrixDamage(int) int
+}
+
+//CheckRunningProgram -
+func (i *TIcon) CheckRunningProgram(name string) bool {
+	//return false
+	noDevice := i.GetDevice() //.GetSoftwareList()
+	if noDevice == nil {
+		i.device = addDevice("noDevice")
+	}
+	for j := range i.GetDevice().GetSoftwareList().programName {
+		if i.GetDevice().software.programName[j] == name {
+			if i.device.software.programStatus[j] == "Running" {
+				return true
+				//test.programName[0] = test.programName[0] + "__"
+			}
+		}
+	}
+	return false
 }
 
 //GetOverwatchScore -
@@ -234,14 +264,211 @@ func (i *TIcon) GetOverwatchScore() int {
 	return i.grid.overwatchScore
 }
 
+//GetDevice -
+func (i *TIcon) GetDevice() *TDevice {
+	return i.device
+}
+
 //GetDeviceRating -
 func (i *TIcon) GetDeviceRating() int {
 	return i.device.deviceRating
 }
 
+//GetAttack -
+func (i *TIcon) GetAttack() int {
+	boost := 0
+	if i.CheckRunningProgram("Decryption") {
+		boost = 1
+	}
+	att := i.device.attack + i.device.attackMod + boost
+	if att < 0 {
+		return 0
+	}
+	return att
+}
+
+//GetAttackMod -
+func (i *TIcon) GetAttackMod() int {
+	return i.device.attackMod
+}
+
+//GetAttackRaw -
+func (i *TIcon) GetAttackRaw() int {
+	return i.device.attack
+}
+
+//SetAttack -
+func (i *TIcon) SetAttack(newAttack int) {
+	i.device.attack = newAttack
+} //Возможно не нужен
+
+//SetAttackMod -
+func (i *TIcon) SetAttackMod(newAttack int) {
+	i.device.attackMod = newAttack
+}
+
+//SetAttackRaw -
+func (i *TIcon) SetAttackRaw(newAttack int) {
+	i.device.attack = newAttack
+}
+
+//GetSleaze -
+func (i *TIcon) GetSleaze() int {
+	boost := 0
+	if i.CheckRunningProgram("Stealth") {
+		boost = 1
+	}
+	slz := i.device.sleaze + i.device.sleazeMod + boost
+	if slz < 0 {
+		return 0
+	}
+	return slz
+}
+
+//GetSleazeMod -
+func (i *TIcon) GetSleazeMod() int {
+	return i.device.sleazeMod
+}
+
+//GetSleazeRaw -
+func (i *TIcon) GetSleazeRaw() int {
+	return i.device.sleaze
+}
+
+//SetSleaze -
+func (i *TIcon) SetSleaze(newSleaze int) {
+	i.device.sleaze = newSleaze
+}
+
+//SetSleazeMod -
+func (i *TIcon) SetSleazeMod(newSleaze int) {
+	i.device.sleazeMod = newSleaze
+}
+
+//SetSleazeRaw -
+func (i *TIcon) SetSleazeRaw(newSleaze int) {
+	i.device.sleaze = newSleaze
+}
+
+//GetDataProcessing -
+func (i *TIcon) GetDataProcessing() int {
+	boost := 0
+	if i.CheckRunningProgram("Toolbox") {
+		boost = 1
+	}
+	dtp := i.device.dataProcessing + i.device.dataProcessingMod + boost
+	if dtp < 0 {
+		return 0
+	}
+	return dtp
+}
+
+//GetDataProcessingMod -
+func (i *TIcon) GetDataProcessingMod() int {
+	return i.device.dataProcessingMod
+}
+
+//GetDataProcessingRaw -
+func (i *TIcon) GetDataProcessingRaw() int {
+	return i.device.dataProcessing
+}
+
+//SetDataProcessing -
+func (i *TIcon) SetDataProcessing(newDataProcessing int) {
+	i.device.dataProcessing = newDataProcessing
+}
+
+//SetDataProcessingMod -
+func (i *TIcon) SetDataProcessingMod(newDataProcessing int) {
+	i.device.dataProcessingMod = newDataProcessing
+}
+
+//SetDataProcessingRaw -
+func (i *TIcon) SetDataProcessingRaw(newDataProcessing int) {
+	i.device.dataProcessing = newDataProcessing
+}
+
 //GetFirewall -
 func (i *TIcon) GetFirewall() int {
+	boost := 0
+	if i.CheckRunningProgram("Encryption") {
+		boost = 1
+	}
+	fwl := i.device.firewall + i.device.firewallMod + boost
+	if fwl < 0 {
+		return 0
+	}
+	return fwl
+}
+
+//GetFirewallMod -
+func (i *TIcon) GetFirewallMod() int {
+	return i.device.firewallMod
+}
+
+//GetFirewallRaw -
+func (i *TIcon) GetFirewallRaw() int {
 	return i.device.firewall
+}
+
+//SetFirewall -
+func (i *TIcon) SetFirewall(newFirewall int) {
+	i.device.firewall = newFirewall
+}
+
+//SetFirewallMod -
+func (i *TIcon) SetFirewallMod(newFirewallMod int) {
+	i.device.firewallMod = i.device.firewallMod + newFirewallMod
+}
+
+//SetFirewallRaw -
+func (i *TIcon) SetFirewallRaw(newFirewall int) {
+	i.device.firewall = newFirewall
+}
+
+//ResistMatrixDamage -
+func (i *TIcon) ResistMatrixDamage(damage int) int {
+	resistDicePool := 0
+	resistDicePool = resistDicePool + i.GetDeviceRating()
+	resistDicePool = resistDicePool + i.GetFirewall()
+	if i.CheckRunningProgram("Shell") {
+		resistDicePool = resistDicePool + 1
+		if i.GetFaction() == player.GetFaction() {
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
+		}
+	}
+	if i.CheckRunningProgram("Armor") {
+		resistDicePool = resistDicePool + 2
+		if i.GetFaction() == player.GetFaction() {
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
+		}
+	}
+	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
+	realDamage := damage - damageSoak
+	if gl {
+		if i.GetFaction() == player.GetFaction() {
+			realDamage = realDamage + 2
+			congo.WindowsMap.ByTitle["Log"].WPrintLn(i.GetName()+": Firewall glitch detected!", congo.ColorYellow)
+			hold()
+		}
+	}
+	if cgl {
+		if i.GetFaction() == player.GetFaction() {
+			realDamage = realDamage + 2
+			addOverwatchScoreToTarget(40)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn(i.GetName()+": Firewall critical failure!", congo.ColorRed)
+			hold()
+		}
+	}
+	if realDamage < 0 {
+		realDamage = 0
+	}
+
+	if i.GetFaction() == player.GetFaction() {
+		congo.WindowsMap.ByTitle["Log"].WPrintLn(i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+		hold()
+	}
+	return realDamage
 }
 
 //SetOverwatchScore -
@@ -409,13 +636,13 @@ func (i *TIcon) LockIcon(icon IIcon) {
 }
 
 //UnlockIcon -
-func (i *TIcon) UnlockIcon(icon IIcon) {
+func (i *TIcon) UnlockIcon(icon IObj) {
 	icon.GetLinkLockStatus().LockedByID[i.id] = false
 }
 
 //ReceiveMatrixDamage -
 func (i *TIcon) ReceiveMatrixDamage(damage int) {
-	panic("abstract function call: ReceiveMatrixDamage()")
+	printLog("...error: this icon type is immune to Matrix Damage", congo.ColorYellow)
 }
 
 //GetLongAct -
@@ -697,7 +924,7 @@ type TDevice struct {
 	firewallMod        int
 	maxRunningPrograms int
 	curRunningPrograms int
-	software           TProgram
+	software           *TProgram
 	//storedPrograms
 	modifications []string
 	matrixCM      int
@@ -715,12 +942,12 @@ type TDevice struct {
 type IDevice interface {
 	IIcon
 	//GetDeviceRating() int
-	GetDataProcessing() int
+	//GetDataProcessing() int
 	//GetFirewall() int
 	GetMatrixCM() int
 	SetMatrixCM(int)
-	GetAttack() int
-	GetSleaze() int
+	//GetAttack() int
+	//GetSleaze() int
 	GetModel() string
 	GetSoftwareList() *TProgram
 }
@@ -747,7 +974,7 @@ func NewDevice(model string, rating int) *TDevice {
 	d.maxRunningPrograms = d.deviceRating
 	//d.software = make([]TProgram, 20)
 	//add all soft:
-
+	//d.software = preaparePrograms()
 	//d.software.programName = append(d.software.programName, "brows")
 	d.markSet.MarksFrom = make(map[int]int)
 	d.markSet.MarksFrom[d.GetID()] = 4
@@ -811,7 +1038,7 @@ func (d *TDevice) GetMaxRunningPrograms() int {
 
 //GetSoftwareList -
 func (d *TDevice) GetSoftwareList() *TProgram {
-	return &d.software
+	return d.software
 }
 
 func addDevice(model string) *TDevice {
@@ -994,7 +1221,7 @@ type TPersona struct {
 	name             string
 	alias            string
 	userMode         string
-	device           TDevice
+	device           *TDevice
 	computerSkill    int
 	hackingSkill     int
 	softwareSkill    int
@@ -1033,18 +1260,18 @@ type IPersona interface {
 	GetWillpower() int
 	GetLogic() int
 	GetIntuition() int
-	GetDeviceAttack() int
-	GetDeviceAttackMod() int
-	GetDeviceAttackRaw() int
-	GetDeviceSleaze() int
-	GetDeviceSleazeMod() int
-	GetDeviceSleazeRaw() int
-	GetDeviceDataProcessing() int
-	GetDeviceDataProcessingMod() int
-	GetDeviceDataProcessingRaw() int
-	GetDeviceFirewall() int
-	GetDeviceFirewallMod() int
-	GetDeviceFirewallRaw() int
+	/*GetAttack() int
+	GetAttackMod() int
+	GetAttackRaw() int
+	GetSleaze() int
+	GetSleazeMod() int
+	GetSleazeRaw() int
+	GetDataProcessing() int
+	GetDataProcessingMod() int
+	GetDataProcessingRaw() int
+	GetFirewall() int
+	GetFirewallMod() int
+	GetFirewallRaw() int
 	SetDeviceAttack(int)
 	SetDeviceAttackMod(int)
 	SetDeviceAttackRaw(int)
@@ -1056,7 +1283,7 @@ type IPersona interface {
 	SetDeviceDataProcessingRaw(int)
 	SetDeviceFirewall(int)
 	SetDeviceFirewallMod(int)
-	SetDeviceFirewallRaw(int)
+	SetDeviceFirewallRaw(int)*/
 	SetMatrixCM(int)
 	GetAlias() string
 	GetStunCM() int
@@ -1066,7 +1293,7 @@ type IPersona interface {
 	Dumpshock()
 	IsConnected() bool
 	SetConnection(bool)
-	CheckRunningProgram(string) bool
+	//CheckRunningProgram(string) bool
 	GetPhysicalLocation() bool
 	SetPhysicalLocation(bool)
 	TriggerDataBomb(int)
@@ -1083,7 +1310,7 @@ func NewPlayer(alias string, d string) *TPersona {
 	p.name = alias
 	p.faction = alias
 	p.alias = alias
-	p.device = *addDevice(d)
+	p.device = addDevice(d)
 	//r := rand.Intn(len(gridList))
 	p.grid = *gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
 	p.maxMatrixCM = p.device.GetMatrixCM()
@@ -1137,7 +1364,7 @@ func (p *TPersona) GetFaction() string {
 
 //GetDevice -
 func (p *TPersona) GetDevice() *TDevice {
-	return &p.device
+	return p.device
 }
 
 //GetAlias -
@@ -1217,11 +1444,11 @@ func (p *TPersona) GetDeviceRating() int {
 
 //GetDeviceSoft -
 func (p *TPersona) GetDeviceSoft() *TProgram {
-	return &p.device.software
+	return p.device.software
 }
 
-//GetDeviceAttack -
-func (p *TPersona) GetDeviceAttack() int {
+//GetAttack -
+func (p *TPersona) GetAttack() int {
 	boost := 0
 	if p.CheckRunningProgram("Decryption") {
 		boost = 1
@@ -1233,13 +1460,13 @@ func (p *TPersona) GetDeviceAttack() int {
 	return att
 }
 
-//GetDeviceAttackMod -
-func (p *TPersona) GetDeviceAttackMod() int {
+//GetAttackMod -
+func (p *TPersona) GetAttackMod() int {
 	return p.device.attackMod
 }
 
-//GetDeviceAttackRaw -
-func (p *TPersona) GetDeviceAttackRaw() int {
+//GetAttackRaw -
+func (p *TPersona) GetAttackRaw() int {
 	return p.device.attack
 }
 
@@ -1258,8 +1485,8 @@ func (p *TPersona) SetDeviceAttackRaw(newAttack int) {
 	p.device.attack = newAttack
 }
 
-//GetDeviceSleaze -
-func (p *TPersona) GetDeviceSleaze() int {
+//GetSleaze -
+func (p *TPersona) GetSleaze() int {
 	boost := 0
 	if p.CheckRunningProgram("Stealth") {
 		boost = 1
@@ -1271,13 +1498,13 @@ func (p *TPersona) GetDeviceSleaze() int {
 	return slz
 }
 
-//GetDeviceSleazeMod -
-func (p *TPersona) GetDeviceSleazeMod() int {
+//GetSleazeMod -
+func (p *TPersona) GetSleazeMod() int {
 	return p.device.sleazeMod
 }
 
-//GetDeviceSleazeRaw -
-func (p *TPersona) GetDeviceSleazeRaw() int {
+//GetSleazeRaw -
+func (p *TPersona) GetSleazeRaw() int {
 	return p.device.sleaze
 }
 
@@ -1296,26 +1523,26 @@ func (p *TPersona) SetDeviceSleazeRaw(newSleaze int) {
 	p.device.sleaze = newSleaze
 }
 
-//GetDeviceDataProcessing -
-func (p *TPersona) GetDeviceDataProcessing() int {
+//GetDataProcessing -
+func (p *TPersona) GetDataProcessing() int {
 	boost := 0
 	if p.CheckRunningProgram("Toolbox") {
 		boost = 1
 	}
-	dtp := p.device.dataProcessing + p.GetDeviceDataProcessingMod() + boost
+	dtp := p.device.dataProcessing + p.GetDataProcessingMod() + boost
 	if dtp < 0 {
 		return 0
 	}
 	return dtp
 }
 
-//GetDeviceDataProcessingMod -
-func (p *TPersona) GetDeviceDataProcessingMod() int {
+//GetDataProcessingMod -
+func (p *TPersona) GetDataProcessingMod() int {
 	return p.device.dataProcessingMod
 }
 
-//GetDeviceDataProcessingRaw -
-func (p *TPersona) GetDeviceDataProcessingRaw() int {
+//GetDataProcessingRaw -
+func (p *TPersona) GetDataProcessingRaw() int {
 	return p.device.dataProcessing
 }
 
@@ -1334,8 +1561,8 @@ func (p *TPersona) SetDeviceDataProcessingRaw(newDataProcessing int) {
 	p.device.dataProcessing = newDataProcessing
 }
 
-//GetDeviceFirewall -
-func (p *TPersona) GetDeviceFirewall() int {
+//GetFirewall -
+func (p *TPersona) GetFirewall() int {
 	boost := 0
 	if p.CheckRunningProgram("Encryption") {
 		boost = 1
@@ -1347,13 +1574,13 @@ func (p *TPersona) GetDeviceFirewall() int {
 	return fwl
 }
 
-//GetDeviceFirewallMod -
-func (p *TPersona) GetDeviceFirewallMod() int {
+//GetFirewallMod -
+func (p *TPersona) GetFirewallMod() int {
 	return p.device.firewallMod
 }
 
-//GetDeviceFirewallRaw -
-func (p *TPersona) GetDeviceFirewallRaw() int {
+//GetFirewallRaw -
+func (p *TPersona) GetFirewallRaw() int {
 	return p.device.firewall
 }
 
@@ -1539,7 +1766,7 @@ func (p *TPersona) Dumpshock() {
 			p.CrashProgram(prgs[i])
 		}
 	}
-	dp1 := p.GetWillpower() + p.GetDeviceFirewall()
+	dp1 := p.GetWillpower() + p.GetFirewall()
 	suc1, gl, cgl := simpleTest(dp1, 1000, 0)
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Dumpshock imminent!!", congo.ColorRed)
 	biofeedbackDamage := 6 - suc1
@@ -1769,7 +1996,7 @@ func (p *TPersona) ReceiveStunBiofeedbackDamage(damage int) {
 func (p *TPersona) ResistMatrixDamage(damage int) int {
 	resistDicePool := 0
 	resistDicePool = resistDicePool + p.GetDeviceRating()
-	resistDicePool = resistDicePool + p.GetDeviceFirewall()
+	resistDicePool = resistDicePool + p.GetFirewall()
 	if p.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if p.GetFaction() == player.GetFaction() {
@@ -1814,7 +2041,7 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 	resistDicePool := 0
 	resistDicePool = resistDicePool + p.GetWillpower()
-	resistDicePool = resistDicePool + p.GetDeviceFirewall()
+	resistDicePool = resistDicePool + p.GetFirewall()
 	if p.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if p.GetFaction() == player.GetFaction() {
@@ -1935,7 +2162,7 @@ func (p *TPersona) TriggerDataBomb(bombRating int) {
 	if p.CheckRunningProgram("Defuse") {
 		prgBonus = prgBonus + 4
 	}
-	resistPool := p.GetDeviceRating() + p.GetDeviceFirewall() + prgBonus
+	resistPool := p.GetDeviceRating() + p.GetFirewall() + prgBonus
 	resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
 	//остановиться и перебросить при необходимости
 
@@ -2196,4 +2423,44 @@ func (f *TFile) GetHost() *THost {
 //GetLongAct -
 func (p *TPersona) GetLongAct() int {
 	return p.searchLen
+}
+
+//GetDeviceRating -
+func (f *TFile) GetDeviceRating() int {
+	if f.device.deviceType == "noDevice" {
+		return f.host.deviceRating
+	}
+	return f.device.deviceRating
+}
+
+//GetAttack -
+func (f *TFile) GetAttack() int {
+	if f.device.deviceType == "noDevice" {
+		return f.host.attack
+	}
+	return f.device.attack
+}
+
+//GetSleaze -
+func (f *TFile) GetSleaze() int {
+	if f.device.deviceType == "noDevice" {
+		return f.host.sleaze
+	}
+	return f.device.sleaze
+}
+
+//GetDataProcessing -
+func (f *TFile) GetDataProcessing() int {
+	if f.device.deviceType == "noDevice" {
+		return f.host.dataProcessing
+	}
+	return f.device.dataProcessing
+}
+
+//GetFirewall -
+func (f *TFile) GetFirewall() int {
+	if f.device.deviceType == "noDevice" {
+		return f.host.firewall
+	}
+	return f.device.firewall
 }

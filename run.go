@@ -57,7 +57,7 @@ func initialize() {
 	congo.InitWindowsMap()
 	InitDeviceDatabase()
 	DeviseMap := AddDevice()
-	if DeviseMap == nil {
+	if DeviseMap.DeviceDB == nil {
 		panic("INITIATE ERROR: Device map must not be NIL...")
 	}
 	InitMatrixActionMap()

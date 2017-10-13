@@ -21,7 +21,7 @@ import (
 	"github.com/Galdoba/ConGo/congo"
 )
 
-//DicePool - 
+//DicePool -
 type DicePool struct {
 	pool     []int
 	isOk     bool
@@ -43,12 +43,12 @@ func setSeed() {
 func (dp *DicePool) roll() {
 	assert(dp.isOk, "DicePool not initialized")
 	setSeed()
-	windowList[5].(*congo.TWindow).WPrint("& ", congo.ColorGreen)	
+	windowList[5].(*congo.TWindow).WPrint("& ", congo.ColorGreen)
 	for i := range dp.pool {
 		dp.pool[i] = rand.Intn(6) + 1
 		if src, ok := SourceIcon.(IPersona); ok {
-			windowList[5].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i]) +  " ", congo.ColorGreen)
-			src.(IPersona).GetID()
+			windowList[5].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i])+" ", congo.ColorGreen)
+			src.(IObj).GetID()
 		}
 	}
 	windowList[5].(*congo.TWindow).WPrint("# ", congo.ColorGreen)
@@ -99,7 +99,7 @@ func (dp *DicePool) summ() int {
 	for i := range dp.pool {
 		xd6 = dp.pool[i]
 		total = total + xd6
-	//	windowList[0].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i])+" ", congo.ColorGreen)
+		//	windowList[0].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i])+" ", congo.ColorGreen)
 	}
 	//windowList[0].(*congo.TWindow).WPrintLn(" ", congo.ColorGreen)
 	//fmt.Println(xd6)

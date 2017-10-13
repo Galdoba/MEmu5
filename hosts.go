@@ -37,8 +37,9 @@ type THost struct {
 
 //IHost - в икону входят файлы, персоны, айсы и хосты
 type IHost interface {
-	IGrid
-	//IIcon
+	IObj
+	IGridOnly
+	IIconOnly
 	LoadNextIC() bool
 	SetID()
 	GetHostAlertStatus() string

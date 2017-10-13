@@ -130,3 +130,12 @@ func forwardShadowrunTime() string {
 
 	testObj.GetName()
 }*/
+
+func placeMARK(source, target IObj) {
+	currentMARKS := target.GetMarkSet().MarksFrom[source.GetID()]
+	currentMARKS++
+	if currentMARKS > 3 {
+		currentMARKS = 3
+	}
+	target.GetMarkSet().MarksFrom[source.GetID()] = currentMARKS
+}

@@ -15,7 +15,7 @@ func InitDeviceDatabase() {
 }
 
 //AddDevice -
-func AddDevice() *TDeviceDB {
+func AddDevice() TDeviceDB {
 	DB.DeviceDB["Camera3"] = &TDevice{}
 	DB.DeviceDB["Camera3"].SetDataProcessing(3)
 	////////////////////////
@@ -33,7 +33,7 @@ func AddDevice() *TDeviceDB {
 	DB.DeviceDB["Erika MCD-1"].maxMatrixCM = 9
 	DB.DeviceDB["Erika MCD-1"].matrixCM = 9
 	DB.DeviceDB["Erika MCD-1"].canSwapAtt = true
-	DB.DeviceDB["Erika MCD-1"].preaparePrograms()
+	DB.DeviceDB["Erika MCD-1"].software = preaparePrograms()
 	//////////////
 	DB.DeviceDB["Sony CIY-720"] = &TDevice{}
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
@@ -46,19 +46,24 @@ func AddDevice() *TDeviceDB {
 	DB.DeviceDB["Sony CIY-720"].maxMatrixCM = 10
 	DB.DeviceDB["Sony CIY-720"].matrixCM = 10
 	DB.DeviceDB["Sony CIY-720"].canSwapAtt = true
-	DB.DeviceDB["Sony CIY-720"].preaparePrograms()
+	DB.DeviceDB["Sony CIY-720"].software = preaparePrograms()
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
 	//////////////
 	DB.DeviceDB["noDevice"] = &TDevice{}
-	DB.DeviceDB["Sony CIY-720"].deviceType = "noDevice"
-	//DB.DeviceDB["Erika MCD-1"].software.programName[0] = "c"
-	//DB.DeviceDB["Erika MCD-1"].programs = 1
-	return &DB
+	DB.DeviceDB["noDevice"].deviceType = "noDevice"
+	DB.DeviceDB["noDevice"].software = preaparePrograms()
+
+	/*	DB.DeviceDB["noDevice"].software.programName = append(DB.DeviceDB["noDevice"].software.programName, "Browse")
+		DB.DeviceDB["noDevice"].software.programStatus = append(DB.DeviceDB["noDevice"].software.programStatus, "inStore")
+		DB.DeviceDB["noDevice"].software.programType = append(DB.DeviceDB["noDevice"].software.programType, "COMMON")*/
+	//DB.DeviceDB["noDevice"].software.programName[0] = "c"
+	//DB.DeviceDB["noDevice"].programs = 1
+	return DB
 }
 
-func (d *TDevice) preaparePrograms() {
+func preaparePrograms() *TProgram {
 	prgList := new(TProgram)
 	//Browse
 	prgList.programName = append(prgList.programName, "Browse")
@@ -226,6 +231,6 @@ func (d *TDevice) preaparePrograms() {
 	prgList.programType = append(prgList.programType, "HACKING")
 	///////////////////////////////////////////////////////////
 
-	d.software = *prgList
+	return prgList
 
 }
