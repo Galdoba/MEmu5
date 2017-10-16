@@ -29,17 +29,19 @@ type FieldOfView struct {
 
 //TObj -
 type TObj struct {
-	uType      string
-	id         int
-	markSet    MarkSet
-	canSee     FieldOfView
-	linklocked Locked
-	faction    string
+	uType        string
+	id           int
+	markSet      MarkSet
+	canSee       FieldOfView
+	linklocked   Locked
+	faction      string
+	deviceRating int
 }
 
 //IObj -
 type IObj interface {
 	GetID() int
+	SetID()
 	GetType() string
 	GetFaction() string
 	GetName() string
@@ -49,6 +51,15 @@ type IObj interface {
 	ChangeFOWParametr(int, int, string)
 	Scanable() bool
 	CountMarks() int
+	GetDeviceRating() int
+	SetDeviceRating(int)
+}
+
+//SetID -
+func (o *TObj) SetID() {
+	o.id = id
+	id = id + xd6Test(3)
+
 }
 
 //GetLinkLockStatus -
@@ -108,6 +119,16 @@ func (o *TObj) GetName() string {
 //GetID -
 func (o *TObj) GetID() int {
 	return o.id
+}
+
+//SetDeviceRating -
+func (o *TObj) SetDeviceRating(newDR int) {
+	o.deviceRating = newDR
+}
+
+//GetDeviceRating -
+func (o *TObj) GetDeviceRating() int {
+	return o.deviceRating
 }
 
 //GetMarkSet -
@@ -203,17 +224,19 @@ type IIcon interface {
 	IIconOnly
 }
 
+var _ IIcon = (*TIcon)(nil)
+
 //IIcon - в икону входят файлы, персоны, айсы и хосты
 type IIconOnly interface {
 	GetSilentRunningMode() bool
 	SetSilentRunningMode(bool)
 	GetGrid() TGrid
-	GetGridName() string
+	//GetGridName() string
 	SetGrid(TGrid)
 	GetHost() *THost
 	SetHost(*THost)
 	//GetID() int
-	SetID()
+	//SetID()
 	GetInitiative() int
 	SetInitiative(int)
 	GetSimSence() string
@@ -228,11 +251,11 @@ type IIconOnly interface {
 	ToggleConnection()
 	GetOverwatchScore() int
 	SetOverwatchScore(int)
-	GetLastSureOS() int
-	SetLastSureOS(int)
+	//GetLastSureOS() int
+	//SetLastSureOS(int)
 	GetLongAct() int
 	GetDevice() *TDevice
-	GetDeviceRating() int
+	//GetDeviceRating() int
 	GetAttack() int
 	GetSleaze() int
 	GetDataProcessing() int
@@ -569,8 +592,8 @@ func (i *TIcon) SetGrid(grid TGrid) {
 }
 
 //GetHost -
-func (i *TIcon) GetHost() THost {
-	return *i.host
+func (i *TIcon) GetHost() *THost {
+	return i.host
 }
 
 //SetHost -
@@ -636,7 +659,7 @@ func (i *TIcon) LockIcon(icon IIcon) {
 }
 
 //UnlockIcon -
-func (i *TIcon) UnlockIcon(icon IObj) {
+func (i *TIcon) UnlockIcon(icon IIcon) {
 	icon.GetLinkLockStatus().LockedByID[i.id] = false
 }
 
@@ -1260,6 +1283,7 @@ type IPersona interface {
 	GetWillpower() int
 	GetLogic() int
 	GetIntuition() int
+
 	/*GetAttack() int
 	GetAttackMod() int
 	GetAttackRaw() int

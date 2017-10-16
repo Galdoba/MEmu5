@@ -2504,14 +2504,14 @@ func BruteForce(src IObj, trg IObj) {
 	text := command
 	text = formatString(text)
 	text = cleanText(text)
-	comm := strings.SplitN(text, ">", 5)
+	//comm := strings.SplitN(text, ">", 5)
 	attMod := 0
-	if comm[3] == "2" {
+	/*if comm[3] == "2" && len(comm) > 4 {
 		attMod = -4
 	}
-	if comm[3] == "3" {
+	if comm[3] == "3" && len(comm) > 4 {
 		attMod = -10
-	}
+	}*/
 
 	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic() + attMod
 	limit := persona.GetAttack()
@@ -2529,7 +2529,10 @@ func BruteForce(src IObj, trg IObj) {
 	}
 	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
 	if icon, ok := trg.(IIcon); ok {
+		host := icon.GetHost()
 		dp2 := icon.GetDeviceRating() + icon.GetFirewall()
+		printLog(strconv.Itoa(icon.GetDeviceRating())+" Device Rating", congo.ColorDefault)
+		printLog(strconv.Itoa(icon.GetFirewall())+" Firewall", congo.ColorDefault)
 		suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
 		addOverwatchScore(suc2)
 		if rgl == true {
@@ -2539,6 +2542,7 @@ func BruteForce(src IObj, trg IObj) {
 			addOverwatchScore(-dp2)
 		}
 		netHits = suc1 - suc2
+		printLog(icon.GetName(), congo.ColorDefault)
 		printLog(strconv.Itoa(icon.GetDeviceRating())+" File DR", congo.ColorDefault)
 		if netHits > 0 {
 			placeMARK(persona, icon)
@@ -2547,12 +2551,16 @@ func BruteForce(src IObj, trg IObj) {
 				realDamage := icon.ResistMatrixDamage(damage)
 				icon.ReceiveMatrixDamage(realDamage)
 			}
+			if host.GetHostAlertStatus() == "No Alert" {
+				host.alert = "Passive Alert"
+			}
 		} else {
 			persona.ReceiveMatrixDamage(-netHits)
 		}
 	}
-	if host, ok := trg.(*THost); ok {
+	if host, ok := trg.(IHost); ok {
 		printLog("Diong HOST"+host.GetName(), congo.ColorDefault)
+		host.(IIcon).GetName()
 	}
 
 	//attMod, defMod := getModifiers(src, trg)

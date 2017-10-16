@@ -2,6 +2,7 @@ package main
 
 import (
 	//"strconv"
+
 	"strings"
 
 	"github.com/Galdoba/ConGo/congo"
@@ -142,7 +143,7 @@ func checkSource(source string) bool {
 		//srcObj := objectList[i]
 		if srcObj, ok := objectList[i].(IPersona); ok {
 			//if srcObj.(IIcon).GetType() == "Persona" {
-			alias := string(srcObj.(*TPersona).GetName())
+			alias := string(srcObj.(IPersona).GetName())
 			alias = formatString(alias)
 			s := (hex.EncodeToString([]byte(source)))
 			a := (hex.EncodeToString([]byte(alias)))
@@ -165,7 +166,11 @@ func checkTarget(target, mActionName string) bool {
 	target = cleanText(target)
 	isGood := false
 	if mActionName == "GRID_HOP" || mActionName == "HACK_ON_THE_FLY" || mActionName == "BRUTE_FORCE" || mActionName == "ENTER_HOST" || mActionName == "MATRIX_PERCEPTION" {
+		if target == "TEST" {
+			printLog("Here be Dragon", congo.ColorDefault)
+		}
 		isGood = pickGrid(target, mActionName)
+
 	}
 
 	//var alias string
@@ -206,7 +211,7 @@ func checkTarget(target, mActionName string) bool {
 
 func pickHost(target, mActionName string) bool {
 	for i := range hostList {
-		trgObj := hostList[i]
+		trgObj := objectList[i]
 
 		if trgObj.(IObj).GetType() == "Host" {
 			alias := trgObj.(IObj).GetName()
@@ -221,33 +226,37 @@ func pickHost(target, mActionName string) bool {
 }
 
 func pickGrid(target, mActionName string) bool {
+	//printLog("target = "+target, congo.ColorDefault)
 	for i := range gridList {
 		//if host, ok := target.(*THost); ok {
 		trgGrid := gridList[i]
+		//printLog("Search = "+trgGrid.GetGridName(), congo.ColorDefault)
+		//printLog("ID = "+strconv.Itoa(trgGrid.GetID()), congo.ColorDefault)
 		if host, ok := trgGrid.(*THost); ok {
 			var alias string
 			alias = host.GetName()
 			alias = formatString(alias)
 			alias = cleanText(alias)
+			//		printLog("Search = "+alias, congo.ColorYellow)
 			if alias == target {
 				//congo.WindowsMap.ByTitle["Log"].WPrintLn(alias+" is found", congo.ColorYellow)
 
 				//check if access to grid is ok via MARKs
-				TargetIcon = gridList[i]
+				TargetIcon = gridList[i].(IObj)
 				return true
 			}
 		} else {
 
 			trgGrid := gridList[i]
 			var alias string
-			alias = trgGrid.(*TGrid).GetGridName()
+			alias = trgGrid.(IGrid).GetGridName()
 			alias = formatString(alias)
 			alias = cleanText(alias)
 			if alias == target {
 				//congo.WindowsMap.ByTitle["Log"].WPrintLn(alias+" is found", congo.ColorYellow)
 
 				//check if access to grid is ok via MARKs
-				TargetIcon = gridList[i]
+				TargetIcon = gridList[i].(IObj)
 				return true
 			}
 		}

@@ -3,8 +3,8 @@ package main
 //TGrid -
 type TGrid struct {
 	TObj
-	name           string
-	deviceRating   int
+	name string
+	//deviceRating   int
 	overwatchScore int
 	lastSureOS     int
 }
@@ -15,16 +15,18 @@ type IGrid interface {
 	IGridOnly
 }
 
+var _ IGrid = (*TGrid)(nil)
+
 //ToDo: перенести DeviceRating в TObj
 
 type IGridOnly interface {
 	GetGridName() string
-	GetDeviceRating() int
-	GetOverwatchScore() int
+	//GetDeviceRating() int
+	//GetOverwatchScore() int
 	GetLastSureOS() int
 	SetName(string)
-	SetDeviceRating(int)
-	SetOverwatchScore(int)
+	//SetDeviceRating(int)
+	//SetOverwatchScore(int)
 	SetLastSureOS(int)
 }
 

@@ -18,7 +18,7 @@ Host_IC:
 Host: Test
 Grid: Wuxing Worldwide
 Host_Atributes:
-  Rating: 5
+  Rating: 2
   Attack: 1
   Sleaze: 1
   Data Processing: 1

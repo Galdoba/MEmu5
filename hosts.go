@@ -41,14 +41,109 @@ type IHost interface {
 	IGridOnly
 	IIconOnly
 	LoadNextIC() bool
-	SetID()
+	//SetID()
 	GetHostAlertStatus() string
 	GatherMarks()
-	GiveMarks()
+	//GiveMarks()
 	SetAlert(string)
 	DeleteIC(*TIC) bool
 	DeleteFile(*TFile) bool
-	PickPatrolIC()
+	PickPatrolIC() *TIC
+}
+
+var _ IHost = (*THost)(nil)
+
+//CheckRunningProgram -
+func (h *THost) CheckRunningProgram(name string) bool {
+	return false
+}
+
+//GetConvergenceFlag -
+func (h *THost) GetConvergenceFlag() bool {
+	return false
+}
+
+//GetDevice -
+func (h *THost) GetDevice() *TDevice {
+	return nil
+}
+
+//GetHost -
+func (h *THost) GetHost() *THost {
+	return h
+}
+
+//GetInitiative -
+func (h *THost) GetInitiative() int {
+	return -1
+}
+
+//GetLongAct -
+func (h *THost) GetLongAct() int {
+	return -1
+}
+
+//GetOwner -
+func (h *THost) GetOwner() string {
+	return h.name
+}
+
+//GetSilentRunningMode -
+func (h *THost) GetSilentRunningMode() bool {
+	return false
+}
+
+//GetSimSence -
+func (h *THost) GetSimSence() string {
+	return "Hot-SIM VR"
+}
+
+//IsPlayer -
+func (h *THost) IsPlayer() bool {
+	return false
+}
+
+//ReceiveMatrixDamage -
+func (h *THost) ReceiveMatrixDamage(damage int) {
+	printLog("...error: this icon type is immune to Matrix Damage", congo.ColorYellow)
+}
+
+//ResistMatrixDamage -
+func (h *THost) ResistMatrixDamage(damage int) int {
+	return 0
+}
+
+//SetGrid -
+func (h *THost) SetGrid(grid TGrid) {
+	//h.lastLocation = h.grid
+	//h.grid = grid
+}
+
+//SetHost -
+func (h *THost) SetHost(host *THost) {
+	//h.lastLocation = h.grid
+	//h.grid = grid
+}
+
+//SetInitiative -
+func (h *THost) SetInitiative(int) {
+}
+
+//SetSilentRunningMode -
+func (h *THost) SetSilentRunningMode(bool) {
+}
+
+//SetSimSence -
+func (h *THost) SetSimSence(string) {
+}
+
+//ToggleConnection -
+func (h *THost) ToggleConnection() {
+}
+
+//ToggleConvergence -
+func (h *THost) ToggleConvergence() bool {
+	return false
 }
 
 //PickPatrolIC -
@@ -627,6 +722,7 @@ func ImportHostFromDB(hostName string) *THost {
 	player.canSee.KnownData[h.id] = data
 	h.FillHostWithFiles()
 	h.LoadNextIC()
+	printLog("Importing host: "+h.GetGridName(), congo.ColorDefault)
 	gridList = append(gridList, &h)
 	return &h
 }
