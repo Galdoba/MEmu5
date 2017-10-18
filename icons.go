@@ -179,7 +179,7 @@ func (o *TObj) Scanable() bool {
 }
 
 func pickObjByID(id int) IObj {
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn("len(ObjectList) = "+strconv.Itoa(len(objectList)), congo.ColorDefault)
+	//printLog("len(ObjectList) = "+strconv.Itoa(len(objectList)), congo.ColorDefault)
 
 	for i := 0; i < len(objectList); i++ {
 		if id == objectList[i].(IObj).GetID() {
@@ -457,13 +457,13 @@ func (i *TIcon) ResistMatrixDamage(damage int) int {
 	if i.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if i.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
 	if i.CheckRunningProgram("Armor") {
 		resistDicePool = resistDicePool + 2
 		if i.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
 	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
@@ -471,7 +471,7 @@ func (i *TIcon) ResistMatrixDamage(damage int) int {
 	if gl {
 		if i.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(i.GetName()+": Firewall glitch detected!", congo.ColorYellow)
+			printLog(i.GetName()+": Firewall glitch detected!", congo.ColorYellow)
 			hold()
 		}
 	}
@@ -479,7 +479,7 @@ func (i *TIcon) ResistMatrixDamage(damage int) int {
 		if i.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
 			addOverwatchScoreToTarget(40)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(i.GetName()+": Firewall critical failure!", congo.ColorRed)
+			printLog(i.GetName()+": Firewall critical failure!", congo.ColorRed)
 			hold()
 		}
 	}
@@ -488,7 +488,7 @@ func (i *TIcon) ResistMatrixDamage(damage int) int {
 	}
 
 	if i.GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+		printLog(i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
 		hold()
 	}
 	return realDamage
@@ -1687,7 +1687,7 @@ func (p *TPersona) GetMarkSet() MarkSet {
 	p.ClearMarks()
 	/*for i := range p.markSet.MarksFrom {
 		if pickObjByID(i) == nil {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on obj"+strconv.Itoa(i)+" = "+strconv.Itoa(p.markSet.MarksFrom[i]), congo.ColorYellow)
+			printLog("Mark on obj"+strconv.Itoa(i)+" = "+strconv.Itoa(p.markSet.MarksFrom[i]), congo.ColorYellow)
 			delete(p.markSet.MarksFrom, i)
 		}
 	}*/
@@ -1792,7 +1792,7 @@ func (p *TPersona) Dumpshock() {
 	}
 	dp1 := p.GetWillpower() + p.GetFirewall()
 	suc1, gl, cgl := simpleTest(dp1, 1000, 0)
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Dumpshock imminent!!", congo.ColorRed)
+	printLog("Warning!! Dumpshock imminent!!", congo.ColorRed)
 	biofeedbackDamage := 6 - suc1
 	if gl {
 		biofeedbackDamage = biofeedbackDamage + 2
@@ -1805,15 +1805,15 @@ func (p *TPersona) Dumpshock() {
 	}
 	if p.GetSimSence() == "Cold-SIM VR" {
 		p.SetStunCM(p.GetStunCM() - biofeedbackDamage)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(biofeedbackDamage)+" Stun Damage inflicted by Dumpshock...", congo.ColorRed)
+		printLog(strconv.Itoa(biofeedbackDamage)+" Stun Damage inflicted by Dumpshock...", congo.ColorRed)
 		if p.GetStunCM() < 0 {
 			physDamage := p.GetStunCM() / -2
 			p.SetPhysCM(p.GetPhysCM() - physDamage)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(physDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
+			printLog(strconv.Itoa(physDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
 		}
 	} else if p.GetSimSence() == "Hot-SIM VR" {
 		p.SetPhysCM(p.GetPhysCM() - biofeedbackDamage)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(biofeedbackDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
+		printLog(strconv.Itoa(biofeedbackDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
 
 	}
 	p.SetSimSence("Offline")
@@ -1891,11 +1891,11 @@ func (p *TPersona) LoadProgram(name string) bool {
 				if p.device.software.programStatus[i] == "inStore" {
 					p.device.software.programStatus[i] = "Running"
 				} else {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Program '"+name+"' is "+p.device.software.programStatus[i], congo.ColorYellow)
+					printLog("Error: Program '"+name+"' is "+p.device.software.programStatus[i], congo.ColorYellow)
 				}
 				p.device.software.programStatus[i] = "Running"
 			} else {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: No free program slots available", congo.ColorYellow)
+				printLog("Error: No free program slots available", congo.ColorYellow)
 				return false
 			}
 		}
@@ -1925,7 +1925,7 @@ func (p *TPersona) CrashProgram(name string) bool {
 			if p.device.software.programStatus[i] == "Running" {
 				p.device.software.programStatus[i] = "Crashed"
 				if p.GetFaction() == player.GetFaction() {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! "+p.device.software.programName[i]+" program crased!", congo.ColorYellow)
+					printLog("WARNING! "+p.device.software.programName[i]+" program crased!", congo.ColorYellow)
 				}
 			}
 		}
@@ -1984,13 +1984,13 @@ func (p *TPersona) ReceiveMatrixDamage(damage int) {
 	if p.CheckRunningProgram("Virtual Machine") && damage > 0 {
 		damage++
 		if p.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! 1 additional Matrix Damage caused by Virtual Machine program", congo.ColorYellow)
+			printLog("WARNING! 1 additional Matrix Damage caused by Virtual Machine program", congo.ColorYellow)
 			hold()
 		}
 	}
 	p.SetMatrixCM(p.GetMatrixCM() - damage)
 	if p.GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+" takes "+strconv.Itoa(damage)+" Matrix damage", congo.ColorYellow)
+		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Matrix damage", congo.ColorYellow)
 		hold()
 	}
 	if p.GetMatrixCM() < 1 {
@@ -2002,7 +2002,7 @@ func (p *TPersona) ReceiveMatrixDamage(damage int) {
 func (p *TPersona) ReceivePhysBiofeedbackDamage(damage int) {
 	p.SetPhysCM(p.GetPhysCM() - damage)
 	if p.GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+" takes "+strconv.Itoa(damage)+" Physical damage", congo.ColorYellow)
+		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Physical damage", congo.ColorYellow)
 		hold()
 	}
 }
@@ -2011,7 +2011,7 @@ func (p *TPersona) ReceivePhysBiofeedbackDamage(damage int) {
 func (p *TPersona) ReceiveStunBiofeedbackDamage(damage int) {
 	p.SetStunCM(p.GetStunCM() - damage)
 	if p.GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+" takes "+strconv.Itoa(damage)+" Stun damage", congo.ColorYellow)
+		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Stun damage", congo.ColorYellow)
 		hold()
 	}
 }
@@ -2024,13 +2024,13 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 	if p.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if p.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
 	if p.CheckRunningProgram("Armor") {
 		resistDicePool = resistDicePool + 2
 		if p.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
 	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
@@ -2038,7 +2038,7 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 	if gl {
 		if p.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+": Firewall glitch detected!", congo.ColorYellow)
+			printLog(p.GetName()+": Firewall glitch detected!", congo.ColorYellow)
 			hold()
 		}
 	}
@@ -2046,7 +2046,7 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 		if p.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
 			addOverwatchScoreToTarget(40)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+": Firewall critical failure!", congo.ColorRed)
+			printLog(p.GetName()+": Firewall critical failure!", congo.ColorRed)
 			hold()
 		}
 	}
@@ -2055,7 +2055,7 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 	}
 
 	if p.GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+		printLog(p.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
 		hold()
 	}
 	return realDamage
@@ -2069,13 +2069,13 @@ func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 	if p.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if p.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
 	if p.CheckRunningProgram("Biofeedback Filter") {
 		resistDicePool = resistDicePool + 2
 		if p.GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program Biofeedback Filter: add 2 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Biofeedback Filter: add 2 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
 	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
@@ -2083,7 +2083,7 @@ func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 	if gl {
 		if p.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+": Firewall glitch detected!", congo.ColorYellow)
+			printLog(p.GetName()+": Firewall glitch detected!", congo.ColorYellow)
 			hold()
 		}
 	}
@@ -2091,7 +2091,7 @@ func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 		if p.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
 			addOverwatchScoreToTarget(40)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+": Firewall critical failure!", congo.ColorRed)
+			printLog(p.GetName()+": Firewall critical failure!", congo.ColorRed)
 			hold()
 		}
 	}
@@ -2100,7 +2100,7 @@ func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 	}
 
 	if p.GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+": "+strconv.Itoa(damageSoak)+" Biofeedback damage soaked...", congo.ColorGreen)
+		printLog(p.GetName()+": "+strconv.Itoa(damageSoak)+" Biofeedback damage soaked...", congo.ColorGreen)
 		hold()
 	}
 	return realDamage
@@ -2112,7 +2112,7 @@ func (p *TPersona) checkConvergence() {
 			p.convergenceFlag = true
 			if p.GetFaction() == player.GetFaction() {
 				p.ToggleConvergence()
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!!! Convergence protocol engaged...", congo.ColorRed)
+				printLog("Warning!!! Convergence protocol engaged...", congo.ColorRed)
 				hold()
 			}
 			convergenceDamage := p.ResistMatrixDamage(12)
@@ -2122,31 +2122,31 @@ func (p *TPersona) checkConvergence() {
 				p.ClearMarks()
 
 				if p.GetMatrixCM() > 0 {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("1", congo.ColorDefault)
+					printLog("1", congo.ColorDefault)
 					p.Dumpshock()
 				}
 				if p.GetFaction() == player.GetFaction() {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("All MARKs have been lost...", congo.ColorRed)
+					printLog("All MARKs have been lost...", congo.ColorRed)
 					hold()
 				}
 			} else {
 				host := p.GetHost()
 				host.markSet.MarksFrom[p.GetID()] = 3
 				if p.GetFaction() == player.GetFaction() {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn(host.GetName()+" "+host.GetType()+" now have 3 MARKs on "+p.GetName()+"...", congo.ColorRed)
+					printLog(host.GetName()+" "+host.GetType()+" now have 3 MARKs on "+p.GetName()+"...", congo.ColorRed)
 					hold()
 				}
 			}
 			p.SetPhysicalLocation(true)
 			if p.GetFaction() == player.GetFaction() {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Physical location discovered...", congo.ColorYellow)
+				printLog("Physical location discovered...", congo.ColorYellow)
 				hold()
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("...reporting physical location to nearest police force", congo.ColorGreen)
+				printLog("...reporting physical location to nearest police force", congo.ColorGreen)
 				hold()
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("...calling nearest GOD agent", congo.ColorGreen)
+				printLog("...calling nearest GOD agent", congo.ColorGreen)
 				hold()
 				if p.GetName() == player.GetName() {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("Grid Overwatch Division wishes you to have a nice day!", congo.ColorDefault)
+					printLog("Grid Overwatch Division wishes you to have a nice day!", congo.ColorDefault)
 				}
 				hold()
 			}
@@ -2156,7 +2156,7 @@ func (p *TPersona) checkConvergence() {
 				p.ClearMarks()
 				p.Dumpshock()
 				if p.GetFaction() == player.GetFaction() {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("All MARKs have been lost...", congo.ColorRed)
+					printLog("All MARKs have been lost...", congo.ColorRed)
 					hold()
 				}
 			}
@@ -2168,10 +2168,10 @@ func (p *TPersona) checkConvergence() {
 //TriggerDataBomb -
 func (p *TPersona) TriggerDataBomb(bombRating int) {
 	host := p.GetHost()
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
+	printLog("Databomb triggered...", congo.ColorRed)
 	hold()
 	if host.GetHostAlertStatus() != "Active Alert" {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Host Active Alert triggered...", congo.ColorRed)
+		printLog("Host Active Alert triggered...", congo.ColorRed)
 		hold()
 		host.SetAlert("Active Alert")
 	}
@@ -2193,22 +2193,22 @@ func (p *TPersona) TriggerDataBomb(bombRating int) {
 	fullDamage := xd6Test(bombRating)
 	if rgl == true {
 		fullDamage = fullDamage + bombRating
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Firewall error erupted...", congo.ColorYellow)
+		printLog("Warning!! Firewall error erupted...", congo.ColorYellow)
 	}
 	if rcgl == true {
 		//addOverwatchScore(xd6Test(trg.GetDataBombRating()))
 		fullDamage = fullDamage + xd6Test(bombRating)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Danger!! Critical error erupted...", congo.ColorRed)
+		printLog("Danger!! Critical error erupted...", congo.ColorRed)
 	}
-	congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(resistHits)+" of incomming Matrix damage has been resisted", congo.ColorGreen)
+	printLog(strconv.Itoa(resistHits)+" of incomming Matrix damage has been resisted", congo.ColorGreen)
 	realDamage := fullDamage - resistHits
 	if realDamage < 0 {
 		realDamage = 0
 	}
 	p.ReceiveMatrixDamage(realDamage)
 	//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn(p.GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)
+	//printLog(p.GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
+	printLog("Databomb destroyed", congo.ColorGreen)
 	hold()
 }
 
@@ -2339,6 +2339,7 @@ func (h *THost) NewFile(name string) *TFile {
 	player.canSee.KnownData[f.id] = data
 	//f.grid = "ARES GRID"
 	//f.name = f.GetType() + " " + strconv.Itoa(id)
+	ObjByNames[f.name] = &f
 	objectList = append(objectList, &f)
 	id = id + xd6Test(3)
 	return &f

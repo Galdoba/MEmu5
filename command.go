@@ -123,6 +123,7 @@ func UserInput(input string) bool {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Unknown target", congo.ColorGreen)
 
 	}
+
 	congo.WindowsMap.ByTitle["Log"].WDraw()
 
 	return true
@@ -166,11 +167,7 @@ func checkTarget(target, mActionName string) bool {
 	target = cleanText(target)
 	isGood := false
 	if mActionName == "GRID_HOP" || mActionName == "HACK_ON_THE_FLY" || mActionName == "BRUTE_FORCE" || mActionName == "ENTER_HOST" || mActionName == "MATRIX_PERCEPTION" {
-		if target == "TEST" {
-			printLog("Here be Dragon", congo.ColorDefault)
-		}
 		isGood = pickGrid(target, mActionName)
-
 	}
 
 	//var alias string

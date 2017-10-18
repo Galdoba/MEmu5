@@ -45,3 +45,25 @@ Host_IC:
  >Shoker IC
 
 #########################
+          
+Host: Tes10
+Grid: EvoGrid
+Host_Atributes:
+  Rating: 10
+  Attack: 10
+  Sleaze: 13
+  Data Processing: 11
+  Firewall: 12
+Host_IC:
+ >Patrol IC
+ >Probe IC
+ >Track IC
+ >Catapult IC
+ >Scramble IC
+ >Bloodhound IC
+ >Crash IC
+ >Jammer IC
+ >Sparky IC
+ >Acid IC
+
+#########################

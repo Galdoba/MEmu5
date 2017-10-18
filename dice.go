@@ -108,6 +108,9 @@ func (dp *DicePool) summ() int {
 }
 
 func simpleTest(dicePool1 int, limit int, threshold int) (int, bool, bool) {
+	if dicePool1 < 0 {
+		return 0, false, false
+	}
 	sourceIcon := makeDicePool(dicePool1)
 	sourceIcon.roll()
 	suc := sourceIcon.successes()

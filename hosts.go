@@ -401,6 +401,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	windowList[0].(*congo.TWindow).WPrintLn(strconv.Itoa(h.deviceRating)+" "+strconv.Itoa(h.attack)+" "+strconv.Itoa(h.sleaze)+" "+strconv.Itoa(h.dataProcessing)+" "+strconv.Itoa(h.firewall), congo.ColorYellow)
 	//objectList = append(objectList, &h)
 	gridList = append(gridList, &h)
+	ObjByNames[h.name] = &h
 	windowList[0].(*congo.TWindow).WPrintLn(h.HostToString(), congo.ColorYellow)
 	return &h
 }
@@ -698,6 +699,7 @@ func ImportHostFromDB(hostName string) *THost {
 
 	//h.name = name
 	//h.faction = name
+	h.alert = "No Alert"
 	h.matrixCM = 999999
 	h.SetID()
 	h.markSet.MarksFrom = make(map[int]int)

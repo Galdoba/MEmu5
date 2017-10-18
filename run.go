@@ -23,9 +23,10 @@ var (
 	id               int
 	windowList       []interface{}
 	objectList       []IObj
-	gridList         []IGrid
-	hostList         []IObj
-	DeviseMap        interface{}
+
+	gridList  []IGrid
+	hostList  []IObj
+	DeviseMap interface{}
 	//MActionsMap      interface{}
 	SourceIcon  IObj
 	TargetIcon  IObj
@@ -36,6 +37,10 @@ var (
 	SrTime      time.Time
 	command     string
 )
+
+var ObjByNames = map[string]IObj{
+	"": nil,
+}
 
 func init() {
 	//w1 := congo.NewWindow(width - (width*3/10),0,(width*3/10),height, "Log", "Block")
@@ -288,6 +293,9 @@ func main() {
 	defer congo.Close()
 	//////////////////////////////////
 	initialize()
+	//ObjDB := map[string]IObj{}
+	//var objDB = map[int]IObj{}
+
 	width, height = congo.GetSize()
 	dur := time.Second / 3
 	STime = generateCurrentTime()
@@ -314,6 +322,10 @@ func main() {
 	//Matrix = gridList[1].NewHost("Matrix", 0)
 	player = NewPlayer("Andy", "Sony CIY-720")
 	Matrix = player.grid.NewHost("Matrix", 0)
+	ObjByNames[player.name] = player
+	if o, ok := ObjByNames["player"]; ok {
+		w1.WPrintLn("Player Exist: "+o.GetName(), congo.ColorGreen)
+	}
 
 	w1.WPrintLn("Connection to Matrix established...", congo.ColorGreen)
 	time.Sleep(dur)
