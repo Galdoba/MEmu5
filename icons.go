@@ -665,7 +665,7 @@ func (i *TIcon) UnlockIcon(icon IIcon) {
 
 //ReceiveMatrixDamage -
 func (i *TIcon) ReceiveMatrixDamage(damage int) {
-	printLog("...error: this icon type is immune to Matrix Damage", congo.ColorYellow)
+	printLog("...error: "+i.GetName()+" is immune to Matrix Damage", congo.ColorYellow)
 }
 
 //GetLongAct -
@@ -2264,7 +2264,7 @@ type TFile struct {
 
 //IFile -
 type IFile interface {
-	IIcon
+	IIcon //сделать IFileOnly
 	//IObj
 	//GetOwner() string
 	SetOwner(string)

@@ -2493,6 +2493,13 @@ func BruteForce0(src IObj, trg IObj) {
 	endAction()
 }
 
+func formatTargetName(targetName string) string {
+	targetName = strings.ToLower(targetName)
+	targetName = strings.Replace(targetName, "_", " ", -1)
+	targetName = strings.Title(targetName)
+	return targetName
+}
+
 //BruteForce -
 func BruteForce(src IObj, trg IObj) {
 	//создать множество объектов, брать цель из множества, если запущена вилка брать второй элемент из множества
@@ -2502,11 +2509,6 @@ func BruteForce(src IObj, trg IObj) {
 	var netHits int
 	persona := src.(IPersona)
 
-	/*trgNo = append(trgNo, trg)
-	if persona.CheckRunningProgram("Fork") {
-		trgNo = append(trgNo, TargetIcon2)
-	}*/
-
 	isComplexAction()
 
 	text := command
@@ -2515,98 +2517,121 @@ func BruteForce(src IObj, trg IObj) {
 	comm := strings.SplitN(text, ">", 5)
 	lComm := len(comm) - 1
 	attMod := 0
+	markRound := 1
 
-	var newIcon IIcon
+	var targetName string
+	var targetName2 string
+	var targetList []IObj
 
-	if iconTest, ok := ObjByNames[trg.GetName()]; ok {
-		newIcon := iconTest.(IIcon) //не выводится за зону видимости((
-		printLog("newIcon.name = "+newIcon.GetName(), congo.ColorDefault)
+	targetName = formatTargetName(comm[2])
+	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
+	if len(comm) > 3 {
+		if comm[lComm] == "2" {
+			markRound = 2
+		}
+		if comm[lComm] == "3" {
+			markRound = 3
+		}
 	}
-	if icon, ok := trg.(IIcon); ok {
-		if iconTest, ok := ObjByNames[icon.GetName()]; ok {
-			printLog(icon.GetName(), congo.ColorDefault)
-			printLog(icon.GetName()+" = "+iconTest.GetName(), congo.ColorDefault)
-		} else {
-			printLog("ObjByName not working", congo.ColorDefault)
-		}
-		//printLog("newIcon.name = "+newIcon.GetName(), congo.ColorDefault)
-		//printLog(ObjByNames[icon.GetName()].GetName()+" = objByName", congo.ColorDefault)
-		markRound := 1
-		for i := range comm {
-			printLog("comm["+strconv.Itoa(i)+"] is '"+comm[i]+"'", congo.ColorDefault)
-		}
-		printLog("last comm is "+strconv.Itoa(len(comm)-1), congo.ColorDefault)
 
-		if len(comm) > 3 {
-			if comm[lComm] == "2" {
-				markRound = 2
-			}
-			if comm[lComm] == "3" {
-				markRound = 3
-			}
-		}
-		if persona.GetGrid().name == "Public Grid" {
-			attMod = attMod - 2
-		}
-		printLog("Initiating Brute Force sequence...", congo.ColorGreen)
-		printLog("...Alocating resources:", congo.ColorGreen)
-		dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
-		printLog("...MPCP base resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-		attMod = calculateAttMods(comm, persona, icon)
-		dp1 = dp1 + attMod
-		if dp1 < 0 {
-			dp1 = 0
-		}
-		printLog("----------------", congo.ColorGreen)
-		printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-		limit := persona.GetAttack()
-		printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
-		suc1, gl, cgl := simpleTest(dp1, limit, 0)
-		if gl == true {
-			addOverwatchScore(dp1 - suc1)
-			printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(dp1)
-			printLog("...error: Encryption protocol critical failure", congo.ColorRed)
-		}
-		printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+	//targetList = persona.approveTarget(targetName)
 
-		host := icon.GetHost()
-		dp2 := icon.GetDeviceRating() + icon.GetFirewall()
-		printLog(strconv.Itoa(icon.GetDeviceRating())+" Device Rating", congo.ColorDefault)
-		printLog(strconv.Itoa(icon.GetFirewall())+" Firewall", congo.ColorDefault)
-		suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
-		addOverwatchScore(suc2)
-		if rgl == true {
-			suc1++
-		}
-		if rcgl == true {
-			addOverwatchScore(-dp2)
-		}
-		netHits = suc1 - suc2
-		printLog(icon.GetName(), congo.ColorDefault)
-		printLog(strconv.Itoa(icon.GetDeviceRating())+" File DR", congo.ColorDefault)
-		if netHits > 0 {
-			for i := 0; i < markRound; i++ {
-				placeMARK(persona, icon)
+	if icon1, ok := ObjByNames[targetName]; ok {
+		newIcon := icon1.(IIcon) //не выводится за зону видимости((
+		targetList = append(targetList, newIcon)
+		printLog("...Target 1: "+newIcon.GetName(), congo.ColorGreen)
+		if persona.CheckRunningProgram("Fork") && len(comm) > 3 {
+			targetName2 = formatTargetName(comm[3])
+			if targetName != targetName2 {
+				if icon2, ok := ObjByNames[targetName2]; ok {
+					newIcon2 := icon2.(IIcon)
+					targetList = append(targetList, newIcon2)
+					printLog("...Target 2: "+newIcon2.GetName(), congo.ColorGreen)
+				}
+			} else {
+				printLog("...Error: Target 1 = Target 2", congo.ColorYellow)
 			}
-			damage := netHits / 2
-			if damage > 0 {
-				realDamage := icon.ResistMatrixDamage(damage)
-				icon.ReceiveMatrixDamage(realDamage)
+		}
+	}
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
+	}
+	printLog("----------------", congo.ColorGreen)
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+
+	limit := persona.GetAttack()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
+	suc1, gl, cgl := simpleTest(dp1, limit, 0)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
+	}
+	if cgl == true {
+		addOverwatchScore(dp1)
+		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
+	}
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+
+	for i := range targetList {
+		//printLog("len(newIconList) = "+strconv.Itoa(len(targetList)), congo.ColorDefault)
+		//if icon, ok := trg.(IIcon); ok {
+		if icon, ok := targetList[i].(IIcon); ok {
+			/*if iconTest, ok := ObjByNames[icon.GetName()]; ok {
+				printLog(icon.GetName(), congo.ColorDefault)
+				printLog(icon.GetName()+" = "+iconTest.GetName(), congo.ColorDefault)
+			} else {
+				printLog("ObjByName not working", congo.ColorDefault)
+			}*/
+			//printLog("newIcon.name = "+newIcon.GetName(), congo.ColorDefault)
+			//printLog(ObjByNames[icon.GetName()].GetName()+" = objByName", congo.ColorDefault)
+			//markRound := 1
+			/*for i := range comm {
+				printLog("comm["+strconv.Itoa(i)+"] is '"+comm[i]+"'", congo.ColorDefault)
+			}*/
+			//printLog("last comm is "+strconv.Itoa(len(comm)-1), congo.ColorDefault)
+
+			host := icon.GetHost()
+			dp2 := icon.GetDeviceRating() + icon.GetFirewall()
+			//printLog(strconv.Itoa(icon.GetDeviceRating())+" Device Rating", congo.ColorDefault)
+			//printLog(strconv.Itoa(icon.GetFirewall())+" Firewall", congo.ColorDefault)
+			suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
+			addOverwatchScore(suc2)
+			if rgl == true {
+				suc1++
 			}
-			if host.GetHostAlertStatus() == "No Alert" {
-				host.alert = "Passive Alert"
+			if rcgl == true {
+				addOverwatchScore(-dp2)
+			}
+			netHits = suc1 - suc2
+			//printLog(icon.GetName(), congo.ColorDefault)
+			//printLog(strconv.Itoa(icon.GetDeviceRating())+" File DR", congo.ColorDefault)
+			if netHits > 0 {
+				for i := 0; i < markRound; i++ {
+					placeMARK(persona, icon)
+				}
+				damage := netHits / 2
+				if damage > 0 {
+					realDamage := icon.ResistMatrixDamage(damage)
+					icon.ReceiveMatrixDamage(realDamage)
+				}
+				if host.GetHostAlertStatus() == "No Alert" {
+					host.alert = "Passive Alert"
+				}
+			} else {
+				persona.ReceiveMatrixDamage(-netHits)
 			}
 		} else {
-			persona.ReceiveMatrixDamage(-netHits)
+			printLog("...Error: "+icon.GetName()+" is not a valid type", congo.ColorDefault)
 		}
 	}
 	if host, ok := trg.(IHost); ok {
 		printLog("Diong HOST"+host.GetName(), congo.ColorDefault)
 		host.(IIcon).GetName()
-		printLog("newIcon.name = "+newIcon.GetName(), congo.ColorDefault)
 	}
 
 	//attMod, defMod := getModifiers(src, trg)
@@ -5041,13 +5066,13 @@ func isLocked(m map[int]bool, key int) bool {
 	return false
 }
 
-func calculateAttMods(comm []string, attacker, defender IIcon) (attMod int) {
+func calculateAttMods(comm []string, attacker IIcon, targetList []IObj) (attMod int) {
 	if len(comm) > 3 {
-		if comm[3] == "2" {
+		if comm[len(comm)-1] == "2" {
 			attMod = attMod - 4
 			printLog("...Additional operation cycles: "+strconv.Itoa(-4)+" op/p", congo.ColorGreen)
 		}
-		if comm[3] == "3" {
+		if comm[len(comm)-1] == "3" {
 			attMod = attMod - 10
 			printLog("...Additional operation cycles: "+strconv.Itoa(-10)+" op/p", congo.ColorGreen)
 		}
@@ -5056,10 +5081,15 @@ func calculateAttMods(comm []string, attacker, defender IIcon) (attMod int) {
 		attMod = attMod - 2
 		printLog("...Public Grid lags: "+strconv.Itoa(-2)+" op/p", congo.ColorGreen)
 	}
-	if attacker.GetGrid().name != defender.GetGrid().name {
-		attMod = attMod - 2
-		printLog("...Grid interconnectivity protocol: "+strconv.Itoa(-2)+" op/p", congo.ColorGreen)
+	for i := range targetList {
+		if trgt, ok := targetList[i].(IIcon); ok {
+			if attacker.GetGrid().name != trgt.GetGrid().name {
+				attMod = attMod - 2
+				printLog("...Target "+strconv.Itoa(i+1)+" is in another Grid: "+strconv.Itoa(-2)+" op/p", congo.ColorGreen)
+			}
+		}
 	}
+
 	if attacker.GetSimSence() == "Hot-SIM VR" {
 		attMod = attMod + 2
 		printLog("...Hot-SIM VR connection boost: "+strconv.Itoa(2)+" op/p", congo.ColorGreen)

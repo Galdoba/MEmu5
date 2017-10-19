@@ -105,7 +105,7 @@ func (h *THost) IsPlayer() bool {
 
 //ReceiveMatrixDamage -
 func (h *THost) ReceiveMatrixDamage(damage int) {
-	printLog("...error: this icon type is immune to Matrix Damage", congo.ColorYellow)
+	printLog("...error: Host is immune to Matrix Damage", congo.ColorYellow)
 }
 
 //ResistMatrixDamage -
@@ -724,8 +724,9 @@ func ImportHostFromDB(hostName string) *THost {
 	player.canSee.KnownData[h.id] = data
 	h.FillHostWithFiles()
 	h.LoadNextIC()
-	printLog("Importing host: "+h.GetGridName(), congo.ColorDefault)
+	printLog("Importing host: "+h.GetName(), congo.ColorDefault)
 	gridList = append(gridList, &h)
+	ObjByNames[h.name] = &h
 	return &h
 }
 
