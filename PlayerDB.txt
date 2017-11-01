@@ -1,0 +1,60 @@
+
+Alias: TestPC
+Device: Sony CIY-720
+////Attributes:
+BODY : 10
+AGILITY : 0 - not used now. Might be needed for Foundation.
+REACTION : 4
+STRENGTH : 0 - not used now. Might be needed for Foundation.
+WILLPOWER : 6
+LOGIC : 4
+INTUITION : 7
+CHARISMA : 5
+EDGE : 3
+RESONANCE : 0 - not used now.
+DEPTH : 0 - not used now.
+////Skills:
+Computer: 6
+Cybercombat: 8
+Electronic Warfare: 4
+Hacking: 4
+Hardware: 4
+Software: 4
+////Specialisations:
+(NOT IMPLEMENTED)
+////Qualities:
+(NOT IMPLEMENTED)
+////SIN:
+(NOT IMPLEMENTED)
+
+####################
+          
+Alias: Andy
+Device: Sony CIY-720
+////Attributes:
+BODY : 1
+AGILITY : 0 - not used now. Might be needed for Foundation.
+REACTION : 4
+STRENGTH : 0 - not used now. Might be needed for Foundation.
+WILLPOWER : 1
+LOGIC : 4
+INTUITION : 7
+CHARISMA : 5
+EDGE : 3
+RESONANCE : 0 - not used now.
+DEPTH : 0 - not used now.
+////Skills:
+Computer: 6
+Cybercombat: 8
+Electronic Warfare: 4
+Hacking: 4
+Hardware: 4
+Software: 4
+////Specialisations:
+(NOT IMPLEMENTED)
+////Qualities:
+(NOT IMPLEMENTED)
+////SIN:
+(NOT IMPLEMENTED)
+
+#########################

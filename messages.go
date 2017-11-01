@@ -5,9 +5,11 @@ import (
 	"strconv"
 
 	"github.com/Galdoba/ConGo/congo"
+	"github.com/Galdoba/utils"
 )
 
 func refreshPersonaWin() {
+
 	windowList[1].(*congo.TWindow).WClear()
 	//player = *objectList[0].(*TPersona)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Alias: "+player.GetName(), congo.ColorGreen)
@@ -22,7 +24,10 @@ func refreshPersonaWin() {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("WARNING: Physical location tracked!", congo.ColorYellow)
 	}
 	//device := player.GetDevice()
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--------------------------------------", congo.ColorDefault)
+	for i := 0; i < congo.WindowsMap.ByTitle["Persona"].GetPrintableWidth(); i++ {
+		congo.WindowsMap.ByTitle["Persona"].WPrint("-", congo.ColorDefault)
+	}
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Running Programs: ", congo.ColorGreen)
 	var rPrgLst []string
 	loadedPrgsQty := 0
@@ -50,7 +55,10 @@ func refreshPersonaWin() {
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slz  : "+strconv.Itoa(player.GetSleaze()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" DtPr : "+strconv.Itoa(player.GetDataProcessing()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Fwll : "+strconv.Itoa(player.GetFirewall()), congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--------------------------------------", congo.ColorDefault)
+	for i := 0; i < congo.WindowsMap.ByTitle["Persona"].GetPrintableWidth(); i++ {
+		congo.WindowsMap.ByTitle["Persona"].WPrint("-", congo.ColorDefault)
+	}
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorDefault)
 	col := congo.ColorDefault
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Condition Monitor:", congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrint("Matrix  : ", congo.ColorDefault)
@@ -111,7 +119,11 @@ func refreshPersonaWin() {
 		}
 	}
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" ", col)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--------------------------------------", congo.ColorDefault)
+	for i := 0; i < congo.WindowsMap.ByTitle["Persona"].GetPrintableWidth(); i++ {
+		congo.WindowsMap.ByTitle["Persona"].WPrint("-", congo.ColorDefault)
+	}
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorDefault)
+
 	if player.GetInitiative() > 9000 {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona Initiative: null", congo.ColorRed)
 	} else {
@@ -119,14 +131,37 @@ func refreshPersonaWin() {
 	}
 	if player.IsConnected() == false {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona disconnected...", congo.ColorYellow)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Session terminated...", congo.ColorGreen)
 
 	}
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Total Objects: "+strconv.Itoa(len(objectList)), congo.ColorYellow)
 
 	totalMarks := player.CountMarks()
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Confirmed Marks on Persona: "+strconv.Itoa(totalMarks), congo.ColorYellow)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Matrix Search in: "+strconv.Itoa(player.GetSearchResultIn()), congo.ColorYellow)
+	for i := range player.GetSearchProcess().SearchIconName {
+		name := player.searchProcessStatus.SearchIconName[i]
+		objType := player.searchProcessStatus.SearchIconType[i]
+		timeTotal := player.searchProcessStatus.SearchTime[i]
+		timeSpent := player.searchProcessStatus.SpentTurns[i]
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Search: "+objType+" "+name, congo.ColorGreen)
+		currentPer := 0
+		turnsPart := 0
+		if timeSpent != 0 {
+			turnsPart = (100 / timeTotal)
+			r := player.GetInitiative()/10 + 1
+			currentPer = utils.Min((100/timeTotal*(timeSpent))+turnsPart/r-1, 100)
+		}
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Progress: "+strconv.Itoa(currentPer)+"%", congo.ColorGreen)
+	}
+	for i := 0; i < congo.WindowsMap.ByTitle["Persona"].GetPrintableWidth(); i++ {
+		congo.WindowsMap.ByTitle["Persona"].WPrint("-", congo.ColorDefault)
+	}
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorDefault)
+
 	//fow := player.GetFieldOfView()
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(fmt.Sprintf("FoW: %v", fow), congo.ColorYellow)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn("0", congo.ColorDefault)
 
 }
 
@@ -177,6 +212,8 @@ func refreshGridWin() {
 
 func refreshEnviromentWin() {
 	congo.WindowsMap.ByTitle["Enviroment"].WClear()
+
+	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(fmt.Sprintf("ObjByName: %v", ObjByNames), congo.ColorYellow)
 
 	var row string
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Turn №: "+strconv.Itoa(Turn), congo.ColorDefault)
@@ -323,6 +360,8 @@ func refreshEnviromentWin() {
 				if whatCanSee[2] != "foo" {
 					icMCM = strconv.Itoa(ic.GetMatrixCM())
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Matrix Condition Monitor: "+icMCM, congo.ColorGreen)
+					marks := ic.GetMarkSet()
+					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(fmt.Sprintf("Marks on IC: %v", marks), congo.ColorYellow)
 				}
 
 				if whatCanSee[5] != "Unknown" || whatKnowAboutHost[5] != "Unknown" {
@@ -431,7 +470,8 @@ func refreshEnviromentWin() {
 			whatCanSee := player.canSee.KnownData[file.GetID()]
 			//testMarks := file.GetMarkSet()
 			//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(fmt.Sprintf("Marks on "+file.GetName()+" : %v", testMarks), congo.ColorYellow)
-			if file.GetHost().name == player.GetHost().name {
+			if file.GetHost() == player.GetHost() {
+				//if file.GetHost().name == player.GetHost().name {
 
 				if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("--------------------------------", congo.ColorDefault)
@@ -485,8 +525,10 @@ func refreshProcessWin() {
 }
 
 func printLog(s string, color congo.TColor) {
-	if SourceIcon.(IObj).GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(s, color)
-		hold()
-	}
+	//if SourceIcon != nil {
+	//	if SourceIcon.(IObj).GetFaction() == player.GetFaction() { //вылетает при выборе хода - что-то связанное с тем что оно берет объект но получает нил
+	congo.WindowsMap.ByTitle["Log"].WPrintLn(s, color)
+	hold()
+	//	}
+	//}
 }

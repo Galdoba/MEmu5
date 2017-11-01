@@ -26,44 +26,100 @@ Host_Atributes:
 Host_IC:
  >Patrol IC
  >Binder IC
- >Shoker IC
- >Probe IC
- >Catapult IC
 
 #########################
-          
-Host: Unknown Host 36
-Grid: NeoNetwork
+                    
+Host: As
+Grid: Renraku Okoku
 Host_Atributes:
   Rating: 2
   Attack: 4
-  Sleaze: 3
-  Data Processing: 2
+  Sleaze: 2
+  Data Processing: 3
   Firewall: 5
 Host_IC:
  >Patrol IC
- >Shoker IC
+ >Sparky IC
 
 #########################
           
-Host: Tes10
-Grid: EvoGrid
+Host: Qwe
+Grid: Shiawase Central
 Host_Atributes:
-  Rating: 10
-  Attack: 10
-  Sleaze: 13
-  Data Processing: 11
-  Firewall: 12
+  Rating: 7
+  Attack: 9
+  Sleaze: 7
+  Data Processing: 8
+  Firewall: 10
 Host_IC:
  >Patrol IC
- >Probe IC
- >Track IC
- >Catapult IC
- >Scramble IC
  >Bloodhound IC
- >Crash IC
  >Jammer IC
+ >Marker IC
+ >Blaster IC
+ >Shoker IC
+ >Scramble IC
+
+#########################
+          
+Host: Unknown Host 2
+Grid: Saeder-Krupp Uberwelt
+Host_Atributes:
+  Rating: 3
+  Attack: 3
+  Sleaze: 5
+  Data Processing: 4
+  Firewall: 6
+Host_IC:
+ >Patrol IC
  >Sparky IC
  >Acid IC
+
+#########################
+          
+Host: SomeName
+Grid: Renraku Okoku
+Host_Atributes:
+  Rating: 3
+  Attack: 3
+  Sleaze: 4
+  Data Processing: 6
+  Firewall: 5
+Host_IC:
+ >Patrol IC
+ >Acid IC
+ >Killer IC
+
+#########################
+          
+Host: SomeName
+Grid: Renraku Okoku
+Host_Atributes:
+  Rating: 3
+  Attack: 5
+  Sleaze: 4
+  Data Processing: 6
+  Firewall: 3
+Host_IC:
+ >Patrol IC
+ >Binder IC
+ >Sparky IC
+
+#########################
+          
+Host: SomeName
+Grid: MCT GlobeNet
+Host_Atributes:
+  Rating: 5
+  Attack: 6
+  Sleaze: 5
+  Data Processing: 7
+  Firewall: 8
+Host_IC:
+ >Patrol IC
+ >Sparky IC
+ >Black IC
+ >Bloodhound IC
+ >Track IC
 
 #########################

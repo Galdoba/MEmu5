@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -2370,189 +2371,29 @@ func doAction(s string) bool {
 	return false
 }
 
-//BruteForce0 -
-func BruteForce0(src IObj, trg IObj) {
-	src = SourceIcon
-	trg = TargetIcon
-
-	//attMod, defMod := getModifiers(src, trg)
-	isComplexAction() // есть вероятность что стрельнет механизм возврата
-	//может быть чем угодно.
-	if trg, ok := trg.(*TDevice); ok {
-		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetAttack()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		addOverwatchScore(suc2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		if netHits > 0 {
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Source put MARK", congo.ColorYellow)
-		} else {
-			src.(IPersona).ReceiveMatrixDamage(-netHits)
-			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
-		}
-
-	}
-	if trg, ok := trg.(*THost); ok {
-		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetAttack()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		addOverwatchScore(suc2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		gridOV := src.(IPersona).GetGrid()
-		src.(IPersona).SetGrid(gridOV)
-
-		if netHits > 0 {
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			if trg.alert == "No Alert" {
-				trg.alert = "Passive Alert"
-			}
-			if src.(IPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("MARK was successfuly planted!", congo.ColorGreen)
-			}
-		} else {
-			src.(IPersona).ReceiveMatrixDamage(-netHits)
-			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
-		}
-
-	}
-	if trg, ok := trg.(*TGrid); ok {
-		//panic(0)
-		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating()
-		limit := src.(IPersona).GetAttack()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		if netHits > 0 {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Action succeeded.", congo.ColorGreen)
-			src.(IPersona).SetGrid(*trg)
-		}
-		addOverwatchScore(suc2)
-
-	}
-
-	//присваиваем изменения
-	for i := range objectList {
-		if attacker, ok := objectList[i].(IPersona); ok {
-			if objectList[i].(IIcon).GetID() == src.(IPersona).GetID() {
-				objectList[i] = attacker
-
-			}
-		}
-	}
-	for i := range objectList {
-		if defender, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = defender
-
-			}
-		}
-	}
-	for i := range objectList {
-		if host, ok := objectList[i].(IHost); ok {
-			if objectList[i].(IHost).GetID() == src.(IHost).GetID() {
-				objectList[i] = host
-
-			}
-		}
-	}
-	endAction()
-}
-
-func formatTargetName(targetName string) string {
-	targetName = strings.ToLower(targetName)
-	targetName = strings.Replace(targetName, "_", " ", -1)
-	targetName = strings.Title(targetName)
-	return targetName
-}
-
-//BruteForce -
+//BruteForce - ++
 func BruteForce(src IObj, trg IObj) {
-	//создать множество объектов, брать цель из множества, если запущена вилка брать второй элемент из множества
 	src = SourceIcon
 	trg = TargetIcon
-	//var trgNo []IObj
 	var netHits int
 	persona := src.(IPersona)
-
 	isComplexAction()
-
 	text := command
 	text = formatString(text)
 	text = cleanText(text)
-	comm := strings.SplitN(text, ">", 5)
-	lComm := len(comm) - 1
+	comm := strings.Split(text, ">")
 	attMod := 0
 	markRound := 1
-
-	var targetName string
-	var targetName2 string
-	var targetList []IObj
-
-	targetName = formatTargetName(comm[2])
-	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
-	if len(comm) > 3 {
-		if comm[lComm] == "2" {
+	for i := range comm {
+		if comm[i] == "-2M" {
 			markRound = 2
 		}
-		if comm[lComm] == "3" {
+		if comm[i] == "-3M" {
 			markRound = 3
 		}
 	}
-
-	//targetList = persona.approveTarget(targetName)
-
-	if icon1, ok := ObjByNames[targetName]; ok {
-		newIcon := icon1.(IIcon) //не выводится за зону видимости((
-		targetList = append(targetList, newIcon)
-		printLog("...Target 1: "+newIcon.GetName(), congo.ColorGreen)
-		if persona.CheckRunningProgram("Fork") && len(comm) > 3 {
-			targetName2 = formatTargetName(comm[3])
-			if targetName != targetName2 {
-				if icon2, ok := ObjByNames[targetName2]; ok {
-					newIcon2 := icon2.(IIcon)
-					targetList = append(targetList, newIcon2)
-					printLog("...Target 2: "+newIcon2.GetName(), congo.ColorGreen)
-				}
-			} else {
-				printLog("...Error: Target 1 = Target 2", congo.ColorYellow)
-			}
-		}
-	}
+	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
+	targetList := pickTargets(comm)
 	printLog("...Allocating resources:", congo.ColorGreen)
 	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
 	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
@@ -2561,9 +2402,7 @@ func BruteForce(src IObj, trg IObj) {
 	if dp1 < 0 {
 		dp1 = 0
 	}
-	printLog("----------------", congo.ColorGreen)
 	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-
 	limit := persona.GetAttack()
 	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
 	suc1, gl, cgl := simpleTest(dp1, limit, 0)
@@ -2573,43 +2412,34 @@ func BruteForce(src IObj, trg IObj) {
 	}
 	if cgl == true {
 		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
 		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
 	}
 	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
-
 	for i := range targetList {
-		//printLog("len(newIconList) = "+strconv.Itoa(len(targetList)), congo.ColorDefault)
-		//if icon, ok := trg.(IIcon); ok {
-		if icon, ok := targetList[i].(IIcon); ok {
-			/*if iconTest, ok := ObjByNames[icon.GetName()]; ok {
-				printLog(icon.GetName(), congo.ColorDefault)
-				printLog(icon.GetName()+" = "+iconTest.GetName(), congo.ColorDefault)
-			} else {
-				printLog("ObjByName not working", congo.ColorDefault)
-			}*/
-			//printLog("newIcon.name = "+newIcon.GetName(), congo.ColorDefault)
-			//printLog(ObjByNames[icon.GetName()].GetName()+" = objByName", congo.ColorDefault)
-			//markRound := 1
-			/*for i := range comm {
-				printLog("comm["+strconv.Itoa(i)+"] is '"+comm[i]+"'", congo.ColorDefault)
-			}*/
-			//printLog("last comm is "+strconv.Itoa(len(comm)-1), congo.ColorDefault)
-
+		if grid, ok := targetList[i].(*TGrid); ok {
+			dp2 := grid.GetDeviceRating() * 2
+			suc2, _, _ := simpleTest(dp2, 1000, 0)
+			addOverwatchScore(suc2)
+			netHits = suc1 - suc2
+			if netHits > 0 {
+				printLog("...Grid encryption bypassed", congo.ColorGreen)
+				persona.SetGrid(grid)
+			}
+		} else if icon, ok := targetList[i].(IIcon); ok {
 			host := icon.GetHost()
 			dp2 := icon.GetDeviceRating() + icon.GetFirewall()
-			//printLog(strconv.Itoa(icon.GetDeviceRating())+" Device Rating", congo.ColorDefault)
-			//printLog(strconv.Itoa(icon.GetFirewall())+" Firewall", congo.ColorDefault)
 			suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
 			addOverwatchScore(suc2)
 			if rgl == true {
+				printLog("...Unexpected exploit detected!", congo.ColorGreen)
 				suc1++
 			}
 			if rcgl == true {
 				addOverwatchScore(-dp2)
+				printLog("...Target's firewall critical falure", congo.ColorGreen)
 			}
 			netHits = suc1 - suc2
-			//printLog(icon.GetName(), congo.ColorDefault)
-			//printLog(strconv.Itoa(icon.GetDeviceRating())+" File DR", congo.ColorDefault)
 			if netHits > 0 {
 				for i := 0; i < markRound; i++ {
 					placeMARK(persona, icon)
@@ -2626,128 +2456,9 @@ func BruteForce(src IObj, trg IObj) {
 				persona.ReceiveMatrixDamage(-netHits)
 			}
 		} else {
-			printLog("...Error: "+icon.GetName()+" is not a valid type", congo.ColorDefault)
+			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
 	}
-	if host, ok := trg.(IHost); ok {
-		printLog("Diong HOST"+host.GetName(), congo.ColorDefault)
-		host.(IIcon).GetName()
-	}
-
-	//attMod, defMod := getModifiers(src, trg)
-	//isComplexAction() // есть вероятность что стрельнет механизм возврата
-	//может быть чем угодно.
-	/*if trg, ok := trg.(*TDevice); ok {
-		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetAttack()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		addOverwatchScore(suc2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		if netHits > 0 {
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Source put MARK", congo.ColorYellow)
-		} else {
-			src.(IPersona).ReceiveMatrixDamage(-netHits)
-			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
-		}
-
-	}
-	if trg, ok := trg.(*THost); ok {
-		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetAttack()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		addOverwatchScore(suc2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		gridOV := src.(IPersona).GetGrid()
-		src.(IPersona).SetGrid(gridOV)
-
-		if netHits > 0 {
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			if trg.alert == "No Alert" {
-				trg.alert = "Passive Alert"
-			}
-			if src.(IPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("MARK was successfuly planted!", congo.ColorGreen)
-			}
-		} else {
-			src.(IPersona).ReceiveMatrixDamage(-netHits)
-			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
-		}
-
-	}
-	if trg, ok := trg.(*TGrid); ok {
-		//panic(0)
-		dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating()
-		limit := src.(IPersona).GetAttack()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		if netHits > 0 {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Action succeeded.", congo.ColorGreen)
-			src.(IPersona).SetGrid(*trg)
-		}
-		addOverwatchScore(suc2)
-
-	}
-	//присваиваем изменения
-	for i := range objectList {
-		if attacker, ok := objectList[i].(IPersona); ok {
-			if objectList[i].(IIcon).GetID() == src.(IPersona).GetID() {
-				objectList[i] = attacker
-
-			}
-		}
-	}
-	for i := range objectList {
-		if defender, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = defender
-
-			}
-		}
-	}
-	for i := range objectList {
-		if host, ok := objectList[i].(IHost); ok {
-			if objectList[i].(IHost).GetID() == src.(IHost).GetID() {
-				objectList[i] = host
-
-			}
-		}
-	}*/
 	endAction()
 }
 
@@ -2765,12 +2476,11 @@ func CheckOverwatchScore(src IObj, trg IObj) {
 	if cgl {
 		addOverwatchScore(40)
 	}
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Checking Overwatch Score...", congo.ColorGreen)
-	hold()
+	isSimpleAction()
+	printLog("Checking Overwatch Score...", congo.ColorGreen)
 
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+grid.GetGridName(), congo.ColorGreen)
 	hold()
-	isSimpleAction()
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+strconv.Itoa(suc1), congo.ColorGreen)
 	dp2 := 6
 	suc2, dgl, dcgl := simpleTest(dp2, 1000, 0)
@@ -2832,7 +2542,7 @@ func CrackFile(src IObj, trg IObj) {
 				src.(*TPersona).TriggerDataBomb(trg.GetDataBombRating())
 				trg.SetDataBombRating(0)
 				canSee := src.(*TPersona).canSee.KnownData[trg.GetID()]
-				canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за рейтинг бомбы
+				canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за DataBomb
 				src.(*TPersona).canSee.KnownData[trg.GetID()] = canSee
 			}
 
@@ -2852,130 +2562,87 @@ func CrackFile(src IObj, trg IObj) {
 	endAction()
 }
 
-//DataSpike -
+//DataSpike - ++
 func DataSpike(src IObj, trg IObj) {
-	src = SourceIcon.(*TPersona)
+	src = SourceIcon
 	trg = TargetIcon
-	attMod, defMod := getModifiers(src, trg)
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("AttMOD: "+strconv.Itoa(attMod), congo.ColorRed)
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("DefMOD: "+strconv.Itoa(defMod), congo.ColorRed)
-	dp1 := src.(IPersona).GetCyberCombatSkill() + src.(IPersona).GetLogic() + attMod
-	limit := src.(IPersona).GetAttack()
+	var netHits int
+	persona := src.(IPersona)
+	isComplexAction()
+	text := command
+	text = formatString(text)
+	text = cleanText(text)
+	comm := strings.Split(text, ">")
+	attMod := 0
+	printLog("Initiating Data Spike sequence...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
+	}
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetAttack()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
 	suc1, gl, cgl := simpleTest(dp1, limit, 0)
 	if gl == true {
-		addOverwatchScore(2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Attack protocol glitch detected", congo.ColorYellow)
 	}
 	if cgl == true {
-		addOverwatchScore(8)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...error: Attack protocol critical failure", congo.ColorRed)
 	}
-	if src.(*TPersona).GetFaction() == player.GetFaction() {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Initiating Data Spike protocol: "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
-	}
-	//suc1 = suc1 + 20
-	//Тут надо остановиться и спросить про перебросс
-	if trg, ok := trg.(*TIC); ok {
-		host := trg.GetHost()
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall() + defMod
-		resistPool := trg.GetDeviceRating() + trg.GetFirewall()
-
-		suc2, glt, cglt := simpleTest(dp2, 1000, 0)
-		if glt {
-			addOverwatchScore(0 - suc2)
-		}
-		if cglt {
-			resistPool = 0
-		}
-		netHits := suc1 - suc2
-		if src.(*TPersona).GetFaction() == player.GetFaction() {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("//DEBUG: "+strconv.Itoa(netHits)+" netHits", congo.ColorDefault)
-		}
-		addOverwatchScore(suc2)
-		resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
-		fullDamage := src.(IPersona).GetAttack() + netHits
-		realDamage := fullDamage - resistHits
-		if realDamage < 0 {
-			realDamage = 0
-		}
-		if rgl == true {
-			addOverwatchScore(-suc2)
-		}
-		if rcgl == true {
-			src.(*TPersona).grid.SetOverwatchScore(0)
-		}
-		if netHits > 0 {
-			trg.ReceiveMatrixDamage(realDamage)
-			//trg.SetMatrixCM(trg.GetMatrixCM() - realDamage)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" received "+strconv.Itoa(realDamage)+" matrix damage", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" have "+strconv.Itoa(trg.GetMatrixCM())+" matrix boxes left - THIS IS DEBUG MESSAGE", congo.ColorGreen)
-			if host.alert == "No Alert" {
-				host.alert = "Passive Alert"
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+	for i := range targetList {
+		if icon, ok := targetList[i].(IIcon); ok {
+			host := icon.GetHost()
+			dp2 := icon.GetDeviceRating() + icon.GetFirewall()
+			suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
+			addOverwatchScore(suc2)
+			if rgl == true {
+				printLog("...Unexpected exploit detected!", congo.ColorGreen)
+				suc1++
+			}
+			if rcgl == true {
+				addOverwatchScore(-dp2)
+				printLog("...Target's firewall critical falure", congo.ColorGreen)
+			}
+			netHits = suc1 - suc2
+			if netHits > 0 {
+				damage := netHits + persona.GetAttack()
+				realDamage := icon.ResistMatrixDamage(damage)
+				icon.ReceiveMatrixDamage(realDamage)
+				if persona.CheckRunningProgram("Biofeedback") {
+					if target, ok := icon.(IPersona); ok {
+						bfDamage := target.ResistBiofeedbackDamage(realDamage)
+						target.ReceivePhysBiofeedbackDamage(bfDamage)
+					} else {
+						printLog("...Error: "+icon.GetName()+" is immune to Biofeedback Damage", congo.ColorGreen)
+					}
+				}
+				if persona.CheckRunningProgram("Blackout") {
+					if target, ok := icon.(IPersona); ok {
+						bfDamage := target.ResistBiofeedbackDamage(realDamage)
+						target.ReceiveStunBiofeedbackDamage(bfDamage)
+					} else {
+						printLog("...Error: "+icon.GetName()+" is immune to Biofeedback Damage", congo.ColorGreen)
+					}
+				}
+				if host.GetHostAlertStatus() == "No Alert" {
+					host.alert = "Passive Alert"
+				}
+			} else {
+				persona.ReceiveMatrixDamage(-netHits)
 			}
 		} else {
-			src.(IPersona).ReceiveMatrixDamage(-netHits)
-			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(IPersona).GetName()+" received "+strconv.Itoa(netHits)+" unresisted matrix damage", congo.ColorYellow)
+			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
 	}
-
-	if trg, ok := trg.(*TDevice); ok {
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall() + defMod
-
-		resistPool := trg.GetDeviceRating() + trg.GetFirewall()
-
-		suc2, glt, cglt := simpleTest(dp2, 1000, 0)
-		if glt {
-			addOverwatchScore(0 - suc2)
-		}
-		if cglt {
-			resistPool = 0
-		}
-		netHits := suc1 - suc2
-		addOverwatchScore(suc2)
-		resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
-		fullDamage := src.(IPersona).GetAttack() + netHits
-		realDamage := fullDamage - resistHits
-		if realDamage < 0 {
-			realDamage = 0
-		}
-		if rgl == true {
-			addOverwatchScore(-suc2)
-		}
-		if rcgl == true {
-			src.(*TPersona).grid.SetOverwatchScore(0)
-		}
-		if netHits > 0 {
-			trg.ReceiveMatrixDamage(realDamage)
-			//trg.SetMatrixCM(trg.GetMatrixCM() - realDamage)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" received "+strconv.Itoa(realDamage)+" matrix damage", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" have "+strconv.Itoa(trg.GetMatrixCM())+" matrix boxes left", congo.ColorGreen)
-
-		} else {
-			src.(IPersona).ReceiveMatrixDamage(-netHits)
-			//src.(IPersona).SetMatrixCM(src.(IPersona).GetMatrixCM() + netHits)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(IPersona).GetName()+" received "+strconv.Itoa(netHits)+" unresisted matrix damage", congo.ColorYellow)
-		}
-	}
-	src.(IPersona).SetInitiative(src.(IPersona).GetInitiative() - 10) //Complex Action
-	//присваиваем изменения
-	for i := range objectList {
-		if attacker, ok := objectList[i].(IPersona); ok {
-			if objectList[i].(IIcon).GetID() == src.(IPersona).GetID() {
-				objectList[i] = attacker
-
-			}
-		}
-	}
-	for i := range objectList {
-		if defender, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = defender
-
-			}
-		}
-	}
-
 	endAction()
 
 }
@@ -3021,7 +2688,6 @@ func DisarmDataBomb(src IObj, trg IObj) {
 		addOverwatchScore(suc2)
 
 		if netHits > 0 {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 2 - success", congo.ColorYellow)
 			trg.SetDataBombRating(0)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb Defused...", congo.ColorGreen)
 		} else {
@@ -3244,52 +2910,39 @@ func Edit(src IObj, trg IObj) {
 	endAction()
 }
 
-//EnterHost -
+//EnterHost - ++
 func EnterHost(src IObj, trg IObj) {
-	//icon := SourceIcon.(*TPersona)
-	//checkLinkLock(icon)
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
 	src = SourceIcon.(*TPersona)
 	trg = TargetIcon.(*THost)
+	printLog("Entering Host...", congo.ColorGreen)
+	printLog("...Target host: "+trg.GetName(), congo.ColorGreen)
 	if checkLinkLock(src.(*TPersona)) == true {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("ACTION INTERRUPTED", congo.ColorRed)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(IPersona).GetName()+" is Locked", congo.ColorYellow)
+		printLog("...Error: "+src.(IPersona).GetName()+" is Locked", congo.ColorYellow)
 	} else {
 		if checkMarks(1) == false {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("ACCESS DENIDED", congo.ColorRed)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("ACCESS DENIED", congo.ColorRed)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not Enough Marks on "+trg.(*THost).GetName(), congo.ColorYellow)
 		} else { //выполняем само действие
 			src.(*TPersona).SetHost(trg.(*THost))
 		}
 	}
-	/*if checkMarks(1) == false {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("ACCESS DENIDED", congo.ColorRed)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Not Enough Marks on "+trg.(*THost).GetName(), congo.ColorYellow)
-	} else { //выполняем само действие
-		src.(*TPersona).SetHost(trg.(*THost))
-	}
-	trg.(*THost).LockIcon(src.(*TPersona))*/
 	endAction()
 }
 
-//ExitHost -
+//ExitHost - ++
 func ExitHost(src IObj, trg IObj) {
-
+	persona := SourceIcon.(IPersona)
+	host := persona.GetHost()
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
-	src = SourceIcon.(*TPersona)
-	icon := SourceIcon.(*TPersona)
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Leaving host... ", congo.ColorGreen)
-	if checkLinkLock(icon) == true && src.(IObj).GetFaction() == player.GetFaction() {
-		src.(IPersona).SetHost(src.(IPersona).GetHost())
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("ACTION INTERRUPTED", congo.ColorRed)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(IPersona).GetName()+" is Locked", congo.ColorYellow)
+	printLog("Leaving host... ", congo.ColorGreen)
+	if checkLinkLock(persona) == true && src.(IObj).GetFaction() == player.GetFaction() {
+		printLog("...Error: "+src.(IPersona).GetName()+" is Locked", congo.ColorYellow)
 	} else {
-		src.(IPersona).SetHost(Matrix)
+		persona.SetHost(host.GetHost())
+		//src.(IPersona).SetHost(Matrix)
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("...successful", congo.ColorGreen)
 	}
-	//trg = TargetIcon.(*THost)
-	// нужен механизм LINK LOCK
-	//src.(IPersona).SetHost(Matrix)
 	endAction()
 }
 
@@ -3382,7 +3035,7 @@ func EraseMark(src IObj, trg IObj) {
 func GridHop(src IObj, trg IObj) {
 	src = SourceIcon.(IPersona)
 	if grid, ok := trg.(*TGrid); ok {
-		src.(IPersona).SetGrid(*grid)
+		src.(IPersona).SetGrid(grid)
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Switching grid to...", congo.ColorGreen)
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+grid.GetGridName(), congo.ColorGreen)
 		isComplexAction()
@@ -3406,1044 +3059,343 @@ func GridHop(src IObj, trg IObj) {
 	endAction()
 }
 
-//HackOnTheFly -
+//HackOnTheFly - ++
 func HackOnTheFly(src IObj, trg IObj) {
 	src = SourceIcon
 	trg = TargetIcon
-	//attMod, defMod := getModifiers(src, trg)
-	isComplexAction() // есть вероятность что стрельнет механизм возврата
-	//может быть чем угодно.
-	prgBonus := 0
-	if src.(*TPersona).CheckRunningProgram("Exploit") {
-		prgBonus = prgBonus + 2
-	}
-	dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
+	var netHits int
+	persona := src.(IPersona)
+	isComplexAction()
+	text := command
+	text = formatString(text)
+	text = cleanText(text)
+	comm := strings.Split(text, ">")
+	//lComm := len(comm) - 1
+	attMod := 0
 
-	if trg, ok := trg.(*TDevice); ok {
-		//		dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
-		//dp1 = Hacking + Logic[Sleaze]
-
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetSleaze()
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("LIMIT="+strconv.Itoa(src.(*TPersona).GetSleaze()), congo.ColorYellow)
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
+	markRound := 1
+	for i := range comm {
+		if comm[i] == "-2M" {
+			markRound = 2
 		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
+		if comm[i] == "-3M" {
+			markRound = 3
 		}
-		addOverwatchScore(suc2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		if netHits > 0 {
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on "+trg.GetName()+" was successfuly planted!", congo.ColorGreen)
-		} else {
-			src.(*TPersona).markSet.MarksFrom[trg.GetID()] = src.(*TPersona).markSet.MarksFrom[trg.GetID()] + 1
-			if src.(*TPersona).markSet.MarksFrom[trg.GetID()] > 3 {
-				src.(*TPersona).markSet.MarksFrom[trg.GetID()] = 3
-			}
-		}
-
-	}
-	if trg, ok := trg.(*TDevice); ok {
-		dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
-		//dp1 = Hacking + Logic[Sleaze]
-
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetSleaze()
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("LIMIT="+strconv.Itoa(src.(*TPersona).GetSleaze()), congo.ColorYellow)
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		addOverwatchScore(suc2)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		if netHits > 0 {
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on "+trg.GetName()+" was successfuly planted!", congo.ColorGreen)
-		} else {
-			src.(*TPersona).markSet.MarksFrom[trg.GetID()] = src.(*TPersona).markSet.MarksFrom[trg.GetID()] + 1
-			if src.(*TPersona).markSet.MarksFrom[trg.GetID()] > 3 {
-				src.(*TPersona).markSet.MarksFrom[trg.GetID()] = 3
-			}
-		}
-
 	}
 
-	if trg, ok := trg.(*THost); ok {
-		//host := trg
-		dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		limit := src.(IPersona).GetSleaze()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		addOverwatchScore(suc2)
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		gridOV := src.(IPersona).GetGrid()
-		src.(IPersona).SetGrid(gridOV)
-
-		if netHits > 0 {
-			needToReveal := netHits / 2
-			if src, ok := src.(*TPersona); ok {
-				canSee := src.canSee.KnownData[trg.GetID()]
-				scanableForHost := make([]int, 0, 9) // 9-количество данных которые можно собрать для этого типа
-				for i := 0; i < len(canSee); i++ {
-					if i == 0 && canSee[i] != "Spotted" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 4 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 5 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 7 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 8 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 9 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 10 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 11 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					} else if i == 13 && canSee[i] == "Unknown" {
-						scanableForHost = append(scanableForHost, i)
-					}
-				}
-				for i := needToReveal; i > 0; i-- {
-					if len(scanableForHost) > 0 && needToReveal > 0 {
-						shuffleInt(scanableForHost)
-						choosen := scanableForHost[0]
-						switch scanableForHost[0] {
-						case 0:
-							canSee[choosen] = "Spotted"
-						case 4:
-							if src.GetHost().name == trg.GetName() {
-								canSee[choosen] = "All IC List"
-							}
-						case 5:
-							//if src.GetHost() == host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetDeviceRating())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Host rating "+strconv.Itoa(trg.GetDeviceRating()), congo.ColorGreen)
-						//}
-						case 7:
-							if src.GetHost().name == trg.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetAttack())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Attack rating "+strconv.Itoa(trg.GetAttack()), congo.ColorGreen)
-							}
-						case 8:
-							if src.GetHost().name == trg.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetSleaze())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Sleaze rating "+strconv.Itoa(trg.GetSleaze()), congo.ColorGreen)
-							}
-						case 9:
-							if src.GetHost().name == trg.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetDataProcessing())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Data Processing rating "+strconv.Itoa(trg.GetDataProcessing()), congo.ColorGreen)
-							}
-						case 10:
-							if src.GetHost().name == trg.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetFirewall())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Firewall rating "+strconv.Itoa(trg.GetFirewall()), congo.ColorGreen)
-							}
-						case 11:
-							if src.GetHost().name == trg.GetName() {
-								canSee[choosen] = trg.GetType()
-							}
-						case 13:
-							canSee[choosen] = trg.grid.GetGridName()
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" is located in "+trg.grid.GetGridName(), congo.ColorGreen)
-						default:
-						}
-						src.canSee.KnownData[trg.GetID()] = canSee
-						if len(scanableForHost) > 0 {
-							scanableForHost = append(scanableForHost[:0], scanableForHost[1:]...)
-						}
-						needToReveal--
-						//a = append(a[:i], a[i+1:]...)
-					}
-				}
-			}
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			if src.(IPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on "+trg.GetName()+" was successfuly planted!", congo.ColorGreen)
-			}
-		} else {
-			src.(*TPersona).markSet.MarksFrom[trg.GetID()] = src.(*TPersona).markSet.MarksFrom[trg.GetID()] + 1
-			if src.(*TPersona).markSet.MarksFrom[trg.GetID()] > 3 {
-				src.(*TPersona).markSet.MarksFrom[trg.GetID()] = 3
-			}
-			if src.(*TPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on "+src.(*TPersona).GetName()+" was planted!", congo.ColorRed)
-				/*congo.WindowsMap.ByTitle["Log"].WPrintLn("//DEBUG: "+src.(*TPersona).GetName()+" was Locked by "+trg.GetName(), congo.ColorRed)
-				trg.LockIcon(src.(*TPersona))*/
-			}
-			trg.alert = "Active Alert"
-		}
-
+	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetHackingSkill() + persona.GetLogic()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
 	}
-	if trg, ok := trg.(*TIC); ok {
-		host := trg.GetHost()
-		dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating() + trg.GetFirewall()
-		//dp2 := trg.
-		limit := src.(IPersona).GetSleaze()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		addOverwatchScore(suc2)
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("nethits="+strconv.Itoa(netHits), congo.ColorDefault)
-		gridOV := src.(IPersona).GetGrid()
-		src.(IPersona).SetGrid(gridOV)
-
-		if netHits > 0 {
-			needToReveal := netHits / 2
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("needtoreveal="+strconv.Itoa(needToReveal), congo.ColorDefault)
-			if src, ok := src.(*TPersona); ok {
-				canSee := src.canSee.KnownData[trg.GetID()]
-
-				///////////////////////////////////////////
-				scanableForIC := make([]int, 0, 9) // 9-количество данных которые можно собрать для этого типа
-				for i := 0; i < len(canSee); i++ {
-					if i == 0 && canSee[i] != "Spotted" {
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 2 && canSee[i] == "Unknown" { //MCM
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 5 && canSee[i] == "Unknown" { //Rating
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 7 && canSee[i] == "Unknown" { //att
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 8 && canSee[i] == "Unknown" { //slz
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 9 && canSee[i] == "Unknown" { //dtprc
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 10 && canSee[i] == "Unknown" { //frw
-						scanableForIC = append(scanableForIC, i)
-					} else if i == 11 && canSee[i] == "Unknown" { //name?
-						scanableForIC = append(scanableForIC, i)
-					}
-					////////////////////////
-				}
-				//////////////////////////////////////////
-
-				for i := needToReveal; i > 0; i-- {
-					if len(scanableForIC) > 0 && needToReveal > 0 {
-						shuffleInt(scanableForIC)
-						choosen := scanableForIC[0]
-						switch scanableForIC[0] {
-						case 0:
-							canSee[choosen] = "Spotted"
-						case 2:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetMatrixCM())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has "+strconv.Itoa(trg.GetMatrixCM())+" Matrix Boxes left", congo.ColorGreen)
-							}
-						case 5:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetDeviceRating())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Device rating "+strconv.Itoa(trg.GetDeviceRating()), congo.ColorGreen)
-							}
-						case 7:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetAttack())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Attack rating "+strconv.Itoa(trg.GetAttack()), congo.ColorGreen)
-							}
-						case 8:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetSleaze())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Sleaze rating "+strconv.Itoa(trg.GetSleaze()), congo.ColorGreen)
-							}
-						case 9:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetDataProcessing())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Data Processing rating "+strconv.Itoa(trg.GetDataProcessing()), congo.ColorGreen)
-							}
-						case 10:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetFirewall())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Firewall rating "+strconv.Itoa(trg.GetFirewall()), congo.ColorGreen)
-							}
-						case 11:
-							if src.GetHost().name == host.GetName() {
-								canSee[choosen] = trg.GetType()
-							}
-
-						default:
-						}
-						src.canSee.KnownData[trg.GetID()] = canSee
-						if len(scanableForIC) > 0 {
-							scanableForIC = append(scanableForIC[:0], scanableForIC[1:]...)
-						}
-						needToReveal--
-						//a = append(a[:i], a[i+1:]...)
-					}
-				}
-			}
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			if src.(IPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on "+trg.GetName()+" was successfuly planted!", congo.ColorGreen)
-			}
-		} else {
-			src.(*TPersona).markSet.MarksFrom[trg.GetID()] = src.(*TPersona).markSet.MarksFrom[trg.GetID()] + 1
-			if src.(*TPersona).markSet.MarksFrom[trg.GetID()] > 3 {
-				src.(*TPersona).markSet.MarksFrom[trg.GetID()] = 3
-			}
-			if src.(*TPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Mark on "+src.(*TPersona).GetName()+" was planted!", congo.ColorRed)
-				/*congo.WindowsMap.ByTitle["Log"].WPrintLn("//DEBUG: "+src.(*TPersona).GetName()+" was Locked by "+trg.GetName(), congo.ColorRed)
-				trg.LockIcon(src.(*TPersona))*/
-			}
-			//trg.alert = "Active Alert"
-		}
-
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetSleaze()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
+	suc1, gl, cgl := simpleTest(dp1, limit, 0)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
 	}
-	if trg, ok := trg.(*TGrid); ok {
-		//panic(0)
-		dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
-		dp2 := trg.GetDeviceRating()
-		limit := src.(IPersona).GetSleaze()
-		suc1, suc2, gl, cgl := opposedTest(dp1, dp2, limit)
-		netHits := suc1 - suc2
-		addOverwatchScore(suc2)
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		if netHits > 0 {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Action succeeded.", congo.ColorGreen)
-			src.(IPersona).SetGrid(*trg)
+	if cgl == true {
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
+	}
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+
+	for i := range targetList {
+		if grid, ok := targetList[i].(*TGrid); ok {
+			dp2 := grid.GetDeviceRating() * 2
+			suc2, _, _ := simpleTest(dp2, 1000, 0)
 			addOverwatchScore(suc2)
-		} else {
+			netHits = suc1 - suc2
+			if netHits > 0 {
+				printLog("...Grid encryption bypassed", congo.ColorGreen)
+				persona.SetGrid(grid)
+			}
+		} else if icon, ok := targetList[i].(IIcon); ok {
+			host := icon.GetHost()
+			dp2 := icon.GetDeviceRating() + icon.GetFirewall()
+			suc2, rgl, rcgl := simpleTest(dp2, 1000, 0)
 			addOverwatchScore(suc2)
-		}
+			if rgl == true {
+				printLog("...Unexpected exploit detected!", congo.ColorGreen)
+				suc1++
+			}
+			if rcgl == true {
+				addOverwatchScore(-dp2)
+				printLog("...Target's firewall critical falure", congo.ColorGreen)
+			}
+			netHits = suc1 - suc2
+			if netHits > 0 {
+				for i := 0; i < markRound; i++ {
+					placeMARK(persona, icon)
+				}
+				needToReveal := netHits / 2
+				if needToReveal > 0 {
+					persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+				}
 
-	}
-
-	if trg, ok := trg.(*TFile); ok {
-		dp1 := src.(IPersona).GetHackingSkill() + src.(IPersona).GetLogic() // + attMod
-		//dp1 = Hacking + Logic[Sleaze]
-		trg.GetDataBombRating()
-		//dp2 := trg.host.GetDeviceRating() + trg.host.GetFirewall() +
-		//dp2 := trg.GetHost()
-		limit := src.(IPersona).GetSleaze()
-		suc1, gl, cgl := simpleTest(dp1, limit, 0)
-		var host THost
-		for i := range objectList {
-			if filesHost, ok := objectList[i].(*THost); ok {
-				if filesHost.name == src.(IPersona).GetHost().name {
-					host = *filesHost
-				}
-			}
-		}
-		dp2 := host.GetDeviceRating() + host.GetFirewall()
-		suc2, _, _ := simpleTest(dp2, 1000, 0)
-		netHits := suc1 - suc2
-		if gl == true {
-			addOverwatchScore(2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(8)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		addOverwatchScore(suc2)
-		if netHits > 0 {
-			needToReveal := netHits / 2
-			if src, ok := src.(*TPersona); ok {
-				canSee := src.canSee.KnownData[trg.GetID()]
-				scanableForFile := make([]int, 0, 6)
-				for i := 0; i < len(canSee); i++ {
-					if i == 0 && canSee[i] != "Spotted" {
-						scanableForFile = append(scanableForFile, i)
-					} else if i == 1 && canSee[i] == "Unknown" { //Last Edit
-						scanableForFile = append(scanableForFile, i)
-					} else if i == 3 && canSee[i] == "Unknown" { //Databomb Rating
-						scanableForFile = append(scanableForFile, i)
-					} else if i == 12 && canSee[i] == "Unknown" { //Encryption
-						scanableForFile = append(scanableForFile, i)
-					} else if i == 13 && canSee[i] == "Unknown" { //
-						scanableForFile = append(scanableForFile, i)
-					} else if i == 15 && canSee[i] == "Unknown" { //
-						scanableForFile = append(scanableForFile, i)
-					}
-				}
-				for i := needToReveal; i > 0; i-- {
-					if len(scanableForFile) > 0 && needToReveal > 0 {
-						shuffleInt(scanableForFile)
-						choosen := scanableForFile[0]
-						switch scanableForFile[0] {
-						case 0:
-							canSee[choosen] = "Spotted"
-						case 1:
-							if src.host.GetName() == trg.host.GetName() {
-								//canSee[choosen] = "EditDate revealed"
-								canSee[choosen] = trg.GetLastEditDate()
-								congo.WindowsMap.ByTitle["Log"].WPrintLn("Last edit date: "+canSee[choosen], congo.ColorGreen)
-							}
-						case 3:
-							if src.host.GetName() == trg.host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetDataBombRating())
-								if trg.GetDataBombRating() > 0 {
-									congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb rating "+strconv.Itoa(trg.GetDataBombRating())+" detected on "+trg.GetName(), congo.ColorGreen)
-								} else {
-									congo.WindowsMap.ByTitle["Log"].WPrintLn("No databomb detected on "+trg.GetName(), congo.ColorGreen)
-								}
-							}
-						case 12:
-							if src.host.GetName() == trg.host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetEncryptionRating())
-								if trg.GetEncryptionRating() > 0 {
-									congo.WindowsMap.ByTitle["Log"].WPrintLn("Encryption rating "+strconv.Itoa(trg.GetEncryptionRating())+" detected on "+trg.GetName(), congo.ColorGreen)
-								} else {
-									congo.WindowsMap.ByTitle["Log"].WPrintLn("No encryption detected on "+trg.GetName(), congo.ColorGreen)
-								}
-							}
-						case 13:
-							if src.host.GetName() == trg.host.GetName() {
-								canSee[choosen] = trg.GetGridName()
-								//congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName() + "Reveal target's GRID", congo.ColorYellow) - не знаю как литературно сформулировать и нужно ли. Имеет смысл заменить это на Истинное имя файла
-							}
-						case 15:
-							if src.host.GetName() == trg.host.GetName() {
-								canSee[choosen] = strconv.Itoa(trg.GetSize())
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" contains "+strconv.Itoa(trg.GetSize())+" Mp of data", congo.ColorGreen)
-							}
-						default:
-						}
-						src.canSee.KnownData[trg.GetID()] = canSee
-						if len(scanableForFile) > 0 {
-							scanableForFile = append(scanableForFile[:0], scanableForFile[1:]...)
-						}
-						needToReveal--
-						//congo.WindowsMap.ByTitle["Log"].WPrintLn("scanable for File = " + strconv.Itoa(len(scanableForFile)), congo.ColorYellow)
-						//a = append(a[:i], a[i+1:]...)
-					}
-				}
-			}
-			trg.markSet.MarksFrom[src.(IPersona).GetID()] = trg.markSet.MarksFrom[src.(IPersona).GetID()] + 1
-			if trg.markSet.MarksFrom[src.(IPersona).GetID()] > 3 {
-				trg.markSet.MarksFrom[src.(IPersona).GetID()] = 3
-			}
-			if src.(IPersona).GetID() == 0 {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("MARK was successfuly planted!", congo.ColorGreen)
+			} else {
+				host.SetAlert("Active Alert")
 			}
 		} else {
-			src.(*TPersona).markSet.MarksFrom[trg.GetID()] = src.(*TPersona).markSet.MarksFrom[trg.GetID()] + 1
-			if src.(*TPersona).markSet.MarksFrom[trg.GetID()] > 3 {
-				src.(*TPersona).markSet.MarksFrom[trg.GetID()] = 3
-			}
-		}
-
-	}
-
-	//присваиваем изменения
-	//присваиваем изменения
-	for i := range objectList {
-		if attacker, ok := objectList[i].(IPersona); ok {
-			if objectList[i].(IIcon).GetID() == src.(IPersona).GetID() {
-				objectList[i] = attacker
-
-			}
+			printLog("...Error: "+icon.GetName()+" is not a valid type", congo.ColorDefault)
 		}
 	}
-	for i := range objectList {
-		if defender, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = defender
 
-			}
-		}
-	}
-	/*for i := range gridList {
-		if host, ok := gridList[i].(IHost); ok {
-			if gridList[i].(IHost).GetID() == src.(IHost).GetID() {
-				gridList[i] = host
-
-			}
-		}
-	}*/
 	endAction()
 }
 
-//MatrixPerception -
+//MatrixPerception - ++
 func MatrixPerception(src IObj, trg IObj) {
 	src = SourceIcon
 	trg = TargetIcon
-	dp1 := src.(IPersona).GetComputerSkill() + src.(IPersona).GetIntuition() // + attMod
-	limit := src.(IPersona).GetDataProcessing()
-	suc1, gl, cgl := simpleTest(dp1, limit, 0)
-	if gl {
-		addOverwatchScore(2)
-	}
-	if cgl {
-		addOverwatchScore(8)
-	}
-
-	if src.(IObj).GetID() == 0 {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Player has "+strconv.Itoa(suc1)+" sucesses...", congo.ColorRed)
-	}
-	needToReveal := suc1
-	if trg, ok := trg.(*TFile); ok {
-		if src, ok := src.(*TPersona); ok {
-			canSee := src.canSee.KnownData[trg.GetID()]
-			scanableForFile := make([]int, 0, 6)
-			for i := 0; i < len(canSee); i++ {
-				if i == 0 && canSee[i] != "Spotted" {
-					scanableForFile = append(scanableForFile, i)
-				} else if i == 1 && canSee[i] == "Unknown" { //Last Edit
-					scanableForFile = append(scanableForFile, i)
-				} else if i == 3 && canSee[i] == "Unknown" { //Databomb Rating
-					scanableForFile = append(scanableForFile, i)
-				} else if i == 12 && canSee[i] == "Unknown" { //Encryption
-					scanableForFile = append(scanableForFile, i)
-				} else if i == 13 && canSee[i] == "Unknown" { //
-					scanableForFile = append(scanableForFile, i)
-				} else if i == 15 && canSee[i] == "Unknown" { //
-					scanableForFile = append(scanableForFile, i)
-				}
-			}
-			for i := needToReveal; i > 0; i-- {
-				if len(scanableForFile) > 0 && needToReveal > 0 {
-					src.GetHost().GetName()
-					//src.host.GetName()
-					shuffleInt(scanableForFile)
-					choosen := scanableForFile[0]
-					switch scanableForFile[0] {
-					case 0:
-						canSee[choosen] = "Spotted"
-					case 1:
-						if src.GetHost().GetName() == trg.host.GetName() {
-							//canSee[choosen] = "EditDate revealed"
-							canSee[choosen] = trg.GetLastEditDate()
-							congo.WindowsMap.ByTitle["Log"].WPrintLn("Last edit date: "+canSee[choosen], congo.ColorGreen)
-						}
-					case 3:
-						if src.GetHost().GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetDataBombRating())
-							if trg.GetDataBombRating() > 0 {
-								congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb rating "+strconv.Itoa(trg.GetDataBombRating())+" detected on "+trg.GetName(), congo.ColorGreen)
-							} else {
-								congo.WindowsMap.ByTitle["Log"].WPrintLn("No databomb detected on "+trg.GetName(), congo.ColorGreen)
-							}
-						}
-					case 12:
-						if src.GetHost().GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetEncryptionRating())
-							if trg.GetEncryptionRating() > 0 {
-								congo.WindowsMap.ByTitle["Log"].WPrintLn("Encryption rating "+strconv.Itoa(trg.GetEncryptionRating())+" detected on "+trg.GetName(), congo.ColorGreen)
-							} else {
-								congo.WindowsMap.ByTitle["Log"].WPrintLn("No encryption detected on "+trg.GetName(), congo.ColorGreen)
-							}
-						}
-					case 13:
-						if src.GetHost().GetName() == trg.host.GetName() {
-							canSee[choosen] = trg.GetGridName()
-							//congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName() + "Reveal target's GRID", congo.ColorYellow) - не знаю как литературно сформулировать и нужно ли. Имеет смысл заменить это на Истинное имя файла
-						}
-					case 15:
-						if src.GetHost().GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetSize())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" contains "+strconv.Itoa(trg.GetSize())+" Mp of data", congo.ColorGreen)
-						}
-					default:
-					}
-					src.canSee.KnownData[trg.GetID()] = canSee
-					if len(scanableForFile) > 0 {
-						scanableForFile = append(scanableForFile[:0], scanableForFile[1:]...)
-					}
-					needToReveal--
-					//congo.WindowsMap.ByTitle["Log"].WPrintLn("scanable for File = " + strconv.Itoa(len(scanableForFile)), congo.ColorYellow)
-					//a = append(a[:i], a[i+1:]...)
-				}
-			}
-		}
-	}
-	//////////////////////////////////////////////////////////////////////
-
-	if trg, ok := trg.(*THost); ok {
-		dp2 := trg.GetDeviceRating() + trg.GetSleaze()
-		suc2, dgl, cdgl := simpleTest(dp2, 1000, 0)
-		needToReveal = suc1 - suc2
-		if dgl {
-			needToReveal++
-		}
-		if cdgl {
-			needToReveal = needToReveal + 12
-		}
-		if needToReveal < 0 {
-			needToReveal = 0
-		}
-		if src, ok := src.(*TPersona); ok {
-			canSee := src.canSee.KnownData[trg.GetID()]
-			/*allInfo := src.canSee.KnownData[trg.GetID()]
-			allInfo[0] = "Spotted" //Spot
-			allInfo[1] = "Unknown" //EditDate - File
-			allInfo[2] = "Unknown" //MCM
-			allInfo[3] = "Unknown" //DataBomb
-			allInfo[4] = "Unknown" //ProgramList
-			allInfo[5] = "Unknown" //DeviceRating
-			allInfo[6] = "Unknown" //ComMode
-			allInfo[7] = "Unknown" //AtT
-			allInfo[8] = "Unknown" //SLZ
-			allInfo[9] = "Unknown" //DTPRC
-			allInfo[10] = "Unknown" //FRW
-			allInfo[11] = "Unknown" //uType
-			allInfo[12] = "Unknown" //Encrypt
-			allInfo[13] = "Unknown" //Grid
-			allInfo[14] = "Unknown" //Proxy - возможно не надо
-			allInfo[15] = "Unknown" //SilentSpot - возможно не нужно
-			allInfo[16] = "Unknown" //LastAction - time
-			allInfo[17] = "Unknown" //Marks - howmany - ID
-			allInfo[18] = "Unknown" //owner*/
-			scanableForHost := make([]int, 0, 9) // 9-количество данных которые можно собрать для этого типа
-			for i := 0; i < len(canSee); i++ {
-				if i == 0 && canSee[i] != "Spotted" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 4 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 5 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 7 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 8 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 9 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 10 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 11 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} else if i == 13 && canSee[i] == "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				}
-				/*if i == 16 && canSee[i] != "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				}
-				if i == 17 && canSee[i] != "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				}
-				if i == 18 && canSee[i] != "Unknown" {
-					scanableForHost = append(scanableForHost, i)
-				} */ //12
-			}
-			for i := needToReveal; i > 0; i-- {
-				if len(scanableForHost) > 0 && needToReveal > 0 {
-					shuffleInt(scanableForHost)
-					choosen := scanableForHost[0]
-					switch scanableForHost[0] {
-					case 0:
-						canSee[choosen] = "Spotted"
-					case 4:
-						if src.host.GetName() == trg.GetName() {
-							canSee[choosen] = "ICList"
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" IC order revealed", congo.ColorGreen)
-						}
-					case 5:
-						//if src.GetHost() == host.GetName() {f
-						canSee[choosen] = strconv.Itoa(trg.GetDeviceRating())
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Host rating "+strconv.Itoa(trg.GetDeviceRating()), congo.ColorGreen)
-					//}
-					case 7:
-						if src.host.GetName() == trg.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetAttack())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Attack rating "+strconv.Itoa(trg.GetAttack()), congo.ColorGreen)
-						}
-					case 8:
-						if src.host.GetName() == trg.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetSleaze())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Sleaze rating "+strconv.Itoa(trg.GetSleaze()), congo.ColorGreen)
-						}
-					case 9:
-						if src.host.GetName() == trg.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetDataProcessing())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Data Processing rating "+strconv.Itoa(trg.GetDataProcessing()), congo.ColorGreen)
-						}
-					case 10:
-						if src.host.GetName() == trg.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetFirewall())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has Firewall rating "+strconv.Itoa(trg.GetFirewall()), congo.ColorGreen)
-						}
-					case 11:
-						if src.host.GetName() == trg.GetName() {
-							canSee[choosen] = trg.GetType()
-						}
-					case 13:
-						canSee[choosen] = trg.grid.GetGridName()
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" is located in "+trg.grid.GetGridName(), congo.ColorGreen)
-					default:
-					}
-					src.canSee.KnownData[trg.GetID()] = canSee
-					if len(scanableForHost) > 0 {
-						scanableForHost = append(scanableForHost[:0], scanableForHost[1:]...)
-					}
-					needToReveal--
-					//a = append(a[:i], a[i+1:]...)
-				}
-			}
-
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////
-	if trg, ok := trg.(*TIC); ok {
-		if src, ok := src.(*TPersona); ok {
-			canSee := src.canSee.KnownData[trg.GetID()]
-			scanableForIC := make([]int, 0, 9) // 9-количество данных которые можно собрать для этого типа
-			for i := 0; i < len(canSee); i++ {
-				if i == 0 && canSee[i] != "Spotted" {
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 2 && canSee[i] == "Unknown" { //MCM
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 5 && canSee[i] == "Unknown" { //Rating
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 7 && canSee[i] == "Unknown" { //att
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 8 && canSee[i] == "Unknown" { //slz
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 9 && canSee[i] == "Unknown" { //dtprc
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 10 && canSee[i] == "Unknown" { //frw
-					scanableForIC = append(scanableForIC, i)
-				} else if i == 11 && canSee[i] == "Unknown" { //name?
-					scanableForIC = append(scanableForIC, i)
-				}
-				////////////////////////
-			}
-			for i := needToReveal; i > 0; i-- {
-				if len(scanableForIC) > 0 && needToReveal > 0 {
-					shuffleInt(scanableForIC)
-					choosen := scanableForIC[0]
-					switch scanableForIC[0] {
-					case 0:
-						canSee[choosen] = "Spotted"
-					case 2:
-						if src.host.GetName() == trg.host.GetName() {
-							//canSee[choosen] = "EditDate revealed"
-							canSee[choosen] = strconv.Itoa(trg.GetMatrixCM())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn("Condition Monitor: "+canSee[choosen], congo.ColorGreen)
-						}
-					case 5:
-						if src.host.GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetDeviceRating())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has rating "+canSee[choosen], congo.ColorGreen)
-
-						}
-					case 7:
-						if src.host.GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetAttack())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has attack rating "+canSee[choosen], congo.ColorGreen)
-						}
-					case 8:
-						if src.host.GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetSleaze())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has sleaze rating "+canSee[choosen], congo.ColorGreen)
-						}
-					case 9:
-						if src.host.GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetDataProcessing())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has data processing rating "+canSee[choosen], congo.ColorGreen)
-						}
-					case 10:
-						if src.host.GetName() == trg.host.GetName() {
-							canSee[choosen] = strconv.Itoa(trg.GetFirewall())
-							congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.GetName()+" has data firewall rating "+canSee[choosen], congo.ColorGreen)
-						}
-					default:
-					}
-					src.canSee.KnownData[trg.GetID()] = canSee
-					if len(scanableForIC) > 0 {
-						scanableForIC = append(scanableForIC[:0], scanableForIC[1:]...)
-					}
-					needToReveal--
-					//congo.WindowsMap.ByTitle["Log"].WPrintLn("scanable for File = " + strconv.Itoa(len(scanableForFile)), congo.ColorYellow)
-					//a = append(a[:i], a[i+1:]...)
-				}
-			}
-		}
-	}
-	///////////////////////////////////////////////////////////////////////
-
-	//присваиваем изменения
-	for i := range objectList {
-		if attacker, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = attacker
-
-			}
-		}
-	}
-	for i := range objectList {
-		if defender, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = defender
-
-			}
-		}
-	}
+	var netHits int
+	persona := src.(IPersona)
 	isComplexAction()
+	text := command
+	text = formatString(text)
+	text = cleanText(text)
+	comm := strings.Split(text, ">")
+	attMod := 0
+	printLog("Initiating Matrix Perception sequence...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetComputerSkill() + persona.GetIntuition()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
+	}
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetDataProcessing()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
+	suc1, gl, cgl := simpleTest(dp1, limit, 0)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
+	}
+	if cgl == true {
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
+	}
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+
+	for j := range targetList {
+		needToReveal := suc1
+		if icon, ok := targetList[j].(IIcon); ok {
+			if icon.GetSilentRunningMode() {
+				dp2 := icon.GetSleaze() + icon.GetDeviceRating()
+				suc2, dgl, cdgl := simpleTest(dp2, 1000, 0)
+				if dgl == true {
+					addOverwatchScore(-suc1)
+					printLog("...Encryption weakness detected", congo.ColorGreen)
+				}
+				if cdgl == true {
+					addOverwatchScore(-suc1 * 2)
+					suc1 = suc1 + 100
+					printLog("...Encryption critical falure", congo.ColorGreen)
+
+				}
+				netHits = suc1 - suc2
+				needToReveal = netHits
+				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+				if netHits < 0 {
+					printLog("...Matrix Perception failed", congo.ColorYellow)
+				}
+			} else {
+				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+			}
+			/*if netHits > 0 {
+				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+			} else {
+				printLog("...Matrix Perception failed", congo.ColorYellow)
+			}*/
+
+		}
+	}
+
 	endAction()
 
 }
 
 //MatrixSearch -
 func MatrixSearch(src IObj, trg IObj) {
-	seeker := SourceIcon.(IPersona)
-	host := seeker.(IPersona).GetHost()
-	//text := TargetIcon.(string)
+	src = SourceIcon
+	trg = TargetIcon
+	//var netHits int
+	persona := src.(IPersona)
+	isComplexAction()
 	text := command
 	text = formatString(text)
 	text = cleanText(text)
-	comm := strings.SplitN(text, ">", 4)
-
-	if comm[2] == "HOST" {
-		var hostName string
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Search Host Initiated...", congo.ColorGreen)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Entering global registry...", congo.ColorGreen)
-		if hosttest, ok := ObjByNames[player.name]; ok {
-			printLog("hostTest = "+hosttest.GetName(), congo.ColorDefault)
-		}
-		if len(comm) < 4 {
-			hostName = "Unknown Host " + strconv.Itoa(id)
-		} else {
-			hostName = comm[3]
-			hostName = strings.ToLower(hostName)
-			hostName = strings.Replace(hostName, "_", " ", -1)
-			hostName = strings.Title(hostName)
-			//примерно тут надо будет запускать поиск на наличие хоста в библиотеке
-		}
-		if HostExist(hostName) {
-
-			//			congo.WindowsMap.ByTitle["Log"].WPrintLn(gridList[0].(*TGrid).GetName(), congo.ColorGreen)
-			ImportHostFromDB(hostName)
-			printLog("hostTest = ", congo.ColorDefault)
-			if hosttest, ok := ObjByNames[player.name]; ok {
-				printLog("hostTest = "+hosttest.GetName(), congo.ColorDefault)
-			}
-
-			//player.grid.NewHost(name, rating)
-		} else {
-			player.grid.NewHost(hostName, 0) // -создаем всегда третий хост
-		}
-
+	comm := strings.Split(text, ">")
+	//lComm := len(comm) - 1
+	attMod := 0
+	var iconType string
+	var iconName string
+	if len(comm) > 2 {
+		iconType = comm[2]
 	}
-	if comm[2] == "FILE" {
-		//host := src.(IPersona).GetHost()
-		var fileName string
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Search File Initiated...", congo.ColorGreen)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Entering global registry...", congo.ColorGreen)
-		if len(comm) < 4 {
-			fileName = "File " + strconv.Itoa(id)
-		} else {
-			fileName = comm[3]
-			fileName = strings.ToLower(fileName)
-			fileName = strings.Replace(fileName, "_", " ", -1)
-			fileName = strings.Title(fileName)
-			//примерно тут надо будет запускать поиск на наличие хоста в библиотеке
-		}
-		file := host.NewFile(fileName)
-		file.SetFileName(host.GetName() + " " + fileName)
-		//file.markSet.MarksFrom[seeker.GetID()] = 4
-		//gridList[0].(*TGrid).NewHost(hostName, 4) // -создаем всегда третий хост
-	}
-	if hosttest, ok := ObjByNames[player.name]; ok {
-		printLog("hostTest = "+hosttest.GetName(), congo.ColorDefault)
+	if len(comm) > 3 {
+		iconName = comm[3]
 	}
 
-	isComplexAction()
+	/*markRound := 1
+	for i := range comm {
+		if comm[i] == "-2M" {
+			markRound = 2
+		}
+		if comm[i] == "-3M" {
+			markRound = 3
+		}
+	}*/
+
+	printLog("Initiating Matrix Search sequense...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetComputerSkill() + persona.GetIntuition()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	if persona.CheckRunningProgram("Search") {
+		attMod = attMod + 2
+		printLog("...'Search' program running: "+strconv.Itoa(2)+" op/p", congo.ColorGreen)
+	}
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
+	}
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetDataProcessing()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
+	suc1, gl, cgl := simpleTest(dp1, limit, 0)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
+	}
+	if cgl == true {
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
+	}
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
+	searchBase := 20
+	if persona.CheckRunningProgram("Browse") {
+		searchBase = 10
+	}
+	resultIn := searchBase / suc1
+	//persona.SetSearchResultIn(resultIn)
+	persona.SetSearchProcess(resultIn, iconType, iconName)
+
+	printLog("..."+persona.GetName()+": Search in progress", congo.ColorGreen)
+	for i := range comm {
+		comm[i] = formatTargetName(comm[i])
+		printLog("comm["+strconv.Itoa(i)+"] = "+comm[i], congo.ColorDefault)
+	}
+	printLog("...Search ETA: "+strconv.Itoa(persona.GetSearchResultIn()*3)+" seconds", congo.ColorGreen)
+
 	endAction()
 }
 
-//ScanEnviroment -
+//ScanEnviroment - ++
 func ScanEnviroment(src IObj, trg IObj) {
 	src = SourceIcon
 	trg = TargetIcon
+	var netHits int
+	var targetList []IObj
+	persona := src.(IPersona)
 	isComplexAction()
-	dp1 := src.(IPersona).GetComputerSkill() + src.(IPersona).GetIntuition() // + attMod
-	limit := src.(IPersona).GetDataProcessing()
+	text := command
+	text = formatString(text)
+	text = cleanText(text)
+	comm := strings.Split(text, ">")
+	attMod := 0
+	printLog("Initiating Matrix Perception sequence...", congo.ColorGreen)
+	for _, obj := range ObjByNames {
+		if icon, ok := obj.(IIcon); ok {
+			canSee := persona.GetFieldOfView().KnownData[icon.GetID()]
+			if icon.GetHost() == persona.GetHost() && canSee[0] != "Spotted" {
+				targetList = append(targetList, icon)
+			}
+		}
+	}
+
+	//targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetComputerSkill() + persona.GetIntuition()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList[:1])
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
+	}
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetDataProcessing()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
 	suc1, gl, cgl := simpleTest(dp1, limit, 0)
-	if gl {
-		addOverwatchScore(2)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...error: Encryption protocol glitch detected", congo.ColorYellow)
 	}
-	if cgl {
-		addOverwatchScore(8)
+	if cgl == true {
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...error: Encryption protocol critical failure", congo.ColorRed)
 	}
-	if src.(IObj).GetID() == 0 {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Scanning completed...", congo.ColorGreen)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(IPersona).GetName()+" has "+strconv.Itoa(suc1)+" sucesses", congo.ColorGreen)
-	}
-	needToReveal := suc1
-	needToReveal++
-	needToReveal--
-	silentIconsFound := 0
+	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
 
-	for o := range objectList {
-		if obj, ok := objectList[o].(IFile); ok {
-			obj.GetName()
-			file := *objectList[o].(*TFile)
-			var host THost
-			for i := range objectList {
-				if filesHost, ok := objectList[i].(*THost); ok {
-					if filesHost.GetName() == src.(IPersona).GetHost().name {
-						host = *filesHost
-					}
-				}
-			}
-			if file.host.GetName() == src.(IPersona).GetHost().name {
-				if file.GetSilentRunningMode() {
-					silentIconsFound++
-				}
-				dp2 := host.GetDeviceRating() + host.GetSleaze()
+	for j := range targetList {
+		needToReveal := suc1
+		if icon, ok := targetList[j].(IIcon); ok {
+			if icon.GetSilentRunningMode() {
+				dp2 := icon.GetSleaze() + icon.GetDeviceRating()
 				suc2, dgl, cdgl := simpleTest(dp2, 1000, 0)
-				needToReveal = suc1 - suc2
-				if dgl {
-					needToReveal++
+				if dgl == true {
+					addOverwatchScore(-suc1)
+					printLog("...Encryption weakness detected", congo.ColorGreen)
 				}
-				if cdgl {
-					needToReveal = needToReveal + 12
-				}
-				if needToReveal < 0 {
-					needToReveal = 0
-				}
-				canSee := src.(*TPersona).canSee.KnownData[file.GetID()]
+				if cdgl == true {
+					addOverwatchScore(-suc1 * 2)
+					suc1 = suc1 + 100
+					printLog("...Encryption critical falure", congo.ColorGreen)
 
-				scanableForFile := make([]int, 0, 6)
-				for i := 0; i < len(canSee); i++ {
-					if i == 0 && canSee[i] != "Spotted" {
-						scanableForFile = append(scanableForFile, i)
-					} /* else if i == 1 && canSee[i] == "Unknown" { //Last Edit
-						scanableForFile = append(scanableForFile, i)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Data " + strconv.Itoa(i) + " in file " + file.GetName() + " Is SCANABLE", congo.ColorYellow)
-					} else if i == 3 && canSee[i] == "Unknown" { //Databomb Rating
-						scanableForFile = append(scanableForFile, i)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Data " + strconv.Itoa(i) + " in file " + file.GetName() + " Is SCANABLE", congo.ColorYellow)
-					} else if i == 12 && canSee[i] == "Unknown" { //Encryption
-						scanableForFile = append(scanableForFile, i)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Data " + strconv.Itoa(i) + " in file " + file.GetName() + " Is SCANABLE", congo.ColorYellow)
-					} else if i == 13 && canSee[i] == "Unknown" { //
-						scanableForFile = append(scanableForFile, i)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Data " + strconv.Itoa(i) + " in file " + file.GetName() + " Is SCANABLE", congo.ColorYellow)
-					} else if i == 15 && canSee[i] == "Unknown" { //
-						scanableForFile = append(scanableForFile, i)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Data " + strconv.Itoa(i) + " in file " + file.GetName() + " Is SCANABLE", congo.ColorYellow)
-					}*/
 				}
-				for i := needToReveal; i > 0; i-- {
-					if len(scanableForFile) > 0 && needToReveal > 0 {
-						/*shuffleInt(scanableForHost)
-						shuffleInt(scanableForHost)
-						shuffleInt(scanableForHost)
-						shuffleInt(scanableForHost)*/
-
-						shuffleInt(scanableForFile)
-						choosen := scanableForFile[0]
-						switch scanableForFile[0] {
-						case 0:
-							if src.(*TPersona).GetHost().name == file.GetHost().name {
-								canSee[choosen] = "Spotted"
-								congo.WindowsMap.ByTitle["Log"].WPrintLn(file.GetName()+" was spotted", congo.ColorGreen)
-							}
-						/*case 1:
-						if src.(*TPersona).GetHost() == file.GetHost() {
-							canSee[choosen] = "EditDate revealed"
-						}
-						case 3:
-						if src.(*TPersona).GetHost() == file.GetName() {
-							canSee[choosen] = strconv.Itoa(file.GetDataBombRating())
-						}
-						case 12:
-						if src.(*TPersona).GetHost() == file.GetHost() {
-							canSee[choosen] = strconv.Itoa(file.GetEncryptionRating())
-						}
-						case 13:
-						if src.(*TPersona).GetHost() == file.GetName() {
-							canSee[choosen] = file.GetGridName()
-						}
-						case 15:
-						if src.(*TPersona).GetHost() == file.GetName() {
-							canSee[choosen] = strconv.Itoa(file.GetSize())
-						}*/
-						default:
-						}
-						src.(*TPersona).canSee.KnownData[file.GetID()] = canSee
-						if len(scanableForFile) > 0 {
-							scanableForFile = append(scanableForFile[:0], scanableForFile[1:]...)
-						}
-						needToReveal--
-						//a = append(a[:i], a[i+1:]...)
-					}
+				netHits = suc1 - suc2
+				needToReveal = netHits
+				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+				if netHits < 0 {
+					printLog("...Matrix Perception failed", congo.ColorYellow)
 				}
+			} else {
+				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
 			}
-		}
+			/*if netHits > 0 {
+				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+			} else {
+				printLog("...Matrix Perception failed", congo.ColorYellow)
+			}*/
 
-	}
-	if silentIconsFound > 0 {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!!! There are tolal of "+strconv.Itoa(silentIconsFound)+" Icons running in Silent Mode!!", congo.ColorYellow)
-	} else {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("No icons running in Silent Mode found", congo.ColorGreen)
-	}
-	//присваиваем изменения
-	for i := range objectList {
-		if attacker, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = attacker
-
-			}
 		}
+		printLog("..."+strconv.Itoa(len(targetList))+" icons running silent detected", congo.ColorYellow)
+		break
 	}
-	for i := range objectList {
-		if defender, ok := objectList[i].(IIcon); ok {
-			if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
-				objectList[i] = defender
 
-			}
-		}
-	}
 	endAction()
 }
 
-//SwapAttributes -
+//SwapAttributes - ++
 func SwapAttributes(src IObj, trg IObj) {
 	src = SourceIcon
 	if persona, ok := src.(*TPersona); ok {
+		printLog("Initiate attributes swapping...", congo.ColorGreen)
 		//text := TargetIcon.(string)
 		text := command
 		text = formatString(text)
@@ -4454,28 +3406,36 @@ func SwapAttributes(src IObj, trg IObj) {
 		switch comm[2] {
 		case "ATTACK":
 			att1 = SourceIcon.(*TPersona).GetAttackRaw()
+			printLog("...Attribute 1 = Attack", congo.ColorGreen)
 		case "SLEAZE":
 			att1 = SourceIcon.(*TPersona).GetSleazeRaw()
+			printLog("...Attribute 1 = Sleaze", congo.ColorGreen)
 		case "DATA_PROCESSING":
 			att1 = SourceIcon.(*TPersona).GetDataProcessingRaw()
+			printLog("...Attribute 1 = Data Processing", congo.ColorGreen)
 		case "FIREWALL":
 			att1 = SourceIcon.(*TPersona).GetFirewallRaw()
+			printLog("...Attribute 1 = Firewall", congo.ColorGreen)
 		default:
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Attribute1 name is invalid...", congo.ColorYellow)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("...Error: Attribute 1 is invalid...", congo.ColorYellow)
 
 		}
 		att2 := 0
 		switch comm[3] {
 		case "ATTACK":
 			att2 = SourceIcon.(*TPersona).GetAttackRaw()
+			printLog("...Attribute 2 = Attack", congo.ColorGreen)
 		case "SLEAZE":
 			att2 = SourceIcon.(*TPersona).GetSleazeRaw()
+			printLog("...Attribute 2 = Sleaze", congo.ColorGreen)
 		case "DATA_PROCESSING":
 			att2 = SourceIcon.(*TPersona).GetDataProcessingRaw()
+			printLog("...Attribute 2 = Data Processing", congo.ColorGreen)
 		case "FIREWALL":
 			att2 = SourceIcon.(*TPersona).GetFirewallRaw()
+			printLog("...Attribute 2 = Firewall", congo.ColorGreen)
 		default:
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Attribute2 name is invalid...", congo.ColorYellow)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("...Error: Attribute 2 is invalid...", congo.ColorYellow)
 		}
 		if persona.device.canSwapAtt == false {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("This Persona cann't swap attributes!", congo.ColorRed)
@@ -4510,18 +3470,23 @@ func SwapAttributes(src IObj, trg IObj) {
 			persona.SetDeviceFirewallRaw(att1)
 			swap2 = true
 		}
+		if comm[2] == comm[3] {
+			swap1 = false
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("...Error: Attribute 1 = Attribute 2", congo.ColorYellow)
+		}
 		if swap1 == true && swap2 == true {
 			isFreeAction()
+			printLog("Attribute swapping complete", congo.ColorGreen)
 			//присваиваем изменения
-			for i := range objectList {
+			/*for i := range objectList {
 				if attacker, ok := objectList[i].(IIcon); ok {
 					if objectList[i].(IIcon).GetID() == src.(IIcon).GetID() {
 						objectList[i] = attacker
 					}
 				}
-			}
+			}*/
 		} else {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Attribute configuration failed...", congo.ColorYellow)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Attribute swapping failed", congo.ColorYellow)
 		}
 	}
 	endAction()
@@ -4641,7 +3606,7 @@ func UnloadProgram(src IObj, trg IObj) {
 	endAction()
 }
 
-//SwapPrograms -
+//SwapPrograms - ++
 func SwapPrograms(src IObj, trg IObj) {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["z"].WClear()
@@ -4829,13 +3794,13 @@ func getModifiers(src IObj, trg IObj) (int, int) {
 }
 
 func isComplexAction() {
-	src := SourceIcon
+	/*src := SourceIcon
 	if source, ok := src.(IIcon); ok {
 		source.SetInitiative(source.GetInitiative() - 10) //Complex Action
 	}
 	/*if source, ok := src.(IIC); ok {
 		source.SetInitiative(source.GetInitiative() - 10) //Complex Action
-	}*/
+	}
 
 	//присваиваем изменения
 	for i := range objectList {
@@ -4844,12 +3809,15 @@ func isComplexAction() {
 				objectList[i] = attacker
 			}
 		}
+	}*/
+	if src, ok := SourceIcon.(IIcon); ok {
+		src.SetInitiative(src.GetInitiative() - 10)
 	}
 }
 
 func isFreeAction() {
 	src := SourceIcon
-	src.(IPersona).SetInitiative(src.(IPersona).GetInitiative() - 3) //Free Action
+	src.(IPersona).SetInitiative(src.(IPersona).GetInitiative() - 2) //Free Action
 	//присваиваем изменения
 	for i := range objectList {
 		if attacker, ok := objectList[i].(IPersona); ok {
@@ -5083,7 +4051,8 @@ func calculateAttMods(comm []string, attacker IIcon, targetList []IObj) (attMod 
 	}
 	for i := range targetList {
 		if trgt, ok := targetList[i].(IIcon); ok {
-			if attacker.GetGrid().name != trgt.GetGrid().name {
+			if attacker.GetGrid() != trgt.GetGrid() {
+
 				attMod = attMod - 2
 				printLog("...Target "+strconv.Itoa(i+1)+" is in another Grid: "+strconv.Itoa(-2)+" op/p", congo.ColorGreen)
 			}
@@ -5096,4 +4065,257 @@ func calculateAttMods(comm []string, attacker IIcon, targetList []IObj) (attMod 
 	}
 
 	return attMod
+}
+
+//helper funcs:
+
+func formatTargetName(targetName string) string {
+	targetName = strings.ToLower(targetName)
+	targetName = strings.Replace(targetName, "_", " ", -1)
+	targetName = strings.Title(targetName)
+	targetName = strings.Replace(targetName, " Ic", " IC", -1)
+	return targetName
+}
+
+func pickTargets(comm []string) []IObj {
+	var targetList []IObj
+	if len(comm) < 3 {
+		return targetList
+	}
+	targetName := formatTargetName(comm[2])
+	if grid, ok := ObjByNames[targetName].(*TGrid); ok {
+		targetList = append(targetList, grid)
+		printLog("...Target 1: "+grid.GetGridName()+" has top priority", congo.ColorYellow)
+		//printLog("...Target 1 replaced", congo.ColorGreen)
+		return targetList
+	}
+
+	if icon1, ok := ObjByNames[targetName]; ok {
+		newIcon := icon1.(IIcon) //не выводится за зону видимости((
+		targetList = append(targetList, newIcon)
+		printLog("...Target 1: "+newIcon.GetName(), congo.ColorGreen)
+		persona := SourceIcon.(IIcon)
+		if persona.CheckRunningProgram("Fork") && len(comm) > 3 {
+			targetName2 := formatTargetName(comm[3])
+			if targetName != targetName2 {
+				if icon2, ok := ObjByNames[targetName2]; ok {
+					if grid, ok := ObjByNames[targetName].(*TGrid); ok {
+						targetList = nil
+						targetList = append(targetList, grid)
+						printLog("...Target 2: "+grid.GetGridName()+" has top priority", congo.ColorYellow)
+						printLog("...Target 1 replaced", congo.ColorGreen)
+						return targetList
+					}
+					newIcon2 := icon2.(IIcon)
+					targetList = append(targetList, newIcon2)
+					printLog("...Target 2: "+newIcon2.GetName(), congo.ColorGreen)
+				}
+			} else {
+				printLog("...Error: Target 1 = Target 2", congo.ColorYellow)
+			}
+		}
+	}
+	return targetList
+}
+
+func placeMARK(source, target IIcon) {
+	/*markMap := target.GetMarkSet().MarksFrom
+	if markMap != nil {
+		currentMARKS := target.GetMarkSet().MarksFrom[source.GetID()]
+		currentMARKS++
+		if currentMARKS > 3 {
+			currentMARKS = 3
+		}
+		target.GetMarkSet().MarksFrom[source.GetID()] = currentMARKS
+	} else {
+		host := target.GetHost()
+		currentMARKS := host.GetMarkSet().MarksFrom[source.GetID()]
+		currentMARKS++
+		if currentMARKS > 3 {
+			currentMARKS = 3
+		}
+		host.GetMarkSet().MarksFrom[source.GetID()] = currentMARKS
+	}*/
+
+	currentMARKS := target.GetMarkSet().MarksFrom[source.GetID()]
+	currentMARKS++
+	printLog("...new MARK on "+target.GetName()+" was successfuly planted", congo.ColorGreen)
+	if currentMARKS > 3 {
+		currentMARKS = 3
+	}
+	target.GetMarkSet().MarksFrom[source.GetID()] = currentMARKS
+	master := target.GetOwner()
+	if master != nil && master != target {
+		placeMARK(source, master)
+	}
+}
+
+func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
+	canSee := persona.GetFieldOfView().KnownData[icon.GetID()]
+	mem := make([]int, 0, 30)
+	for i := range canSee {
+		//printLog("canSee["+strconv.Itoa(i)+"] = "+canSee[i], congo.ColorGreen)
+		if canSee[i] == "Unknown" { //|| canSee[0] != "Spotted" {
+			//printLog("canSee["+strconv.Itoa(i)+"] = "+canSee[i], congo.ColorGreen)
+			//printLog("mem: "+strconv.Itoa(i), congo.ColorGreen)
+			mem = append(mem, i)
+		}
+
+	}
+	/*for i := range mem {
+		congo.WindowsMap.ByTitle["Log"].WPrint(" "+strconv.Itoa(mem[i]), congo.ColorDefault)
+	}*/
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(" ", congo.ColorDefault)
+	for i := rand.Intn(100); i > 0; i-- {
+		shuffleInt(mem)
+	}
+	/*	for i := range mem {
+			congo.WindowsMap.ByTitle["Log"].WPrint(" "+strconv.Itoa(mem[i]), congo.ColorDefault)
+	}*/
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(" ", congo.ColorDefault)
+	for i := needToReveal; i > 0; i-- {
+		if i < len(mem) {
+			//	congo.WindowsMap.ByTitle["Log"].WPrintLn("reveal data: "+strconv.Itoa(mem[i]), congo.ColorDefault)
+			choosen := mem[i]
+			if canSee[0] != "Spotted" {
+				canSee[0] = "Spotted"
+				//printLog("...Icon Spotted: "+icon.GetName(), congo.ColorGreen)
+				persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
+				//	break
+			}
+			switch choosen {
+			/*case 0:
+			if target, ok := icon.(IIcon); ok {
+				canSee[choosen] = "Spotted"
+				printLog("...Icon Spotted: "+target.GetName(), congo.ColorGreen)
+				//printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
+			}*/
+			case 1:
+				if target, ok := icon.(IFile); ok {
+					canSee[choosen] = target.GetLastEditDate()
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
+				}
+			case 2:
+				if target, ok := icon.(IICOnly); ok {
+					canSee[choosen] = strconv.Itoa(target.GetMatrixCM())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.(IObj).GetName()+": Matrix Condition Monitor = "+strconv.Itoa(target.GetMatrixCM()), congo.ColorGreen)
+				}
+			case 3:
+				if target, ok := icon.(IFile); ok {
+					canSee[choosen] = strconv.Itoa(target.GetDataBombRating())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					if target.GetDataBombRating() > 0 {
+						printLog("..."+target.GetName()+": Databomb Detected", congo.ColorGreen)
+						printLog("..."+target.GetName()+": Databomb Rating = "+strconv.Itoa(target.GetDataBombRating()), congo.ColorYellow)
+					} else {
+						printLog("..."+target.GetName()+": No Databomb Detected", congo.ColorGreen)
+					}
+				}
+			case 4:
+				if target, ok := icon.(IHost); ok {
+					canSee[choosen] = "IC List Revealed"
+					printLog("...Data revealed: ", congo.ColorGreen)
+					icLIST := target.GetICState()
+					for j := range icLIST.icName {
+						congo.WindowsMap.ByTitle["Log"].WPrint("..."+target.GetName()+": "+icLIST.icName[j]+" Detected ", congo.ColorGreen)
+						if icLIST.icStatus[j] {
+							printLog("(Status: Active)", congo.ColorYellow)
+						} else {
+							printLog("(Status: Passive)", congo.ColorGreen)
+						}
+					}
+				}
+			case 5:
+				if target, ok := icon.(IIcon); ok {
+					canSee[choosen] = strconv.Itoa(target.GetDeviceRating())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Device Rating = "+strconv.Itoa(target.GetDeviceRating()), congo.ColorGreen)
+				}
+			case 7:
+				if target, ok := icon.(IIcon); ok {
+					canSee[choosen] = strconv.Itoa(target.GetAttack())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Attack = "+strconv.Itoa(target.GetAttack()), congo.ColorGreen)
+				}
+			case 8:
+				if target, ok := icon.(IIcon); ok {
+					canSee[choosen] = strconv.Itoa(target.GetSleaze())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Sleaze = "+strconv.Itoa(target.GetSleaze()), congo.ColorGreen)
+				}
+			case 9:
+				if target, ok := icon.(IIcon); ok {
+					canSee[choosen] = strconv.Itoa(target.GetDataProcessing())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Data Processing = "+strconv.Itoa(target.GetDataProcessing()), congo.ColorGreen)
+				}
+			case 10:
+				if target, ok := icon.(IIcon); ok {
+					canSee[choosen] = strconv.Itoa(target.GetFirewall())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Firewall = "+strconv.Itoa(target.GetFirewall()), congo.ColorGreen)
+				}
+			case 12:
+				if target, ok := icon.(IFile); ok {
+					canSee[choosen] = strconv.Itoa(target.GetEncryptionRating())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					if target.GetDataBombRating() > 0 {
+						printLog("..."+target.GetName()+": File encryption detected", congo.ColorGreen)
+						printLog("..."+target.GetName()+": File encryption = "+strconv.Itoa(target.GetEncryptionRating()), congo.ColorYellow)
+					} else {
+						printLog("..."+target.GetName()+": No file encryption Detected", congo.ColorGreen)
+					}
+				}
+			case 13:
+				if target, ok := icon.(IHost); ok {
+					canSee[choosen] = target.GetGrid().GetGridName()
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Located in "+target.GetGrid().GetGridName(), congo.ColorGreen)
+				}
+			case 15:
+				if target, ok := icon.(IFile); ok {
+					canSee[choosen] = strconv.Itoa(target.GetSize())
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": File size evaluated", congo.ColorGreen)
+					printLog("..."+target.GetName()+": File size = "+strconv.Itoa(target.GetSize())+" Mp", congo.ColorYellow)
+				}
+			case 18:
+				if target, ok := icon.(IIcon); ok {
+					canSee[choosen] = target.GetOwner().GetName()
+					printLog("...Data revealed: ", congo.ColorGreen)
+					printLog("..."+target.GetName()+": Owner = "+target.GetOwner().GetName(), congo.ColorGreen)
+				}
+
+			default:
+			}
+			if len(mem) > i+1 {
+				mem = append(mem[:i], mem[i+1:]...)
+			}
+			needToReveal--
+			persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
+		}
+	}
+	/*allInfo := src.canSee.KnownData[trg.GetID()]
+	allInfo[0] = "Spotted" //Spot
+	allInfo[1] = "Unknown" //EditDate - File
+	allInfo[2] = "Unknown" //MCM
+	allInfo[3] = "Unknown" //DataBomb
+	allInfo[4] = "Unknown" //ProgramList
+	allInfo[5] = "Unknown" //DeviceRating
+	allInfo[6] = "Unknown" //ComMode - Persona
+	allInfo[7] = "Unknown" //AtT
+	allInfo[8] = "Unknown" //SLZ
+	allInfo[9] = "Unknown" //DTPRC
+	allInfo[10] = "Unknown" //FRW
+	allInfo[11] = "Unknown" //uType - no need
+	allInfo[12] = "Unknown" //Encrypt - file
+	allInfo[13] = "Unknown" //Grid - obj
+	allInfo[14] = "Unknown" //Proxy - возможно не надо
+	allInfo[15] = "Unknown" //Size - file
+	allInfo[16] = "Unknown" //LastAction - icon/  time
+	allInfo[17] = "Unknown" //Marks - howmany - ID
+	allInfo[18] = "Unknown" //owner   / IIcon */
+	return canSee
 }

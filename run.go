@@ -12,6 +12,10 @@ import (
 	"github.com/Galdoba/ConGo/utils"
 )
 
+const (
+	SPACES = " \x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1b\x1c\x1d\x1e\x1f"
+)
+
 //DeviseMap -
 var (
 	width            int
@@ -38,8 +42,9 @@ var (
 	command     string
 )
 
+//ObjByNames -
 var ObjByNames = map[string]IObj{
-	"": nil,
+//"null": nil,
 }
 
 func init() {
@@ -47,7 +52,7 @@ func init() {
 }
 
 func hold() {
-	dur := time.Second / 3
+	dur := time.Second / 4
 	time.Sleep(dur)
 	draw()
 }
@@ -274,7 +279,7 @@ func draw() {
 	congo.WindowsMap.ByTitle["z"].WDraw()
 	congo.WindowsMap.ByTitle["Process"].SetAutoScroll(true)
 	congo.WindowsMap.ByTitle["Process"].WDraw()
-	//windowList[0].(*congo.TWindow).WPrintLn("sdkjf11111111111h")
+	//windowList[0].(*congo.TWindow).WPrintLn("sdkjf11111111111h", congo.ColorDefault)
 	//congo.PrintText(1, 1, fmt.Sprintf("%v-%T-%s ", info, info, info))
 	//congo.PrintText(1, 5, string(key))
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(fmt.Sprintf("%v - ", MActions.MActionMap), congo.ColorGreen)
@@ -314,13 +319,14 @@ func main() {
 	windowList = append(windowList, w6)
 	w1.SetAutoScroll(true)
 	//Say hello:
-	w1.WPrintLn("Connection to Matrix established...", congo.ColorGreen)
+	/*w1.WPrintLn("Connection to Matrix established...", congo.ColorGreen)
 	w1.WPrintLn("...Identity spoofed", congo.ColorGreen)
 	w1.WPrintLn("...Encryption keys generated", congo.ColorGreen)
-	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)
+	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)*/
 	createDefaultGrids()
 	//Matrix = gridList[1].NewHost("Matrix", 0)
-	player = NewPlayer("Andy", "Sony CIY-720")
+	//player = NewPlayer("Andy", "Sony CIY-720")
+	player = ImportPlayerFromDB("Andy") //.(*TPersona)
 	Matrix = player.grid.NewHost("Matrix", 0)
 	ObjByNames[player.name] = player
 	if o, ok := ObjByNames["player"]; ok {

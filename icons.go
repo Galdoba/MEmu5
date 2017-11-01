@@ -27,6 +27,14 @@ type FieldOfView struct {
 	KnownData map[int][30]string
 }
 
+//SearchProcess -
+type SearchProcess struct {
+	SearchTime     []int
+	SpentTurns     []int
+	SearchIconType []string
+	SearchIconName []string
+}
+
 //TObj -
 type TObj struct {
 	uType        string
@@ -202,8 +210,8 @@ func pickObjByID(id int) IObj {
 //TIcon - в икону входят файлы, персоны, айсы и хосты
 type TIcon struct {
 	TObj
-	grid         TGrid
-	lastLocation TGrid
+	grid         *TGrid
+	lastLocation *TGrid
 	host         *THost
 	device       *TDevice
 
@@ -211,7 +219,7 @@ type TIcon struct {
 	silentMode      bool
 	initiative      int
 	id              int
-	owner           string
+	owner           IIcon
 	isPlayer        bool
 	convergenceFlag bool
 	connected       bool
@@ -226,13 +234,13 @@ type IIcon interface {
 
 var _ IIcon = (*TIcon)(nil)
 
-//IIcon - в икону входят файлы, персоны, айсы и хосты
+//IIconOnly - в икону входят файлы, персоны, айсы и хосты
 type IIconOnly interface {
 	GetSilentRunningMode() bool
 	SetSilentRunningMode(bool)
-	GetGrid() TGrid
+	GetGrid() *TGrid
 	//GetGridName() string
-	SetGrid(TGrid)
+	SetGrid(*TGrid)
 	GetHost() *THost
 	SetHost(*THost)
 	//GetID() int
@@ -241,7 +249,7 @@ type IIconOnly interface {
 	SetInitiative(int)
 	GetSimSence() string
 	SetSimSence(string)
-	GetOwner() string
+	GetOwner() IIcon
 	IsPlayer() bool
 	LockIcon(IIcon)
 	UnlockIcon(IIcon)
@@ -576,7 +584,7 @@ func (i *TIcon) SetID() {
 }
 
 //GetGrid -
-func (i *TIcon) GetGrid() TGrid {
+func (i *TIcon) GetGrid() *TGrid {
 	return i.grid
 }
 
@@ -586,7 +594,7 @@ func (i *TIcon) GetGridName() string {
 }
 
 //SetGrid -
-func (i *TIcon) SetGrid(grid TGrid) {
+func (i *TIcon) SetGrid(grid *TGrid) {
 	i.lastLocation = i.grid
 	i.grid = grid
 }
@@ -644,7 +652,7 @@ func (i *TIcon) GetLinkLockStatus() Locked {
 }
 
 //GetOwner -
-func (i *TIcon) GetOwner() string {
+func (i *TIcon) GetOwner() IIcon {
 	return i.owner
 }
 
@@ -665,12 +673,17 @@ func (i *TIcon) UnlockIcon(icon IIcon) {
 
 //ReceiveMatrixDamage -
 func (i *TIcon) ReceiveMatrixDamage(damage int) {
-	printLog("...error: "+i.GetName()+" is immune to Matrix Damage", congo.ColorYellow)
+	printLog("...Error: "+i.GetName()+" is immune to Matrix Damage", congo.ColorYellow)
 }
 
 //GetLongAct -
 func (i *TIcon) GetLongAct() int {
 	return i.searchLen
+}
+
+//GetMatrixCM -
+func (i *TIcon) GetMatrixCM() {
+	printLog("...Error: "+i.GetName()+" is immune to Matrix Damage", congo.ColorYellow)
 }
 
 ////////////////////////////////////////////////////////
@@ -698,6 +711,12 @@ type TIC struct {
 //IIC -
 type IIC interface {
 	IIcon
+	IICOnly
+}
+
+//IICOnly -
+type IICOnly interface {
+	//	IIcon
 	IsLoaded() bool
 	SetLoadStatus(bool)
 	GetMatrixCM() int
@@ -709,6 +728,8 @@ type IIC interface {
 	TakeFOWfromHost()
 }
 
+var _ IIC = (*TIC)(nil)
+
 //NewIC -
 func (h *THost) NewIC(name string) *TIC {
 	id = id + xd6Test(3)
@@ -716,7 +737,8 @@ func (h *THost) NewIC(name string) *TIC {
 	i.name = name
 	i.uType = "IC"
 	i.host = h
-	i.owner = h.GetName()
+	i.owner = h
+	i.grid = h.grid
 	i.deviceRating = h.deviceRating
 	i.attack = h.attack
 	i.sleaze = h.sleaze
@@ -746,7 +768,8 @@ func (h *THost) NewIC(name string) *TIC {
 	data[9] = "Unknown"
 	data[10] = "Unknown"
 	data[11] = "Unknown"
-	//data[13] = "Unknown"
+	data[13] = "Unknown"
+	data[18] = "Unknown"
 	player.canSee.KnownData[i.id] = data
 	if i.name == "Patrol IC" {
 		i.actionReady = calculatePartolScan(i.deviceRating)
@@ -755,7 +778,7 @@ func (h *THost) NewIC(name string) *TIC {
 	}
 	objectList = append(objectList, &i)
 	id++
-
+	ObjByNames[i.name] = &i
 	return &i
 }
 
@@ -915,6 +938,46 @@ func (i *TIC) GetLastTargetName() string {
 //SetLastTargetName -
 func (i *TIC) SetLastTargetName(name string) {
 	i.lastTargetName = name
+}
+
+//ResistMatrixDamage -
+func (i *TIC) ResistMatrixDamage(damage int) int {
+	host := i.GetHost()
+	resistDicePool := host.GetDeviceRating() + host.GetFirewall()
+	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
+	realDamage := damage - damageSoak
+	if gl {
+		if i.GetFaction() == player.GetFaction() {
+			realDamage = realDamage + 2
+			printLog(i.GetName()+": Firewall glitch detected!", congo.ColorYellow)
+		}
+	}
+	if cgl {
+		if i.GetFaction() == player.GetFaction() {
+			realDamage = realDamage + 2
+			addOverwatchScoreToTarget(40)
+			printLog(i.GetName()+": Firewall critical failure!", congo.ColorRed)
+		}
+	}
+	if realDamage < 0 {
+		realDamage = 0
+	}
+	if i.GetFaction() == player.GetFaction() {
+		printLog(i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+	}
+	return realDamage
+}
+
+//GetMarkSet -
+func (i *TIC) GetMarkSet() MarkSet {
+	return i.markSet
+}
+
+//GetFieldOfView -
+func (i *TIC) GetFieldOfView() FieldOfView {
+	//panic("Abs Func Call")
+	host := i.GetHost()
+	return host.canSee
 }
 
 //ReceiveMatrixDamage -
@@ -1146,12 +1209,12 @@ func (d *TDevice) GetFaction() string {
 }
 
 //GetGrid -
-func (d *TDevice) GetGrid() TGrid {
+func (d *TDevice) GetGrid() *TGrid {
 	return d.grid
 }
 
 //SetGrid -
-func (d *TDevice) SetGrid(grid TGrid) {
+func (d *TDevice) SetGrid(grid *TGrid) {
 	d.grid = grid
 }
 
@@ -1241,38 +1304,42 @@ func (d *TDevice) ReceiveMatrixDamage(damage int) {
 type TPersona struct {
 	//TObj
 	TIcon
-	name             string
-	alias            string
-	userMode         string
-	device           *TDevice
-	computerSkill    int
-	hackingSkill     int
-	softwareSkill    int
-	electronicSkill  int
-	hardwareSkill    int
-	cybercombatSkill int
-	initiative       int
-	body             int
-	logic            int
-	intuition        int
-	willpower        int
-	charisma         int
-	maxPhysCM        int
-	physCM           int
-	maxStunCM        int
-	stunCM           int
-	maxMatrixCM      int
-	matrixCM         int
-	id               int
-	physLocation     bool
-	markSet          MarkSet
+	name                string
+	alias               string
+	userMode            string
+	device              *TDevice
+	computerSkill       int
+	hackingSkill        int
+	softwareSkill       int
+	electronicSkill     int
+	hardwareSkill       int
+	cybercombatSkill    int
+	initiative          int
+	body                int
+	logic               int
+	intuition           int
+	willpower           int
+	charisma            int
+	maxPhysCM           int
+	physCM              int
+	maxStunCM           int
+	stunCM              int
+	maxMatrixCM         int
+	matrixCM            int
+	id                  int
+	physLocation        bool
+	markSet             MarkSet
+	searchProcessStatus SearchProcess
 }
 
 //IPersona -
 type IPersona interface {
 	IIcon
-	//IsPlayer() bool
-	//GetDeviceRating() int
+	IPersonaOnly
+}
+
+//IPersonaOnly -
+type IPersonaOnly interface {
 	GetMatrixCM() int
 	GetHackingSkill() int
 	GetCyberCombatSkill() int
@@ -1283,31 +1350,6 @@ type IPersona interface {
 	GetWillpower() int
 	GetLogic() int
 	GetIntuition() int
-
-	/*GetAttack() int
-	GetAttackMod() int
-	GetAttackRaw() int
-	GetSleaze() int
-	GetSleazeMod() int
-	GetSleazeRaw() int
-	GetDataProcessing() int
-	GetDataProcessingMod() int
-	GetDataProcessingRaw() int
-	GetFirewall() int
-	GetFirewallMod() int
-	GetFirewallRaw() int
-	SetDeviceAttack(int)
-	SetDeviceAttackMod(int)
-	SetDeviceAttackRaw(int)
-	SetDeviceSleaze(int)
-	SetDeviceSleazeMod(int)
-	SetDeviceSleazeRaw(int)
-	SetDeviceDataProcessing(int)
-	SetDeviceDataProcessingMod(int)
-	SetDeviceDataProcessingRaw(int)
-	SetDeviceFirewall(int)
-	SetDeviceFirewallMod(int)
-	SetDeviceFirewallRaw(int)*/
 	SetMatrixCM(int)
 	GetAlias() string
 	GetStunCM() int
@@ -1317,15 +1359,21 @@ type IPersona interface {
 	Dumpshock()
 	IsConnected() bool
 	SetConnection(bool)
-	//CheckRunningProgram(string) bool
 	GetPhysicalLocation() bool
 	SetPhysicalLocation(bool)
 	TriggerDataBomb(int)
-	//GetInitiative() int
-	//SetInitiative(int)
-
-	//DataSpike(TIcon)
+	ReceiveBiofeedbackDamage(int)
+	ReceiveStunBiofeedbackDamage(int)
+	ReceivePhysBiofeedbackDamage(int)
+	ResistBiofeedbackDamage(int) int
+	GetSearchResultIn() int
+	SetSearchResultIn(int)
+	GetSearchProcess() SearchProcess
+	SetSearchProcess(int, string, string)
+	UpdateSearchProcess()
 }
+
+var _ IPersona = (*TPersona)(nil)
 
 //NewPlayer -
 func NewPlayer(alias string, d string) *TPersona {
@@ -1336,7 +1384,7 @@ func NewPlayer(alias string, d string) *TPersona {
 	p.alias = alias
 	p.device = addDevice(d)
 	//r := rand.Intn(len(gridList))
-	p.grid = *gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
+	p.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
 	p.maxMatrixCM = p.device.GetMatrixCM()
 	p.matrixCM = p.maxMatrixCM
 	p.cybercombatSkill = 4
@@ -1654,13 +1702,14 @@ func (p *TPersona) SetPhysCM(cmValue int) {
 }
 
 //GetGrid -
-func (p *TPersona) GetGrid() TGrid {
+func (p *TPersona) GetGrid() *TGrid {
 	return p.grid
 }
 
 //SetGrid -
-func (p *TPersona) SetGrid(grid TGrid) {
+func (p *TPersona) SetGrid(grid *TGrid) {
 	p.grid = grid
+	printLog("WELCOME TO: "+p.grid.name, congo.ColorDefault)
 }
 
 //GetHost -
@@ -1984,18 +2033,34 @@ func (p *TPersona) ReceiveMatrixDamage(damage int) {
 	if p.CheckRunningProgram("Virtual Machine") && damage > 0 {
 		damage++
 		if p.GetFaction() == player.GetFaction() {
-			printLog("WARNING! 1 additional Matrix Damage caused by Virtual Machine program", congo.ColorYellow)
+			printLog("...WARNING! 1 additional Matrix Damage caused by Virtual Machine program", congo.ColorYellow)
 			hold()
 		}
 	}
 	p.SetMatrixCM(p.GetMatrixCM() - damage)
 	if p.GetFaction() == player.GetFaction() {
-		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Matrix damage", congo.ColorYellow)
+		printLog("..."+p.GetName()+" takes "+strconv.Itoa(damage)+" Matrix damage", congo.ColorYellow)
 		hold()
 	}
 	if p.GetMatrixCM() < 1 {
 		p.Dumpshock()
 	}
+}
+
+//ReceiveBiofeedbackDamage -
+func (p *TPersona) ReceiveBiofeedbackDamage(damage int) {
+	if p.GetSimSence() == "Hot-SIM VR" {
+		p.SetPhysCM(p.GetPhysCM() - damage)
+		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Physical damage", congo.ColorYellow)
+	} else if p.GetSimSence() == "Cold-SIM VR" {
+		p.SetStunCM(p.GetStunCM() - damage)
+		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Stun damage", congo.ColorYellow)
+	} else if p.GetSimSence() == "AR" {
+		printLog("Biofeedback code detected", congo.ColorYellow)
+	} else {
+		printLog("--DEBUG--: Simsence Mode Error: func (p *TPersona) ReceiveBiofeedbackDamage(damage int)", congo.ColorDefault)
+	}
+
 }
 
 //ReceivePhysBiofeedbackDamage -
@@ -2168,14 +2233,7 @@ func (p *TPersona) checkConvergence() {
 //TriggerDataBomb -
 func (p *TPersona) TriggerDataBomb(bombRating int) {
 	host := p.GetHost()
-	printLog("Databomb triggered...", congo.ColorRed)
-	hold()
-	if host.GetHostAlertStatus() != "Active Alert" {
-		printLog("Host Active Alert triggered...", congo.ColorRed)
-		hold()
-		host.SetAlert("Active Alert")
-	}
-	host.SetAlert("Active Alert")
+	printLog("...Warning! Databomb triggered", congo.ColorRed)
 	prgBonus := 0
 	if p.CheckRunningProgram("Armor") {
 		prgBonus = prgBonus + 2
@@ -2189,27 +2247,26 @@ func (p *TPersona) TriggerDataBomb(bombRating int) {
 	resistPool := p.GetDeviceRating() + p.GetFirewall() + prgBonus
 	resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
 	//остановиться и перебросить при необходимости
-
 	fullDamage := xd6Test(bombRating)
 	if rgl == true {
 		fullDamage = fullDamage + bombRating
-		printLog("Warning!! Firewall error erupted...", congo.ColorYellow)
+		printLog("...Warning!! Firewall error erupted", congo.ColorYellow)
 	}
 	if rcgl == true {
 		//addOverwatchScore(xd6Test(trg.GetDataBombRating()))
 		fullDamage = fullDamage + xd6Test(bombRating)
-		printLog("Danger!! Critical error erupted...", congo.ColorRed)
+		printLog("...Danger!! Critical error erupted", congo.ColorRed)
 	}
-	printLog(strconv.Itoa(resistHits)+" of incomming Matrix damage has been resisted", congo.ColorGreen)
+	printLog("..."+strconv.Itoa(resistHits)+" of incomming Matrix damage has been resisted", congo.ColorGreen)
 	realDamage := fullDamage - resistHits
 	if realDamage < 0 {
 		realDamage = 0
 	}
 	p.ReceiveMatrixDamage(realDamage)
-	//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
-	//printLog(p.GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
-	printLog("Databomb destroyed", congo.ColorGreen)
-	hold()
+	printLog("...Databomb destroyed", congo.ColorGreen)
+	if host.GetHostAlertStatus() != "Active Alert" {
+		host.SetAlert("Active Alert")
+	}
 }
 
 //CountMarks -
@@ -2243,12 +2300,101 @@ func (p *TPersona) SetLastSureOS(newScore int) {
 	p.grid.lastSureOS = newScore
 }
 
+//GetSearchResultIn -
+func (p *TPersona) GetSearchResultIn() int {
+	return p.searchLen
+}
+
+//SetSearchResultIn -
+func (p *TPersona) SetSearchResultIn(val int) {
+	p.searchLen = val
+}
+
+//GetSearchProcess -
+func (p *TPersona) GetSearchProcess() SearchProcess {
+	return p.searchProcessStatus
+}
+
+//SetSearchProcess -
+func (p *TPersona) SetSearchProcess(turns int, sIconType, sIconName string) {
+	p.searchProcessStatus.SearchTime = append(p.searchProcessStatus.SearchTime, turns)
+	p.searchProcessStatus.SearchIconName = append(p.searchProcessStatus.SearchIconName, sIconName)
+	p.searchProcessStatus.SearchIconType = append(p.searchProcessStatus.SearchIconType, sIconType)
+	p.searchProcessStatus.SpentTurns = append(p.searchProcessStatus.SpentTurns, 0)
+}
+
+//UpdateSearchProcess -
+func (p *TPersona) UpdateSearchProcess() {
+	host := player.GetHost()
+	//player.host.GetName()
+	/*printLog(Matrix.GetName()+"sdf", congo.ColorYellow)
+	mn := Matrix.name
+	hn := host.name
+	if host == Matrix {
+		printLog(Matrix.GetName()+"sdfdfg", congo.ColorYellow)
+	}
+	if mn == hn {
+		printLog(Matrix.GetName()+"sdfdfg3333", congo.ColorYellow)
+	}*/
+
+	//printLog(host.GetName(), congo.ColorYellow)
+	for i := range p.searchProcessStatus.SpentTurns {
+		if i < (len(p.searchProcessStatus.SearchIconName)) {
+			p.searchProcessStatus.SpentTurns[i] = p.searchProcessStatus.SpentTurns[i] + 1
+			if p.searchProcessStatus.SpentTurns[i] == p.searchProcessStatus.SearchTime[i] {
+				printLog(p.searchProcessStatus.SearchIconName[i], congo.ColorYellow)
+				printLog(p.searchProcessStatus.SearchIconType[i], congo.ColorYellow)
+
+				switch formatTargetName(p.searchProcessStatus.SearchIconType[i]) {
+				case "Host":
+					hostName := formatTargetName(p.searchProcessStatus.SearchIconName[i])
+					if HostExist(hostName) {
+
+						//			congo.WindowsMap.ByTitle["Log"].WPrintLn(gridList[0].(*TGrid).GetName(), congo.ColorGreen)
+						ImportHostFromDB(hostName)
+						printLog("hostTest = ", congo.ColorDefault)
+						if hosttest, ok := ObjByNames[player.name]; ok {
+							printLog("hostTest = "+hosttest.GetName(), congo.ColorDefault)
+						}
+
+						//player.grid.NewHost(name, rating)
+					} else {
+						player.grid.NewHost(hostName, 0) // -создаем всегда третий хост
+					}
+
+					//host := p.host
+					//host.NewFile(p.searchProcessStatus.SearchIconName[i])
+					//p.grid.NewHost(p.searchProcessStatus.SearchIconName[i], 0)
+				case "File":
+					if host != Matrix {
+						host.NewFile(p.searchProcessStatus.SearchIconName[i])
+					} else {
+						printLog("Matrix is just to vast. No File can be found outside the host...", congo.ColorGreen)
+					}
+
+				default:
+				}
+				printLog("--DEBUG--", congo.ColorRed)
+				printLog("CREATING ICON:"+p.searchProcessStatus.SearchIconType[i]+" "+p.searchProcessStatus.SearchIconName[i]+" in " /* + host.GetName()*/, congo.ColorRed)
+				printLog(p.GetHost().GetName(), congo.ColorDefault)
+
+				p.searchProcessStatus.SearchIconName = append(p.searchProcessStatus.SearchIconName[:i], p.searchProcessStatus.SearchIconName[i+1:]...)
+				p.searchProcessStatus.SearchIconType = append(p.searchProcessStatus.SearchIconType[:i], p.searchProcessStatus.SearchIconType[i+1:]...)
+				p.searchProcessStatus.SpentTurns = append(p.searchProcessStatus.SpentTurns[:i], p.searchProcessStatus.SpentTurns[i+1:]...)
+				p.searchProcessStatus.SearchTime = append(p.searchProcessStatus.SearchTime[:i], p.searchProcessStatus.SearchTime[i+1:]...)
+				//i--
+			}
+		}
+		//kill search process
+	}
+}
+
 ///////////////////////////////////////////////////////
 //File
 
 //TFile -
 type TFile struct {
-	owner    string //*TPersona
+	owner    IIcon //*TPersona
 	name     string
 	fileName string
 	//encryptionFlag bool - ////////////Flags aren't nesessary
@@ -2265,10 +2411,12 @@ type TFile struct {
 //IFile -
 type IFile interface {
 	IIcon //сделать IFileOnly
-	//IObj
-	//GetOwner() string
-	SetOwner(string)
-	//GetName() string
+	IFileOnly
+}
+
+//IFileOnly -
+type IFileOnly interface {
+	SetOwner(IIcon)
 	SetName(string)
 	SetFileName(string)
 	GetFileName() string
@@ -2283,6 +2431,8 @@ type IFile interface {
 	GetValue() int
 }
 
+var _ IFile = (*TFile)(nil)
+
 //NewFile -
 func (h *THost) NewFile(name string) *TFile {
 	f := TFile{}
@@ -2293,18 +2443,40 @@ func (h *THost) NewFile(name string) *TFile {
 	data[12] = "Unknown"
 	data[13] = "Unknown"
 	data[15] = "Unknown"
-	f.owner = h.GetName()
+	data[18] = "Unknown"
+	f.owner = h
 	f.host = h
-	f.grid = h.grid
-	f.device = addDevice("noDevice")
-	f.name = f.GetType() + " " + strconv.Itoa(id)
+	hRatMod := 1
+	printLog("Host to create := "+h.GetName(), congo.ColorRed)
+	if f.host == Matrix {
+		f.grid = player.grid
+		//f.host = Matrix
+		f.device = addDevice("noDevice")
+		f.silentMode = false
+		ObjByNames[f.name] = &f
+		objectList = append(objectList, &f)
+		return &f
+		//} else {
+		//h.GetGrid()
+		//f.grid = h.GetGrid()
+
+		/*for _, obj := range ObjByNames {
+			if gridToPick, ok := obj.(*TGrid); ok {
+				f.grid = gridToPick
+			}
+		}*/
+	}
+	printLog("2Host to create := "+h.GetName(), congo.ColorRed)
 	enRat, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.dataProcessing, 0)
 	f.encryptionRating = enRat
 	bombRat, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.sleaze, 0)
 	f.dataBombRating = bombRat
 	f.lastEditTime = generateLastEditTime()
 
-	hRatMod := (h.deviceRating-1)/3 + 1
+	hRatMod = (h.deviceRating-1)/3 + 1
+
+	f.device = addDevice("noDevice")
+	f.name = f.GetType() + " " + strconv.Itoa(id)
 
 	//file := NewFile("File")
 	dataDensity := xd6Test(2)
@@ -2343,6 +2515,7 @@ func (h *THost) NewFile(name string) *TFile {
 	objectList = append(objectList, &f)
 	id = id + xd6Test(3)
 	return &f
+
 }
 
 //GetType -
@@ -2356,7 +2529,7 @@ func (f *TFile) GetFaction() string {
 }
 
 //GetOwner -
-func (f *TFile) GetOwner() string {
+func (f *TFile) GetOwner() IIcon {
 	return f.owner
 }
 
@@ -2381,7 +2554,7 @@ func (f *TFile) GetDataBombRating() int {
 }
 
 //SetOwner -
-func (f *TFile) SetOwner(owner string) {
+func (f *TFile) SetOwner(owner IIcon) {
 	f.owner = owner
 }
 
@@ -2406,12 +2579,12 @@ func (f *TFile) SetDataBombRating(rating int) {
 }
 
 //GetGrid -
-func (f *TFile) GetGrid() TGrid {
+func (f *TFile) GetGrid() *TGrid {
 	return f.grid
 }
 
 //SetGrid -
-func (f *TFile) SetGrid(grid TGrid) {
+func (f *TFile) SetGrid(grid *TGrid) {
 	f.grid = grid
 }
 
@@ -2476,8 +2649,9 @@ func (f *TFile) GetSleaze() int {
 
 //GetDataProcessing -
 func (f *TFile) GetDataProcessing() int {
-	if f.device.deviceType == "noDevice" {
-		return f.host.dataProcessing
+	//if f.device.deviceType == "noDevice" {
+	if f.GetDevice().deviceType == "noDevice" {
+		return f.GetHost().GetDataProcessing()
 	}
 	return f.device.dataProcessing
 }

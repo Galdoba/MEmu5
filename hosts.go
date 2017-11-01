@@ -29,10 +29,11 @@ type THost struct {
 	id             int
 	matrixCM       int
 	markSet        MarkSet
-	grid           TGrid
+	grid           *TGrid
 	//icOrder        []string
 	icState ICList
 	alert   string
+	owner   IIcon
 }
 
 //IHost - в икону входят файлы, персоны, айсы и хосты
@@ -49,9 +50,15 @@ type IHost interface {
 	DeleteIC(*TIC) bool
 	DeleteFile(*TFile) bool
 	PickPatrolIC() *TIC
+	GetICState() ICList
 }
 
 var _ IHost = (*THost)(nil)
+
+//GetICState -
+func (h *THost) GetICState() ICList {
+	return h.icState
+}
 
 //CheckRunningProgram -
 func (h *THost) CheckRunningProgram(name string) bool {
@@ -84,8 +91,8 @@ func (h *THost) GetLongAct() int {
 }
 
 //GetOwner -
-func (h *THost) GetOwner() string {
-	return h.name
+func (h *THost) GetOwner() IIcon {
+	return h.owner
 }
 
 //GetSilentRunningMode -
@@ -114,7 +121,7 @@ func (h *THost) ResistMatrixDamage(damage int) int {
 }
 
 //SetGrid -
-func (h *THost) SetGrid(grid TGrid) {
+func (h *THost) SetGrid(grid *TGrid) {
 	//h.lastLocation = h.grid
 	//h.grid = grid
 }
@@ -168,8 +175,10 @@ func (h *THost) LoadNextIC() bool {
 		//for i := 0; i < h.deviceRating; i++ {
 		if h.icState.icStatus[i] == false {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn(h.icState.icName[i]+" was loaded...", congo.ColorRed)
+			////ObjByNames[h.icState.icName[i]] =
 			h.NewIC(h.icState.icName[i])
 			h.icState.icStatus[i] = true
+			//ObjByNames[h.icState.icName[i]] = &i
 			//h.icState.icID[i] = true
 
 			return true
@@ -249,21 +258,21 @@ func (h *THost) GatherMarks() {
 	slaves = append(slaves, h.id) //add host
 	for s := range objectList {
 		if icon, ok := objectList[s].(IIcon); ok {
-			if icon.GetOwner() == h.GetName() {
+			if icon.GetOwner() == h {
 				slaves = append(slaves, icon.GetID()) //add slave
 			}
 		}
 	}
 	for ns := range objectList {
 		if icon, ok := objectList[ns].(IIcon); ok {
-			if icon.GetOwner() != h.GetName() {
+			if icon.GetOwner() != h {
 				notSlaves = append(notSlaves, icon.GetID()) //add non-slave
 			}
 		}
 	}
 	for i := range objectList {
 		if notSlaveToCheck, ok := objectList[i].(IIcon); ok {
-			if notSlaveToCheck.GetOwner() != h.GetName() {
+			if notSlaveToCheck.GetOwner() != h {
 				markMap := notSlaveToCheck.GetMarkSet()
 				//				canSee := notSlaveToCheck.GetFieldOfView()
 				for key, value := range markMap.MarksFrom { //check if non-slave marked by slave
@@ -298,7 +307,20 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	if name == "Matrix" {
 		h := THost{}
 		h.name = "Matrix"
-		//h.grid =
+		//h.
+		/*for _, obj := range ObjByNames {
+			if gridToPick, ok := obj.(*TGrid); ok {
+				h.grid = gridToPick
+				h.deviceRating = h.grid.deviceRating
+				h.dataProcessing = h.grid.deviceRating
+			}
+		}*/
+		h.grid = player.grid
+		h.deviceRating = player.grid.deviceRating
+		h.attack = player.grid.deviceRating
+		h.sleaze = player.grid.deviceRating
+		h.dataProcessing = player.grid.deviceRating
+		h.firewall = player.grid.deviceRating
 		return &h
 	}
 	h := THost{}
@@ -310,7 +332,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	for randoGo {
 		r := rand.Intn(len(gridList))
 		if gr, ok := gridList[r].(*TGrid); ok {
-			h.grid = *gr
+			h.grid = gr
 			randoGo = false
 		}
 	}
@@ -348,6 +370,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	data[10] = "Unknown"
 	data[11] = "Unknown"
 	data[13] = "Unknown"
+	data[18] = "Unknown"
 	player.canSee.KnownData[h.id] = data
 
 	allIC := make([]string, 0, 30)
@@ -386,7 +409,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 			n := rand.Intn(len(allIC))
 			h.icState.icName = append(h.icState.icName, allIC[n])
 			h.icState.icStatus = append(h.icState.icStatus, false)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Choose= "+allIC[n], congo.ColorYellow)
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Choose= "+allIC[n], congo.ColorYellow)
 			if len(allIC) > 1 {
 				allIC = append(allIC[:n], allIC[n+1:]...)
 			}
@@ -400,6 +423,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	windowList[0].(*congo.TWindow).WPrintLn("//Debug: Atribute Array:", congo.ColorYellow)
 	windowList[0].(*congo.TWindow).WPrintLn(strconv.Itoa(h.deviceRating)+" "+strconv.Itoa(h.attack)+" "+strconv.Itoa(h.sleaze)+" "+strconv.Itoa(h.dataProcessing)+" "+strconv.Itoa(h.firewall), congo.ColorYellow)
 	//objectList = append(objectList, &h)
+	h.owner = &h
 	gridList = append(gridList, &h)
 	ObjByNames[h.name] = &h
 	windowList[0].(*congo.TWindow).WPrintLn(h.HostToString(), congo.ColorYellow)
@@ -412,7 +436,7 @@ func (h *THost) GetType() string {
 }
 
 //GetGrid -
-func (h *THost) GetGrid() TGrid {
+func (h *THost) GetGrid() *TGrid {
 	return h.grid
 }
 
@@ -464,6 +488,9 @@ func (h *THost) GetFirewall() int {
 
 //GetName -
 func (h *THost) GetName() string {
+	if h.name == "" {
+		return "Matrix"
+	}
 	return h.name
 }
 
@@ -494,6 +521,19 @@ func (h *THost) GetMarkSet() MarkSet {
 //SetAlert -
 func (h *THost) SetAlert(newAlert string) {
 	h.alert = newAlert
+	if player.GetHost() == h && h.name != "Matrix" {
+		if h.alert == "Passive Alert" {
+			printLog("...Host now in Passive Alert mode!", congo.ColorYellow)
+		}
+		if h.alert == "Active Alert" {
+			printLog("...Host now in Active Alert mode!", congo.ColorRed)
+			printLog("SYSTEM MESSAGE:", congo.ColorDefault)
+			printLog("Attention all users!", congo.ColorDefault)
+			printLog("IC Activation Protocol engaged.", congo.ColorDefault)
+			printLog("Please terminate all operations and sign off.", congo.ColorDefault)
+			printLog("We deeply regret any inconvenience we may have caused.", congo.ColorDefault)
+		}
+	}
 }
 
 //GetLinkLockStatus -
@@ -567,168 +607,7 @@ func HostExist(hostName string) bool {
 	return false
 }
 
-//ImportHostFromDB -
-func ImportHostFromDB(hostName string) *THost {
-	h := THost{}
-	icList := new(ICList)
-	h.icState = *icList
-	allIC := make([]string, 0, 30)
-	allIC = append(allIC, "Acid IC")
-	allIC = append(allIC, "Binder IC")
-	allIC = append(allIC, "Black IC")
-	allIC = append(allIC, "Blaster IC")
-	allIC = append(allIC, "Bloodhound IC")
-	allIC = append(allIC, "Catapult IC")
-	allIC = append(allIC, "Crash IC")
-	allIC = append(allIC, "Jammer IC")
-	allIC = append(allIC, "Killer IC")
-	allIC = append(allIC, "Marker IC")
-	allIC = append(allIC, "Patrol IC")
-	allIC = append(allIC, "Probe IC")
-	allIC = append(allIC, "Scramble IC")
-	allIC = append(allIC, "Sparky IC")
-	allIC = append(allIC, "Tar Baby IC")
-	allIC = append(allIC, "Track IC")
-	allIC = append(allIC, "Shoker IC")
-	file, err := os.OpenFile("HostDB.txt", os.O_APPEND|os.O_WRONLY|os.O_RDWR, 0600) // открываем файл: Имя, ключи, что-то еще
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()                           //закрываем файл когда он уже не нужен
-	dataDB, err := ioutil.ReadFile("HostDB.txt") //читаем файл
-	if err != nil {
-		log.Fatal(err)
-	}
-	allData := string(dataDB)
-	hostToImport := ""
-	hostData := strings.Split(allData, "####################\n")
-	for i := range hostData {
-		if strings.Contains(hostData[i], hostName) {
-			hostToImport = hostData[i]
-		}
 
-	}
-
-	lines := strings.Split(hostToImport, "\n")
-	for i := range lines {
-		//Import Name
-		switch strings.Contains(lines[i], "Host: ") {
-		case true:
-			nameS := strings.Split(lines[i], "Host: ")
-			name := nameS[1]
-			h.name = name
-		default:
-		}
-		//Import Grid
-		switch strings.Contains(lines[i], "Grid: ") {
-		case true:
-			nameS := strings.Split(lines[i], "Grid: ")
-			name := nameS[1]
-			randoGo := true
-			for i := range gridList {
-				if gridForHost, ok := gridList[i].(*TGrid); ok {
-					if gridForHost.name == name {
-						h.grid = *gridForHost
-						randoGo = false
-					}
-				}
-			}
-			//Если сеть не известна - выбираем из известных
-			for randoGo {
-				r := rand.Intn(len(gridList))
-				if gr, ok := gridList[r].(*TGrid); ok {
-					h.grid = *gr
-					randoGo = false
-				}
-			}
-
-		default:
-		}
-		//Import Rating
-		switch strings.Contains(lines[i], "Rating: ") {
-		case true:
-			ratingS := strings.Split(lines[i], "Rating: ")
-			rating, _ := strconv.Atoi(ratingS[1])
-			h.deviceRating = rating
-		default:
-		}
-		//Import Attack
-		switch strings.Contains(lines[i], "Attack: ") {
-		case true:
-			attackS := strings.Split(lines[i], "Attack: ")
-			attack, _ := strconv.Atoi(attackS[1])
-			h.attack = attack
-		default:
-		}
-		//Import Sleaze
-		switch strings.Contains(lines[i], "Sleaze: ") {
-		case true:
-			sleazeS := strings.Split(lines[i], "Sleaze: ")
-			sleaze, _ := strconv.Atoi(sleazeS[1])
-			h.sleaze = sleaze
-		default:
-		}
-		//Import Attack
-		switch strings.Contains(lines[i], "Data Processing: ") {
-		case true:
-			dtpS := strings.Split(lines[i], "Data Processing: ")
-			dtp, _ := strconv.Atoi(dtpS[1])
-			h.dataProcessing = dtp
-		default:
-		}
-		//Import Attack
-		switch strings.Contains(lines[i], "Firewall: ") {
-		case true:
-			frwS := strings.Split(lines[i], "Firewall: ")
-			frw, _ := strconv.Atoi(frwS[1])
-			h.firewall = frw
-		default:
-		}
-		//Import IC
-		switch strings.Contains(lines[i], " >") {
-		case true:
-			icNamesS := strings.Split(lines[i], " >")
-			icName := icNamesS[1]
-			h.icState.icName = append(h.icState.icName, icName)
-			h.icState.icStatus = append(h.icState.icStatus, false)
-		default:
-		}
-	}
-	//windowList[0].(*congo.TWindow).WPrintLn("Found: "+name+"...", congo.ColorYellow)
-	//windowList[0].(*congo.TWindow).WPrintLn("Found: "+strconv.Itoa(rating)+"...", congo.ColorYellow)
-
-	//h.name = name
-	//h.faction = name
-	h.alert = "No Alert"
-	h.matrixCM = 999999
-	h.SetID()
-	h.markSet.MarksFrom = make(map[int]int)
-	h.markSet.MarksFrom[h.id] = 4
-	h.canSee.KnownData = make(map[int][30]string)
-	//h.deviceRating = rating
-	//	h.attack = attack
-	//	h.sleaze = sleaze
-	//	h.dataProcessing = dtp
-	//	h.firewall = frw
-
-	data := player.canSee.KnownData[h.id]
-	data[0] = "Spotted"
-	data[4] = "Unknown"
-	data[5] = "Unknown"
-	data[7] = "Unknown"
-	data[8] = "Unknown"
-	data[9] = "Unknown"
-	data[10] = "Unknown"
-	data[11] = "Unknown"
-	data[13] = "Unknown"
-	player.canSee.KnownData[h.id] = data
-	h.FillHostWithFiles()
-	h.LoadNextIC()
-	printLog("Importing host: "+h.GetName(), congo.ColorDefault)
-	gridList = append(gridList, &h)
-	ObjByNames[h.name] = &h
-	return &h
-}
 
 //GenerateFileData -
 func (h *THost) GenerateFileData() {
@@ -775,12 +654,12 @@ func (h *THost) FillHostWithFiles() {
 	}
 }
 
-func applyGrid(name string) TGrid {
+func applyGrid(name string) *TGrid {
 	for i := range gridList {
 		if grid, ok := gridList[i].(*TGrid); ok {
 			windowList[0].(*congo.TWindow).WPrintLn(grid.GetGridName(), congo.ColorGreen)
 			if grid.GetGridName() == name {
-				return *grid
+				return grid
 			}
 		}
 	}

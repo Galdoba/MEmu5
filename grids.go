@@ -19,6 +19,7 @@ var _ IGrid = (*TGrid)(nil)
 
 //ToDo: перенести DeviceRating в TObj
 
+//IGridOnly -
 type IGridOnly interface {
 	GetGridName() string
 	//GetDeviceRating() int
@@ -93,6 +94,7 @@ func NewGrid(name string, dr int) *TGrid {
 	g.overwatchScore = 0
 	g.id = -999
 	gridList = append(gridList, &g)
+	ObjByNames[g.name] = &g
 	return &g
 }
 

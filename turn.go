@@ -368,7 +368,7 @@ func rollInitiative() {
 				//panic(0)
 			}
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: "+obj.GetName()+" rolling initiative", congo.ColorYellow)
-			obj.SetInitiative(10 + xd6Test(dice))
+			obj.SetInitiative(objectList[i].(IIcon).GetDataProcessing() + objectList[i].(IIcon).GetDeviceRating() + xd6Test(dice))
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: " + obj.GetName() + " have " + strconv.Itoa(obj.GetInitiative()) + " initiative", congo.ColorDefault)
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: " + player.name + " have " + strconv.Itoa(player.GetInitiative()) + " initiative", congo.ColorDefault)
 		}
@@ -389,7 +389,7 @@ func rollInitiative() {
 				//panic(0)
 			}
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("End Round "+strconv.Itoa(Turn), congo.ColorDefault)
-			objectList[i].(IPersona).SetInitiative(10 + xd6Test(dice))
+			objectList[i].(IPersona).SetInitiative(objectList[i].(IPersona).GetIntuition() + objectList[i].(IPersona).GetDataProcessing() + xd6Test(dice))
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: " + player.name + " have " + strconv.Itoa(player.GetInitiative()) + " initiative", congo.ColorDefault)
 		}
 	}
@@ -397,6 +397,20 @@ func rollInitiative() {
 }
 
 func hostAction() {
+	//for _, obj := range ObjByNames {
+	//	if icon, ok := obj.(IIcon); ok {
+	for _, icon := range ObjByNames {
+		if persona, ok := icon.(*TPersona); ok {
+			persona.UpdateSearchProcess()
+			/*if persona.GetSearchResultIn() > 0 {
+				persona.SetSearchResultIn(persona.GetSearchResultIn() - 1)
+				if persona.GetSearchResultIn() == 0 {
+					printLog("gogopowerrangers", congo.ColorDefault)
+				}
+			}*/
+		}
+	}
+
 	for i := range gridList {
 
 		if host, ok := gridList[i].(*THost); ok {

@@ -132,6 +132,8 @@ func UserInput(input string) bool {
 func formatString(s string) string {
 	s = strings.ToUpper(s)
 	s = strings.Replace(s, " ", "_", -1)
+	//s = strings.Replace(s, "-2M", "-2m", -1)
+	//s = strings.Replace(s, "-3M", "-3m", -1)
 	return s
 }
 
