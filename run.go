@@ -326,7 +326,7 @@ func main() {
 	createDefaultGrids()
 	//Matrix = gridList[1].NewHost("Matrix", 0)
 	//player = NewPlayer("Andy", "Sony CIY-720")
-	player = ImportPlayerFromDB("Andy") //.(*TPersona)
+	player = ImportPlayerFromDB("TestPC") //.(*TPersona)
 	Matrix = player.grid.NewHost("Matrix", 0)
 	ObjByNames[player.name] = player
 	if o, ok := ObjByNames["player"]; ok {
