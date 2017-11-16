@@ -2,7 +2,7 @@
 
 MEmu5 is an attempt to digitalise the abstract rules for the Matrix in Shadowrun 5E.
 
-## HOW TO USE:
+## Get started
 
 1. Edit "playerDB.txt" to add your character using template provided.
 2. run Sr5MEmu.exe
@@ -10,7 +10,7 @@ MEmu5 is an attempt to digitalise the abstract rules for the Matrix in Shadowrun
 4. search host: ```matrix search>host>[hostName]```
 5. do your shadowstuff using rules in Shadowrun 5 Core Rule Book (p. 217-249)
 
-## Actions Examples:
+## Actions Examples
 
 to initiate an action just type:
 ```[ACTION_NAME]>[TARGET_NAME]>[OPTIONAL_ARGUMENTS]```
@@ -20,7 +20,7 @@ load character/his characteristics and abilities with name "TestPC"
 login>TestPC 
 ```
 
-do "HotF" action on icon with name "Ares Host", 
+Do "Hack on the Fly" action on icon with name "Ares Host", 
 optional arg "-2m" stands for 2 marks (put 2 marks with modifier -4 to Dice Pool)
 ```
 hack on the fly>Ares Host>-2m	
@@ -30,46 +30,46 @@ hack on the fly>patrol ic
 hack on the fly>TrACk ic>-3m>-pl	# "-pl" is an optional argument stand for "Push the Limit"
 ```
 
-set your mode to COLD-SIM VR acording to rules in CRB
+Set your mode to COLD-SIM VR acording to rules in CRB
 ```
 switch interface mode>cold vr 
 ```
 
-scan all envirement in attempt to find hidden (silent running) icons.
-will inform you how many hidden icons in the same enviroment as player,
-and will spot 1 random icon
+Scan all environment in attempt to find hidden (silent running) icons.
+Will inform you how many hidden icons are in the same enviroment as 
+the player and will spot 1 random icon
 ```
 matrix perception>all			
 matrix perception>file 10	# scan icon with name "file 10"
 ```
 
-will initiate search for icon type "Host" with name "Alpha" 
+Will initiate search for icon type "Host" with name "Alpha" 
 (will take few combat turns acording to rules in Core Rule Book)
 ```
 matrix search>host>alpha
 matrix search>file>system log
 ```
 
-set players initiative to 0, and start new Combat Turn (Nessesary after you initiated search or download)
+Set players initiative to 0, and start new Combat Turn (Nessesary after you initiated search or download)
 ```
 wait
 ```
 
-And those work acording the rules from the book:
+And those work according the rules from the book:
 ```
 crack file
 data spike
 brute force
 ```
 
-## supported features:
+## Supported features
 
 ### Hosts
 
-If you search host that is unknown to program, it will create
-new random host with name you added to command, after that it
-will add the host to "HostDb.txt" so you will be able to hack
-the exact same Host
+If you search a host that is unknown to the program, it will 
+create a new random host with the name you added to the
+command. After that it will add the host to "HostDb.txt" so
+you are able to hack it.
 
 ### IC
 
