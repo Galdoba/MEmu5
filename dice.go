@@ -243,7 +243,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 	glitch := sourceIcon.glitch()
 	critGlitch := sourceIcon.critGlitch()
 	if rollerID == player.GetID() && player.GetEdge() > 0 {
-		printLog("......Roll result: "+strconv.Itoa(suc), congo.ColorGreen)
+		printLog("......Roll result: "+strconv.Itoa(suc)+" successes", congo.ColorGreen)
 		if glitch {
 			printLog("......Error: Glitch detected!", congo.ColorYellow)
 		}
@@ -274,7 +274,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 								critGlitch = scgl
 							}
 							suc = suc + suc2
-							printLog("......Reroll result: "+strconv.Itoa(suc2), congo.ColorGreen)
+							printLog("......Reroll result: "+strconv.Itoa(suc2)+" successes", congo.ColorGreen)
 							printLog("...Final result: "+strconv.Itoa(suc2+suc), congo.ColorGreen)
 							break
 						}

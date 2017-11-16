@@ -2388,6 +2388,14 @@ func doAction(s string) bool {
 		return false
 	}
 	if val, ok := MActions.MActionMap[s]; ok {
+		if attacker, ok := SourceIcon.(IIcon); ok {
+			if defender, ok := TargetIcon.(IPersona); ok {
+				if defender.GetID() == player.GetID() {
+					printLog(attacker.GetName()+" attack detected...", congo.ColorYellow)
+					printLog("..."+defender.GetName()+": Evaiding", congo.ColorGreen)
+				}
+			}
+		}
 		val.(func(IObj, IObj))(SourceIcon, TargetIcon)
 		return true
 	}
@@ -2568,59 +2576,6 @@ func CheckOverwatchScore(src IObj, trg IObj) {
 	endAction()
 }
 
-//CrackFile - +
-/*func CrackFile0(src IObj, trg IObj) {
-	persona := SourceIcon.(*TPersona)
-	trg = TargetIcon
-	printLog("Decryption "+trg.(IFile).GetName()+" initiated...", congo.ColorGreen)
-	if checkMarks(1) == false {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(trg.(IFile).GetName()+": ACCESS DENIDED", congo.ColorRed)
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Not Enough Marks on "+trg.(*TFile).GetName(), congo.ColorYellow)
-	} else { //выполняем само действие
-		attMod, defMod := getModifiers(src, trg)
-		if trg, ok := trg.(IFile); ok {
-			dp1 := persona.GetHackingSkill() + persona.GetLogic() + attMod
-			dp2 := trg.GetEncryptionRating()*2 + defMod
-			limit := persona.GetAttack()
-			if persona.GetSimSence() == "HOT-SIM" {
-				dp1 = dp1 + 2
-			}
-			suc1, gl, cgl := simpleTest(src.GetID(), dp1, limit, 0)
-			suc2, glt, cglt := simpleTest(trg.GetID(), dp2, 1000, 0)
-			if gl == true {
-				addOverwatchScore(2)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Encryption failed....", congo.ColorYellow)
-			}
-			if cgl == true {
-				addOverwatchScore(8)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-			}
-			if glt == true {
-				addOverwatchScore(-suc2)
-			}
-			if cglt == true {
-				persona.GetGrid().SetOverwatchScore(0)
-			}
-			netHits := suc1 - suc2
-			addOverwatchScore(suc2)
-			if trg.GetDataBombRating() > 0 {
-				persona.TriggerDataBomb(trg.GetDataBombRating())
-				trg.SetDataBombRating(0)
-				persona.ChangeFOWParametr(trg.GetID(), 3, strconv.Itoa(trg.GetDataBombRating())) // 3- отвечает за DataBomb
-			}
-			if netHits > 0 {
-				trg.SetEncryptionRating(0)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("...File encryption disabled", congo.ColorGreen)
-				persona.ChangeFOWParametr(trg.GetID(), 12, strconv.Itoa(trg.GetEncryptionRating())) // 12- отвечает за Encryption
-			} else {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("...Failure! File encryption is not disabled", congo.ColorYellow)
-			}
-		}
-
-	}
-	endAction()
-}*/
-
 //CrackFile - ++
 func CrackFile(src IObj, trg IObj) {
 	persona := src.(IPersona)
@@ -2686,16 +2641,13 @@ func CrackFile(src IObj, trg IObj) {
 }
 
 //DataSpike - ++
-func DataSpike(src IObj, trg IObj) {
+func DataSpike0(src IObj, trg IObj) {
 	src = SourceIcon
 	trg = TargetIcon
 	var netHits int
 	persona := src.(IPersona)
 	isComplexAction()
-	text := command
-	text = formatString(text)
-	text = cleanText(text)
-	comm := strings.Split(text, ">")
+	comm := GetComm()
 	attMod := 0
 	printLog("Initiating Data Spike sequence...", congo.ColorGreen)
 	targetList := pickTargets(comm)
@@ -2736,6 +2688,84 @@ func DataSpike(src IObj, trg IObj) {
 				printLog("...Target's firewall critical falure", congo.ColorGreen)
 			}
 			netHits = suc1 - suc2
+			if netHits > 0 {
+				damage := netHits + persona.GetAttack()
+				realDamage := icon.ResistMatrixDamage(damage)
+				icon.ReceiveMatrixDamage(realDamage)
+				if persona.CheckRunningProgram("Biofeedback") {
+					if target, ok := icon.(IPersona); ok {
+						bfDamage := target.ResistBiofeedbackDamage(realDamage)
+						target.ReceivePhysBiofeedbackDamage(bfDamage)
+					} else {
+						printLog("...Error: "+icon.GetName()+" is immune to Biofeedback Damage", congo.ColorGreen)
+					}
+				}
+				if persona.CheckRunningProgram("Blackout") {
+					if target, ok := icon.(IPersona); ok {
+						bfDamage := target.ResistBiofeedbackDamage(realDamage)
+						target.ReceiveStunBiofeedbackDamage(bfDamage)
+					} else {
+						printLog("...Error: "+icon.GetName()+" is immune to Biofeedback Damage", congo.ColorGreen)
+					}
+				}
+				if host.GetHostAlertStatus() == "No Alert" {
+					host.alert = "Passive Alert"
+				}
+			} else {
+				persona.ReceiveMatrixDamage(-netHits)
+			}
+		} else {
+			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
+		}
+	}
+	endAction()
+
+}
+
+//DataSpike - ++
+func DataSpike(src IObj, trg IObj) {
+	persona := src.(IPersona)
+	isComplexAction()
+	comm := GetComm()
+	attMod := 0
+	printLog("Initiating Data Spike sequence...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
+	}
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetAttack()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
+	suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...Error: Attack protocol glitch detected", congo.ColorYellow)
+	}
+	if cgl == true {
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...Error: Attack protocol critical failure", congo.ColorRed)
+	}
+	for i := range targetList {
+		if icon, ok := targetList[i].(IIcon); ok {
+			host := icon.GetHost()
+			dp2 := icon.GetDeviceRating() + icon.GetFirewall()
+			suc2, rgl, rcgl := simpleTest(icon.GetID(), dp2, 1000, 0)
+			addOverwatchScore(suc2)
+			if rgl == true {
+				printLog("..."+icon.GetName()+": Firewall exploit detected", congo.ColorGreen)
+				suc1++
+			}
+			if rcgl == true {
+				addOverwatchScore(-dp2)
+				printLog("..."+icon.GetName()+": Firewall critical failure", congo.ColorGreen)
+			}
+			netHits := suc1 - suc2
 			if netHits > 0 {
 				damage := netHits + persona.GetAttack()
 				realDamage := icon.ResistMatrixDamage(damage)
