@@ -16,6 +16,7 @@ import (
 	"math/rand"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Galdoba/ConGo/congo"
@@ -43,15 +44,21 @@ func setSeed() {
 func (dp *DicePool) roll() {
 	assert(dp.isOk, "DicePool not initialized")
 	setSeed()
-	windowList[5].(*congo.TWindow).WPrint("& ", congo.ColorGreen)
+	//windowList[5].(*congo.TWindow).WPrint("& ", congo.ColorGreen)
+	//windowList[0].(*congo.TWindow).WPrint("...", congo.ColorGreen)
 	for i := range dp.pool {
 		dp.pool[i] = rand.Intn(6) + 1
+		//	windowList[5].(*congo.TWindow).WPrint(".", congo.ColorGreen)
+		draw()
 		if src, ok := SourceIcon.(IPersona); ok {
-			windowList[5].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i])+" ", congo.ColorGreen)
+			//				windowList[0].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i])+" ", congo.ColorGreen)
+			draw()
+			//				hold()
 			src.(IObj).GetID()
 		}
 	}
-	windowList[5].(*congo.TWindow).WPrint("# ", congo.ColorGreen)
+	//windowList[0].(*congo.TWindow).WPrintLn("...", congo.ColorGreen)
+	//windowList[5].(*congo.TWindow).WPrint(".", congo.ColorGreen)
 	dp.isRolled = true
 }
 
@@ -65,6 +72,18 @@ func (dp *DicePool) successes() int {
 	}
 	//fmt.Println(successes)
 	return successes
+}
+
+func (dp *DicePool) sixes() int {
+	assert(dp.isRolled, "DicePool not Rolled")
+	sixes := 0
+	for i := range dp.pool {
+		if dp.pool[i] == 6 {
+			sixes++
+		}
+	}
+	//fmt.Println(successes)
+	return sixes
 }
 
 func (dp *DicePool) glitch() bool {
@@ -107,25 +126,193 @@ func (dp *DicePool) summ() int {
 	return total
 }
 
-func simpleTest(dicePool1 int, limit int, threshold int) (int, bool, bool) {
+func reRoll(rerollDp int) (int, bool, bool) {
+	if rerollDp < 0 {
+		return 0, false, false
+	}
+	sourceIcon := makeDicePool(rerollDp)
+	sourceIcon.roll()
+	suc := sourceIcon.successes()
+	glitch := sourceIcon.glitch()
+	critGlitch := sourceIcon.critGlitch()
+	return suc, glitch, critGlitch
+}
+
+func interruptProcess(i int) {
+	congo.WindowsMap.ByTitle["Process"].WClear()
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("Interrupt protocol Keys: ('S' - Skip timer)", congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("'R' - Reroll", congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("'N' - Negate Glitch", congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("'P' - Push the Limit", congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("Deactivation in : "+strconv.Itoa(i/4), congo.ColorDefault)
+
+}
+
+func rule6Test(rollerID int, dicePool1 int, limit int, threshold int) (int, bool, bool) {
+
+	if dicePool1 < 1 {
+		return 0, false, false
+	}
+	sourceIcon := makeDicePool(dicePool1)
+	sourceIcon.roll()
+	sixes := sourceIcon.sixes()
+	suc := sourceIcon.successes()
+	glitch := sourceIcon.glitch()
+	critGlitch := sourceIcon.critGlitch()
+	if rollerID == player.GetID() {
+		congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array: ", congo.ColorGreen)
+		for i := range sourceIcon.pool {
+			congo.WindowsMap.ByTitle["Log"].WPrint(strconv.Itoa(sourceIcon.pool[i])+" ", congo.ColorGreen)
+			draw()
+		}
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("......Result: "+strconv.Itoa(suc)+" successes", congo.ColorGreen)
+		if sixes > 0 {
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("......Reevaluating resources: "+strconv.Itoa(sixes)+" Mp/p available", congo.ColorGreen)
+		}
+	}
+	for sixes > 0 {
+		//printLog("create DP = sixes ("+strconv.Itoa(sixes), congo.ColorDefault)
+		//	hold()
+		addDp := makeDicePool(sixes)
+		//printLog("roll DP = addDp.pool ("+strconv.Itoa(len(addDp.pool)), congo.ColorDefault)
+		addDp.roll()
+		addSuc := addDp.successes()
+		suc = suc + addSuc
+		sixes = addDp.sixes()
+		if rollerID == player.GetID() && len(addDp.pool) > 0 {
+			congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array: ", congo.ColorGreen)
+			for i := range addDp.pool {
+				congo.WindowsMap.ByTitle["Log"].WPrint(strconv.Itoa(addDp.pool[i])+" ", congo.ColorGreen)
+				draw()
+			}
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
+
+			printLog("......Result: "+strconv.Itoa(addSuc)+" successes", congo.ColorGreen)
+			if sixes > 0 {
+				printLog("......Reevaluating resources: "+strconv.Itoa(sixes)+" Mp/p available", congo.ColorGreen)
+			}
+
+		}
+	}
+	printLog("...Final Result: "+strconv.Itoa(suc), congo.ColorGreen)
+	return suc, glitch, critGlitch
+	//return 0, false, false
+}
+
+func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, bool, bool) {
+	if rollerID == player.GetID() {
+		text := command
+		text = formatString(text)
+		text = cleanText(text)
+		comm := strings.Split(text, ">")
+		for i := range comm {
+			if comm[i] == "-PL" {
+				printLog("...Additional resources evaluated", congo.ColorGreen)
+				if player.GetEdge() > 0 {
+					dicePool1 = dicePool1 + player.GetMaxEdge()
+					printLog("...Expected efficiency "+strconv.Itoa(dicePool1)+" Mp/p", congo.ColorGreen)
+					limit = 999
+					printLog("...Warning: Hardware limit deactivated", congo.ColorYellow)
+					suc, gl, cgl := rule6Test(rollerID, dicePool1, limit, threshold)
+					netHits := (suc - threshold)
+					player.SetEdge(player.GetEdge() - 1)
+					return netHits, gl, cgl
+				}
+				//dicePool1 = dicePool1 + player.GetMaxEdge()
+
+			}
+
+		}
+	}
 	if dicePool1 < 0 {
 		return 0, false, false
 	}
 	sourceIcon := makeDicePool(dicePool1)
 	sourceIcon.roll()
+	if rollerID == player.GetID() {
+		congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array: ", congo.ColorGreen)
+		for i := range sourceIcon.pool {
+			congo.WindowsMap.ByTitle["Log"].WPrint(strconv.Itoa(sourceIcon.pool[i])+" ", congo.ColorGreen)
+		}
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
+
+	}
 	suc := sourceIcon.successes()
+	//sixes := sourceIcon.sixes()
+	glitch := sourceIcon.glitch()
+	critGlitch := sourceIcon.critGlitch()
+	if rollerID == player.GetID() && player.GetEdge() > 0 {
+		printLog("......Roll result: "+strconv.Itoa(suc), congo.ColorGreen)
+		if glitch {
+			printLog("......Error: Glitch detected!", congo.ColorYellow)
+		}
+		if critGlitch {
+			printLog("......Warning: Error critical!", congo.ColorRed)
+		}
+		printLog("......Interrupt protocol ready", congo.ColorGreen)
+		for i := 20; i > 0; i-- {
+			congo.WindowsMap.ByTitle["Process"].WClear()
+			interruptProcess(i)
+			hold()
+			if congo.GetKeyboard().KeyPressed() {
+				ev := congo.GetKeyboard().ReadEvent()
+				if ev.GetEventType() == "Keyboard" {
+					key := ev.(*congo.KeyboardEvent).GetRune()
+					if key != 0 {
+						char := string(key)
+						if char == "r" {
+							printLog("......Reroll protocol Initiated", congo.ColorYellow)
+							player.SetEdge(player.GetEdge() - 1)
+							rerollDp := dicePool1 - suc
+							printLog("......Rerolling "+strconv.Itoa(rerollDp)+" dices...", congo.ColorGreen)
+							suc2, sgl, scgl := reRoll(rerollDp)
+							if sgl {
+								glitch = sgl
+							}
+							if scgl {
+								critGlitch = scgl
+							}
+							suc = suc + suc2
+							printLog("......Reroll result: "+strconv.Itoa(suc2), congo.ColorGreen)
+							printLog("...Final result: "+strconv.Itoa(suc2+suc), congo.ColorGreen)
+							break
+						}
+						if char == "n" {
+							printLog("......Emergency data steam rerouting", congo.ColorYellow)
+							player.SetEdge(player.GetEdge() - 1)
+							if critGlitch {
+								critGlitch = false
+								break
+							}
+							if glitch {
+								glitch = false
+								break
+							}
+							break
+						}
+						if char == "p" {
+							printLog("......Allocating additional resourses", congo.ColorYellow)
+							player.SetEdge(player.GetEdge() - 1)
+							limit = 999
+							addSucc, _, _ := rule6Test(player.GetID(), player.GetMaxEdge(), limit, 0)
+							suc = suc + addSucc
+							break
+						}
+						if char == "s" {
+							printLog("......Interrupt protocol deactivated", congo.ColorGreen)
+							break
+						}
+					}
+				}
+			}
+		}
+		congo.WindowsMap.ByTitle["Process"].WClear()
+	}
 	if suc > limit {
 		suc = limit
 	}
-	//windowList[0].(*congo.TWindow).WPrintLn("Sucesesses = "+strconv.Itoa(sourceIcon.successes()), congo.ColorGreen)
-	//	windowList[1].(*congo.TWindow).WPrintLn(
-	//	fmt.Println("Sucesesses =", sourceIcon.successes())
 	netHits := (suc - threshold)
-	glitch := sourceIcon.glitch()
-	critGlitch := sourceIcon.critGlitch()
-	//strconv.FormatBool(v)
-	//windowList[0].(*congo.TWindow).WPrintLn("Nethits = " + strconv.Itoa(netHits) + "; Glitch = " + strconv.FormatBool(glitch) +  "; Critical Glitch = " + strconv.FormatBool(critGlitch))
-	//	windowList[0].(*congo.TWindow).WPrintLn("Nethits = " + strconv.Itoa(netHits))
 	if glitch == true {
 		if critGlitch == true {
 			//windowList[0].(*congo.TWindow).WPrintLn("CRITICAL GLITCH!!!", congo.ColorGreen)
@@ -133,7 +320,9 @@ func simpleTest(dicePool1 int, limit int, threshold int) (int, bool, bool) {
 			//windowList[0].(*congo.TWindow).WPrintLn("GLITCH!", congo.ColorGreen)
 		}
 	}
-	//fmt.Println("Nethits =", netHits, "Glitch =", glitch, "Critical Glitch =", critGlitch)
+	/*if rollerID == player.GetID() {
+		printLog("...Roll Result: ", congo.ColorGreen)
+	}*/
 	return netHits, glitch, critGlitch
 }
 

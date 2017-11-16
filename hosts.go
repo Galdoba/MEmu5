@@ -55,6 +55,16 @@ type IHost interface {
 
 var _ IHost = (*THost)(nil)
 
+//RollInitiative -
+func (h *THost) RollInitiative() {
+	h.SetInitiative(h.GetDataProcessing() + h.GetIntuition() + xd6Test(4))
+}
+
+//GetIntuition -
+func (h *THost) GetIntuition() int {
+	return h.GetDeviceRating()
+}
+
 //GetICState -
 func (h *THost) GetICState() ICList {
 	return h.icState
@@ -102,7 +112,7 @@ func (h *THost) GetSilentRunningMode() bool {
 
 //GetSimSence -
 func (h *THost) GetSimSence() string {
-	return "Hot-SIM VR"
+	return "HOT-SIM"
 }
 
 //IsPlayer -
@@ -174,7 +184,11 @@ func (h *THost) LoadNextIC() bool {
 	for i := range h.icState.icName {
 		//for i := 0; i < h.deviceRating; i++ {
 		if h.icState.icStatus[i] == false {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(h.icState.icName[i]+" was loaded...", congo.ColorRed)
+			if player.GetHost() == h {
+				printLog(h.icState.icName[i]+" was loaded...", congo.ColorYellow)
+			}
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn(h.icState.icName[i]+" was loaded...", congo.ColorRed)
+			//congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
 			////ObjByNames[h.icState.icName[i]] =
 			h.NewIC(h.icState.icName[i])
 			h.icState.icStatus[i] = true
@@ -189,30 +203,35 @@ func (h *THost) LoadNextIC() bool {
 
 //DeleteIC -
 func (h *THost) DeleteIC(ic *TIC) bool {
+	//ObjByNames[ic.GetName()] = nil
+	//delete(ObjByNames, ic.GetName())
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("IC Name= "+ic.GetName(), congo.ColorDefault)
 	for i := 0; i < h.deviceRating; i++ {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Check= "+h.icState.icName[i], congo.ColorDefault)
 		icName := h.icState.icName[i]
-		for j := range objectList {
-			if icObj, ok := objectList[j].(*TIC); ok {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Compare= "+icObj.GetName()+" with "+icName, congo.ColorDefault)
-				if icObj.GetName() == icName {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn(icObj.GetName()+" = ok!", congo.ColorGreen)
-					congo.WindowsMap.ByTitle["Log"].WPrintLn(icObj.GetName()+" has "+strconv.Itoa(icObj.GetMatrixCM())+" matrix boxes...", congo.ColorGreen)
-					if icObj.GetMatrixCM() < 1 {
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(icObj.GetName()+" must be deleted...", congo.ColorGreen)
-						h.icState.icStatus[i] = false
-						h.SetAlert("Active Alert")
-						hold()
-						congo.WindowsMap.ByTitle["Log"].WPrintLn(h.GetName()+": Set Active Alert ON", congo.ColorGreen)
-						objectList = append(objectList[:j], objectList[j+1:]...)
-						return true
+		icObj := ObjByNames[h.icState.icName[i]].(IIC)
 
-					}
+		//	for j := range objectList {
+		//		if icObj, ok := objectList[j].(*TIC); ok {
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Compare= "+icObj.GetName()+" with "+icName, congo.ColorDefault)
+		if icObj.GetName() == icName {
+			congo.WindowsMap.ByTitle["Log"].WPrintLn(icObj.GetName()+" = ok!", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn(icObj.GetName()+" has "+strconv.Itoa(icObj.GetMatrixCM())+" matrix boxes...", congo.ColorGreen)
+			if icObj.GetMatrixCM() < 1 {
+				congo.WindowsMap.ByTitle["Log"].WPrintLn(icObj.GetName()+" must be deleted...", congo.ColorGreen)
+				h.icState.icStatus[i] = false
+				h.SetAlert("Active Alert")
+				hold()
+				congo.WindowsMap.ByTitle["Log"].WPrintLn(h.GetName()+": Set Active Alert ON", congo.ColorGreen)
+				//objectList = append(objectList[:j], objectList[j+1:]...)
+				delete(ObjByNames, ic.GetName())
+				return true
 
-				}
 			}
+
 		}
+		//		}
+		//	}
 
 		/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Check= "+h.icState.icName[i], congo.ColorDefault)
 		if h.icState.icStatus[i] == true && ic.GetName() == h.icState.icName[i] {
@@ -419,14 +438,14 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	//windowList[0].(*congo.TWindow).WPrintLn("Host located:", congo.ColorGreen)
 	//windowList[0].(*congo.TWindow).WPrintLn("Grid: "+h.grid.name, congo.ColorGreen)
 	h.LoadNextIC()
-	windowList[0].(*congo.TWindow).WPrintLn(h.name+" located.", congo.ColorGreen)
-	windowList[0].(*congo.TWindow).WPrintLn("//Debug: Atribute Array:", congo.ColorYellow)
-	windowList[0].(*congo.TWindow).WPrintLn(strconv.Itoa(h.deviceRating)+" "+strconv.Itoa(h.attack)+" "+strconv.Itoa(h.sleaze)+" "+strconv.Itoa(h.dataProcessing)+" "+strconv.Itoa(h.firewall), congo.ColorYellow)
+	//	windowList[0].(*congo.TWindow).WPrintLn(h.name+" located.", congo.ColorGreen)
+	//	windowList[0].(*congo.TWindow).WPrintLn("//Debug: Atribute Array:", congo.ColorYellow)
+	//	windowList[0].(*congo.TWindow).WPrintLn(strconv.Itoa(h.deviceRating)+" "+strconv.Itoa(h.attack)+" "+strconv.Itoa(h.sleaze)+" "+strconv.Itoa(h.dataProcessing)+" "+strconv.Itoa(h.firewall), congo.ColorYellow)
 	//objectList = append(objectList, &h)
 	h.owner = &h
 	gridList = append(gridList, &h)
 	ObjByNames[h.name] = &h
-	windowList[0].(*congo.TWindow).WPrintLn(h.HostToString(), congo.ColorYellow)
+	//	windowList[0].(*congo.TWindow).WPrintLn(h.HostToString(), congo.ColorYellow)
 	return &h
 }
 
@@ -594,20 +613,17 @@ func HostExist(hostName string) bool {
 	}
 	content := string(data)
 	cont := strings.Split(content, "\n")
-	windowList[0].(*congo.TWindow).WPrintLn("Checking "+hostName+"...", congo.ColorYellow)
 	subStr := "Host: " + hostName
 
 	for i := 0; i < len(cont); i++ {
 		if strings.Contains(cont[i], subStr) {
-			windowList[0].(*congo.TWindow).WPrintLn(hostName+" exist !", congo.ColorYellow)
+			congo.WindowsMap.ByTitle["Process"].WPrintLn("Connection with host established:", congo.ColorDefault)
 			return true
 		}
 	}
-	windowList[0].(*congo.TWindow).WPrintLn(hostName+" is not exist", congo.ColorYellow)
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("Lost connection with host", congo.ColorDefault)
 	return false
 }
-
-
 
 //GenerateFileData -
 func (h *THost) GenerateFileData() {
@@ -622,10 +638,10 @@ func (h *THost) FillHostWithFiles() {
 		//file := h.NewFile("File" + " " + strconv.Itoa(id))
 		file := h.NewFile("random")
 
-		r, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.dataProcessing, 0)
+		r, _, _ := simpleTest(h.GetID(), h.deviceRating+h.deviceRating, h.dataProcessing, 0)
 		file.SetEncryptionRating(r)
 		if r > 0 {
-			bR, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.sleaze, 0)
+			bR, _, _ := simpleTest(h.GetID(), h.deviceRating+h.deviceRating, h.sleaze, 0)
 			file.SetDataBombRating(bR)
 			costMult = r * bR
 		}

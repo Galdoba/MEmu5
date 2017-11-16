@@ -22,6 +22,19 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Camera5"] = &TDevice{}
 	DB.DeviceDB["Camera5"].deviceRating = 5
 	//////////////
+	DB.DeviceDB["<UNREGISTRATED>"] = &TDevice{}
+	DB.DeviceDB["<UNREGISTRATED>"].deviceType = "Cyberdeck"
+	DB.DeviceDB["<UNREGISTRATED>"].model = "Erika MCD-1"
+	DB.DeviceDB["<UNREGISTRATED>"].deviceRating = 0
+	DB.DeviceDB["<UNREGISTRATED>"].attack = 0
+	DB.DeviceDB["<UNREGISTRATED>"].sleaze = 0
+	DB.DeviceDB["<UNREGISTRATED>"].dataProcessing = 0
+	DB.DeviceDB["<UNREGISTRATED>"].firewall = 0
+	DB.DeviceDB["<UNREGISTRATED>"].maxMatrixCM = 8
+	DB.DeviceDB["<UNREGISTRATED>"].matrixCM = 8
+	DB.DeviceDB["<UNREGISTRATED>"].canSwapAtt = false
+	DB.DeviceDB["<UNREGISTRATED>"].software = preaparePrograms()
+	//////////////
 	DB.DeviceDB["Erika MCD-1"] = &TDevice{}
 	DB.DeviceDB["Erika MCD-1"].deviceType = "Cyberdeck"
 	DB.DeviceDB["Erika MCD-1"].model = "Erika MCD-1"
@@ -35,6 +48,71 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Erika MCD-1"].canSwapAtt = true
 	DB.DeviceDB["Erika MCD-1"].software = preaparePrograms()
 	//////////////
+	DB.DeviceDB["Microdeck Summit"] = &TDevice{}
+	DB.DeviceDB["Microdeck Summit"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Microdeck Summit"].model = "Microdeck Summit"
+	DB.DeviceDB["Microdeck Summit"].deviceRating = 1
+	DB.DeviceDB["Microdeck Summit"].attack = 4
+	DB.DeviceDB["Microdeck Summit"].sleaze = 3
+	DB.DeviceDB["Microdeck Summit"].dataProcessing = 3
+	DB.DeviceDB["Microdeck Summit"].firewall = 1
+	DB.DeviceDB["Microdeck Summit"].maxMatrixCM = 9
+	DB.DeviceDB["Microdeck Summit"].matrixCM = 9
+	DB.DeviceDB["Microdeck Summit"].canSwapAtt = true
+	DB.DeviceDB["Microdeck Summit"].software = preaparePrograms()
+	//////////////
+	DB.DeviceDB["Microtronica Azteca 200"] = &TDevice{}
+	DB.DeviceDB["Microtronica Azteca 200"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Microtronica Azteca 200"].model = "Microtronica Azteca 200"
+	DB.DeviceDB["Microtronica Azteca 200"].deviceRating = 2
+	DB.DeviceDB["Microtronica Azteca 200"].attack = 5
+	DB.DeviceDB["Microtronica Azteca 200"].sleaze = 4
+	DB.DeviceDB["Microtronica Azteca 200"].dataProcessing = 3
+	DB.DeviceDB["Microtronica Azteca 200"].firewall = 2
+	DB.DeviceDB["Microtronica Azteca 200"].maxMatrixCM = 9
+	DB.DeviceDB["Microtronica Azteca 200"].matrixCM = 9
+	DB.DeviceDB["Microtronica Azteca 200"].canSwapAtt = true
+	DB.DeviceDB["Microtronica Azteca 200"].software = preaparePrograms()
+	//////////////
+	DB.DeviceDB["Hermes Chariot"] = &TDevice{}
+	DB.DeviceDB["Hermes Chariot"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Hermes Chariot"].model = "Hermes Chariot"
+	DB.DeviceDB["Hermes Chariot"].deviceRating = 2
+	DB.DeviceDB["Hermes Chariot"].attack = 5
+	DB.DeviceDB["Hermes Chariot"].sleaze = 4
+	DB.DeviceDB["Hermes Chariot"].dataProcessing = 4
+	DB.DeviceDB["Hermes Chariot"].firewall = 2
+	DB.DeviceDB["Hermes Chariot"].maxMatrixCM = 9
+	DB.DeviceDB["Hermes Chariot"].matrixCM = 9
+	DB.DeviceDB["Hermes Chariot"].canSwapAtt = true
+	DB.DeviceDB["Hermes Chariot"].software = preaparePrograms()
+	//////////////
+	DB.DeviceDB["Novatech Navigator"] = &TDevice{}
+	DB.DeviceDB["Novatech Navigator"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Novatech Navigator"].model = "Novatech Navigator"
+	DB.DeviceDB["Novatech Navigator"].deviceRating = 3
+	DB.DeviceDB["Novatech Navigator"].attack = 6
+	DB.DeviceDB["Novatech Navigator"].sleaze = 5
+	DB.DeviceDB["Novatech Navigator"].dataProcessing = 4
+	DB.DeviceDB["Novatech Navigator"].firewall = 3
+	DB.DeviceDB["Novatech Navigator"].maxMatrixCM = 10
+	DB.DeviceDB["Novatech Navigator"].matrixCM = 10
+	DB.DeviceDB["Novatech Navigator"].canSwapAtt = true
+	DB.DeviceDB["Novatech Navigator"].software = preaparePrograms()
+	//////////////
+	DB.DeviceDB["Renraku Tsurugi"] = &TDevice{}
+	DB.DeviceDB["Renraku Tsurugi"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Renraku Tsurugi"].model = "Renraku Tsurugi"
+	DB.DeviceDB["Renraku Tsurugi"].deviceRating = 3
+	DB.DeviceDB["Renraku Tsurugi"].attack = 6
+	DB.DeviceDB["Renraku Tsurugi"].sleaze = 5
+	DB.DeviceDB["Renraku Tsurugi"].dataProcessing = 5
+	DB.DeviceDB["Renraku Tsurugi"].firewall = 3
+	DB.DeviceDB["Renraku Tsurugi"].maxMatrixCM = 10
+	DB.DeviceDB["Renraku Tsurugi"].matrixCM = 10
+	DB.DeviceDB["Renraku Tsurugi"].canSwapAtt = true
+	DB.DeviceDB["Renraku Tsurugi"].software = preaparePrograms()
+	//////////////
 	DB.DeviceDB["Sony CIY-720"] = &TDevice{}
 	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
 	DB.DeviceDB["Sony CIY-720"].model = "Sony CIY-720"
@@ -47,9 +125,33 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Sony CIY-720"].matrixCM = 10
 	DB.DeviceDB["Sony CIY-720"].canSwapAtt = true
 	DB.DeviceDB["Sony CIY-720"].software = preaparePrograms()
-	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
-	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
-	DB.DeviceDB["Sony CIY-720"].deviceType = "Cyberdeck"
+	//////////////
+	DB.DeviceDB["Shiawase Cyber-5"] = &TDevice{}
+	DB.DeviceDB["Shiawase Cyber-5"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Shiawase Cyber-5"].model = "Shiawase Cyber-5"
+	DB.DeviceDB["Shiawase Cyber-5"].deviceRating = 5
+	DB.DeviceDB["Shiawase Cyber-5"].attack = 8
+	DB.DeviceDB["Shiawase Cyber-5"].sleaze = 7
+	DB.DeviceDB["Shiawase Cyber-5"].dataProcessing = 6
+	DB.DeviceDB["Shiawase Cyber-5"].firewall = 5
+	DB.DeviceDB["Shiawase Cyber-5"].maxMatrixCM = 11
+	DB.DeviceDB["Shiawase Cyber-5"].matrixCM = 11
+	DB.DeviceDB["Shiawase Cyber-5"].canSwapAtt = true
+	DB.DeviceDB["Shiawase Cyber-5"].software = preaparePrograms()
+	//////////////
+	DB.DeviceDB["Fairlight Excalibur"] = &TDevice{}
+	DB.DeviceDB["Fairlight Excalibur"].deviceType = "Cyberdeck"
+	DB.DeviceDB["Fairlight Excalibur"].model = "Fairlight Excalibur"
+	DB.DeviceDB["Fairlight Excalibur"].deviceRating = 6
+	DB.DeviceDB["Fairlight Excalibur"].attack = 9
+	DB.DeviceDB["Fairlight Excalibur"].sleaze = 8
+	DB.DeviceDB["Fairlight Excalibur"].dataProcessing = 7
+	DB.DeviceDB["Fairlight Excalibur"].firewall = 6
+	DB.DeviceDB["Fairlight Excalibur"].maxMatrixCM = 11
+	DB.DeviceDB["Fairlight Excalibur"].matrixCM = 11
+	DB.DeviceDB["Fairlight Excalibur"].canSwapAtt = true
+	DB.DeviceDB["Fairlight Excalibur"].software = preaparePrograms()
+	
 	//////////////
 	DB.DeviceDB["noDevice"] = &TDevice{}
 	DB.DeviceDB["noDevice"].deviceType = "noDevice"

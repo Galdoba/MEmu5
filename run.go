@@ -1,17 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
-	"time"
-
 	"strings"
+	"time"
 
 	"github.com/Galdoba/ConGo/congo"
 	"github.com/Galdoba/ConGo/utils"
 )
 
+//SPACES -
 const (
 	SPACES = " \x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1b\x1c\x1d\x1e\x1f"
 )
@@ -162,7 +161,7 @@ func initialize() {
 		congo.WindowsMap.ByTitle["Persona"].SetPosition(width, 0)
 		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width, 0)
 		congo.WindowsMap.ByTitle["Process"].SetPosition(width, 0)
-		simpleTest(3, 4, 2)
+		simpleTest(-1, 3, 4, 2)
 		return true
 	})
 
@@ -305,10 +304,10 @@ func main() {
 	dur := time.Second / 3
 	STime = generateCurrentTime()
 	w1 := congo.NewWindow(width-(width*3/10), 0, (width * 3 / 10), height, "Log", "Block")
-	w2 := congo.NewWindow(0, 0, width*20/100, height*(8/10)+1, "Persona", "Block")
-	w3 := congo.NewWindow(0, height*8/10, width*20/100, height*2/10, "Grid", "Block")
+	w2 := congo.NewWindow(0, 0, width*20/100, height-height/5+1, "Persona", "Block")
+	w3 := congo.NewWindow(0, height-height*2/10, width*20/100, height*2/10, "Grid", "Block")
 	w4 := congo.NewWindow(width-(width*3/10)+1, height-2, (width*3/10)-2, 1, "z", "Block")
-	w5 := congo.NewWindow(width*20/100+1, 0, width/2, height*(8/10)+1, "Enviroment", "Block")
+	w5 := congo.NewWindow(width*20/100, 0, width/2, height-height/5+1, "Enviroment", "Block")
 	w6 := congo.NewWindow(width*20/100, height*8/10+1, width/2, height*2/10, "Process", "Block")
 	w4.SetBorderVisibility(false)
 	windowList = append(windowList, w1)
@@ -318,15 +317,12 @@ func main() {
 	windowList = append(windowList, w5)
 	windowList = append(windowList, w6)
 	w1.SetAutoScroll(true)
-	//Say hello:
-	/*w1.WPrintLn("Connection to Matrix established...", congo.ColorGreen)
-	w1.WPrintLn("...Identity spoofed", congo.ColorGreen)
-	w1.WPrintLn("...Encryption keys generated", congo.ColorGreen)
-	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)*/
+
 	createDefaultGrids()
-	//Matrix = gridList[1].NewHost("Matrix", 0)
-	//player = NewPlayer("Andy", "Sony CIY-720")
-	player = ImportPlayerFromDB("TestPC") //.(*TPersona)
+	//congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
+
+	player = NewPlayer("Unknown", "<UNREGISTRATED>")
+	//player, _ = ImportPlayerFromDB("Unknown") //.(*TPersona)
 	Matrix = player.grid.NewHost("Matrix", 0)
 	ObjByNames[player.name] = player
 	if o, ok := ObjByNames["player"]; ok {
@@ -345,18 +341,14 @@ func main() {
 	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)
 	time.Sleep(dur)
 	draw()
-
-	w1.WPrintLn(">>>LOGIN: "+player.GetName(), congo.ColorGreen)
-	w1.WPrintLn(">>>PASSCODE: XXXXXXXXXXXX", congo.ColorGreen)
+	w1.WPrintLn("...Enter Login:", congo.ColorGreen)
 	time.Sleep(dur)
 	draw()
-	w1.WPrintLn("...Passcode accepted", congo.ColorGreen)
-	w1.WPrintLn("...Biometric data generated", congo.ColorGreen)
-	time.Sleep(dur)
-	draw()
+	//startCombatTurn()
 
-	w1.WPrintLn("Begin Session:", congo.ColorGreen)
-	w1.WPrintLn(generateCurrentTime(), congo.ColorGreen)
+	/*	w1.WPrintLn("Begin Session:", congo.ColorGreen)
+		w1.WPrintLn(generateCurrentTime(), congo.ColorGreen)*/
+
 	//gridList[0].(*TGrid).NewHost("Ares Host", 0)
 
 	//gridList[0].(*TGrid).NewHost("Ares Host", 0)
@@ -389,7 +381,7 @@ func main() {
 						s = s - 6
 					}
 				}
-				w6.WPrint(fmt.Sprintf("%v ", s), congo.ColorGreen)
+				//w6.WPrint(fmt.Sprintf("%v ", s), congo.ColorGreen)
 			}
 
 		}

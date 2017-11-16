@@ -16,7 +16,7 @@ Host_IC:
 #########################
           
 Host: Test
-Grid: Wuxing Worldwide
+Grid: Local Grid
 Host_Atributes:
   Rating: 2
   Attack: 1
@@ -28,98 +28,21 @@ Host_IC:
  >Binder IC
 
 #########################
-                    
-Host: As
-Grid: Renraku Okoku
-Host_Atributes:
-  Rating: 2
-  Attack: 4
-  Sleaze: 2
-  Data Processing: 3
-  Firewall: 5
-Host_IC:
- >Patrol IC
- >Sparky IC
-
-#########################
           
-Host: Qwe
+Host: Aresmain
 Grid: Shiawase Central
 Host_Atributes:
-  Rating: 7
+  Rating: 6
   Attack: 9
-  Sleaze: 7
-  Data Processing: 8
-  Firewall: 10
-Host_IC:
- >Patrol IC
- >Bloodhound IC
- >Jammer IC
- >Marker IC
- >Blaster IC
- >Shoker IC
- >Scramble IC
-
-#########################
-          
-Host: Unknown Host 2
-Grid: Saeder-Krupp Uberwelt
-Host_Atributes:
-  Rating: 3
-  Attack: 3
-  Sleaze: 5
-  Data Processing: 4
+  Sleaze: 8
+  Data Processing: 7
   Firewall: 6
 Host_IC:
  >Patrol IC
- >Sparky IC
- >Acid IC
-
-#########################
-          
-Host: SomeName
-Grid: Renraku Okoku
-Host_Atributes:
-  Rating: 3
-  Attack: 3
-  Sleaze: 4
-  Data Processing: 6
-  Firewall: 5
-Host_IC:
- >Patrol IC
- >Acid IC
- >Killer IC
-
-#########################
-          
-Host: SomeName
-Grid: Renraku Okoku
-Host_Atributes:
-  Rating: 3
-  Attack: 5
-  Sleaze: 4
-  Data Processing: 6
-  Firewall: 3
-Host_IC:
- >Patrol IC
- >Binder IC
- >Sparky IC
-
-#########################
-          
-Host: SomeName
-Grid: MCT GlobeNet
-Host_Atributes:
-  Rating: 5
-  Attack: 6
-  Sleaze: 5
-  Data Processing: 7
-  Firewall: 8
-Host_IC:
- >Patrol IC
- >Sparky IC
- >Black IC
- >Bloodhound IC
  >Track IC
+ >Probe IC
+ >Marker IC
+ >Sparky IC
+ >Jammer IC
 
 #########################

@@ -35,9 +35,17 @@ type SearchProcess struct {
 	SearchIconName []string
 }
 
+//DownloadProcess -
+type DownloadProcess struct {
+	FileSize         []int
+	DownloadedData   []int
+	DownloadIconName []string
+}
+
 //TObj -
 type TObj struct {
 	uType        string
+	name         string
 	id           int
 	markSet      MarkSet
 	canSee       FieldOfView
@@ -188,8 +196,13 @@ func (o *TObj) Scanable() bool {
 
 func pickObjByID(id int) IObj {
 	//printLog("len(ObjectList) = "+strconv.Itoa(len(objectList)), congo.ColorDefault)
+	for _, obj := range ObjByNames {
+		if obj.GetID() == id {
+			return obj
+		}
+	}
 
-	for i := 0; i < len(objectList); i++ {
+	/*for i := 0; i < len(objectList); i++ {
 		if id == objectList[i].(IObj).GetID() {
 			return objectList[i] //.(*TObj)
 		}
@@ -201,7 +214,7 @@ func pickObjByID(id int) IObj {
 				return host
 			}
 		}
-	}
+	}*/
 	return nil
 }
 
@@ -270,6 +283,17 @@ type IIconOnly interface {
 	GetFirewall() int
 	CheckRunningProgram(string) bool
 	ResistMatrixDamage(int) int
+	RollInitiative()
+}
+
+//RollInitiative -
+func (i *TIcon) RollInitiative() {
+	i.SetInitiative(i.GetDataProcessing() + i.GetIntuition() + xd6Test(4))
+}
+
+//GetIntuition -
+func (i *TIcon) GetIntuition() int {
+	return i.GetDeviceRating()
 }
 
 //CheckRunningProgram -
@@ -474,7 +498,7 @@ func (i *TIcon) ResistMatrixDamage(damage int) int {
 			printLog("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
-	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
+	damageSoak, gl, cgl := simpleTest(i.GetID(), resistDicePool, 1000, 0)
 	realDamage := damage - damageSoak
 	if gl {
 		if i.GetFaction() == player.GetFaction() {
@@ -496,7 +520,7 @@ func (i *TIcon) ResistMatrixDamage(damage int) int {
 	}
 
 	if i.GetFaction() == player.GetFaction() {
-		printLog(i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+		printLog("..."+i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked", congo.ColorGreen)
 		hold()
 	}
 	return realDamage
@@ -539,9 +563,9 @@ func (i *TIcon) SetSimSence(smsence string) {
 	case "AR":
 		i.simSence = "AR"
 	case "COLD-SIM":
-		i.simSence = "Cold-SIM VR"
+		i.simSence = "COLD-SIM"
 	case "HOT-SIM":
-		i.simSence = "Hot-SIM VR"
+		i.simSence = "HOT-SIM"
 	default:
 		i.simSence = i.GetSimSence()
 
@@ -726,6 +750,7 @@ type IICOnly interface {
 	GetLastTargetName() string
 	SetLastTargetName(string)
 	TakeFOWfromHost()
+	//RollInitiative()
 }
 
 var _ IIC = (*TIC)(nil)
@@ -746,6 +771,7 @@ func (h *THost) NewIC(name string) *TIC {
 	i.firewall = h.firewall
 	i.id = id + xd6Test(3)
 	i.isLoaded = true
+	i.simSence = "HOT-SIM"
 	for n := range h.icState.icName {
 		if h.icState.icName[n] == i.name {
 			h.icState.icStatus[n] = true
@@ -776,10 +802,20 @@ func (h *THost) NewIC(name string) *TIC {
 	} else {
 		i.actionReady = -1
 	}
-	objectList = append(objectList, &i)
+	//objectList = append(objectList, &i)
 	id++
 	ObjByNames[i.name] = &i
 	return &i
+}
+
+//RollInitiative -
+func (i *TIC) RollInitiative() {
+	i.SetInitiative(i.GetDataProcessing() + i.GetIntuition() + xd6Test(4))
+}
+
+//GetIntuition -
+func (i *TIC) GetIntuition() int {
+	return i.GetDeviceRating()
 }
 
 func calculatePartolScan(rating int) int {
@@ -944,7 +980,7 @@ func (i *TIC) SetLastTargetName(name string) {
 func (i *TIC) ResistMatrixDamage(damage int) int {
 	host := i.GetHost()
 	resistDicePool := host.GetDeviceRating() + host.GetFirewall()
-	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
+	damageSoak, gl, cgl := simpleTest(i.GetID(), resistDicePool, 1000, 0)
 	realDamage := damage - damageSoak
 	if gl {
 		if i.GetFaction() == player.GetFaction() {
@@ -963,7 +999,7 @@ func (i *TIC) ResistMatrixDamage(damage int) int {
 		realDamage = 0
 	}
 	if i.GetFaction() == player.GetFaction() {
-		printLog(i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+		printLog("..."+i.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked", congo.ColorGreen)
 	}
 	return realDamage
 }
@@ -1052,7 +1088,7 @@ func NewDevice(model string, rating int) *TDevice {
 		d.firewall = rating
 		d.maxMatrixCM = (rating+1)/2 + 8
 		d.matrixCM = d.maxMatrixCM
-		d.simSence = "Hot-SIM VR"
+		d.simSence = "HOT-SIM"
 		//d.grid = "Public Grid"
 		//d.id = id
 	}
@@ -1304,32 +1340,37 @@ func (d *TDevice) ReceiveMatrixDamage(damage int) {
 type TPersona struct {
 	//TObj
 	TIcon
-	name                string
-	alias               string
-	userMode            string
-	device              *TDevice
-	computerSkill       int
-	hackingSkill        int
-	softwareSkill       int
-	electronicSkill     int
-	hardwareSkill       int
-	cybercombatSkill    int
-	initiative          int
-	body                int
-	logic               int
-	intuition           int
-	willpower           int
-	charisma            int
-	maxPhysCM           int
-	physCM              int
-	maxStunCM           int
-	stunCM              int
-	maxMatrixCM         int
-	matrixCM            int
-	id                  int
-	physLocation        bool
-	markSet             MarkSet
-	searchProcessStatus SearchProcess
+	name                  string
+	alias                 string
+	userMode              string
+	device                *TDevice
+	computerSkill         int
+	hackingSkill          int
+	softwareSkill         int
+	electronicSkill       int
+	hardwareSkill         int
+	cybercombatSkill      int
+	initiative            int
+	body                  int
+	reaction              int
+	logic                 int
+	intuition             int
+	willpower             int
+	charisma              int
+	edge                  int
+	maxEdge               int
+	maxPhysCM             int
+	physCM                int
+	maxStunCM             int
+	stunCM                int
+	maxMatrixCM           int
+	matrixCM              int
+	id                    int
+	physLocation          bool
+	fullDefFlag           bool
+	markSet               MarkSet
+	searchProcessStatus   SearchProcess
+	downloadProcessStatus DownloadProcess
 }
 
 //IPersona -
@@ -1371,6 +1412,12 @@ type IPersonaOnly interface {
 	GetSearchProcess() SearchProcess
 	SetSearchProcess(int, string, string)
 	UpdateSearchProcess()
+	GetDownloadProcess() DownloadProcess
+	SetDownloadProcess(int, string)
+	UpdateDownloadProcess()
+	CheckConvergence()
+	GetFullDeffenceFlag() bool
+	SetFullDeffenceFlag(bool)
 }
 
 var _ IPersona = (*TPersona)(nil)
@@ -1387,18 +1434,21 @@ func NewPlayer(alias string, d string) *TPersona {
 	p.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
 	p.maxMatrixCM = p.device.GetMatrixCM()
 	p.matrixCM = p.maxMatrixCM
-	p.cybercombatSkill = 4
-	p.computerSkill = 6
-	p.hackingSkill = 5
-	p.softwareSkill = -1
-	p.body = 3
-	p.willpower = 4
-	p.logic = 8
-	p.intuition = 6
-	p.charisma = 3
+	p.cybercombatSkill = 1
+	p.computerSkill = 1
+	p.hackingSkill = 1
+	p.softwareSkill = 1
+	p.body = 1
+	p.reaction = 1
+	p.willpower = 1
+	p.logic = 1
+	p.intuition = 1
+	p.charisma = 1
+	p.edge = 100
+	p.maxEdge = 100
 	p.id = id
 	p.silentMode = true
-	p.simSence = "Hot-SIM VR"
+	p.simSence = "HOT-SIM"
 	p.maxStunCM = (p.willpower+1)/2 + 8
 	p.stunCM = p.maxStunCM
 	p.maxPhysCM = (p.body+1)/2 + 8
@@ -1417,6 +1467,31 @@ func NewPlayer(alias string, d string) *TPersona {
 	objectList = append(objectList, &p)
 	id++
 	return &p
+}
+
+//RollInitiative -
+func (p *TPersona) RollInitiative() {
+	mode := p.GetSimSence()
+	switch mode {
+	case "AR":
+		p.SetInitiative(p.GetReaction() + p.GetIntuition() + xd6Test(1))
+	case "COLD-SIM":
+		p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(3))
+	case "HOT-SIM":
+		p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(4))
+	default:
+	}
+	//p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(4))
+}
+
+//GetFullDeffenceFlag -
+func (p *TPersona) GetFullDeffenceFlag() bool {
+	return p.fullDefFlag
+}
+
+//SetFullDeffenceFlag -
+func (p *TPersona) SetFullDeffenceFlag(newFDF bool) {
+	p.fullDefFlag = newFDF
 }
 
 //IsPlayer -
@@ -1494,6 +1569,11 @@ func (p *TPersona) GetBody() int {
 	return p.body
 }
 
+//GetReaction -
+func (p *TPersona) GetReaction() int {
+	return p.reaction
+}
+
 //GetWillpower -
 func (p *TPersona) GetWillpower() int {
 	return p.willpower
@@ -1507,6 +1587,26 @@ func (p *TPersona) GetLogic() int {
 //GetIntuition -
 func (p *TPersona) GetIntuition() int {
 	return p.intuition
+}
+
+//GetCharisma -
+func (p *TPersona) GetCharisma() int {
+	return p.charisma
+}
+
+//GetEdge -
+func (p *TPersona) GetEdge() int {
+	return p.edge
+}
+
+//GetMaxEdge -
+func (p *TPersona) GetMaxEdge() int {
+	return p.maxEdge
+}
+
+//SetEdge -
+func (p *TPersona) SetEdge(newEdge int) {
+	p.edge = newEdge
 }
 
 //GetDeviceRating -
@@ -1749,26 +1849,32 @@ func (p *TPersona) ClearMarks() {
 	//hostID := 999999
 	for i := range p.markSet.MarksFrom {
 		valid := false
-		for j := range objectList {
-			if objectList[j].(IObj).GetID() == i {
-
+		for _, obj := range ObjByNames {
+			if obj.GetID() == i {
 				valid = true
-				break
+				//break
 			}
-
 		}
-		for k := range gridList {
-			if host, ok := gridList[k].(*THost); ok {
-				if i == host.GetID() {
+		/*	for j := range objectList {
+				if objectList[j].(IObj).GetID() == i {
+
 					valid = true
 					break
 				}
-			}
-		}
 
-		/*if i == 2 {
-			valid = true
-		}*/
+			}
+			for k := range gridList {
+				if host, ok := gridList[k].(*THost); ok {
+					if i == host.GetID() {
+						valid = true
+						break
+					}
+				}
+			}
+
+			if i == 2 {
+				valid = true
+			}*/
 
 		if valid == false {
 			//p.markSet.MarksFrom[i] = 0
@@ -1840,7 +1946,7 @@ func (p *TPersona) Dumpshock() {
 		}
 	}
 	dp1 := p.GetWillpower() + p.GetFirewall()
-	suc1, gl, cgl := simpleTest(dp1, 1000, 0)
+	suc1, gl, cgl := simpleTest(p.GetID(), dp1, 1000, 0)
 	printLog("Warning!! Dumpshock imminent!!", congo.ColorRed)
 	biofeedbackDamage := 6 - suc1
 	if gl {
@@ -1852,7 +1958,7 @@ func (p *TPersona) Dumpshock() {
 	if biofeedbackDamage < 0 {
 		biofeedbackDamage = 0
 	}
-	if p.GetSimSence() == "Cold-SIM VR" {
+	if p.GetSimSence() == "COLD-SIM" {
 		p.SetStunCM(p.GetStunCM() - biofeedbackDamage)
 		printLog(strconv.Itoa(biofeedbackDamage)+" Stun Damage inflicted by Dumpshock...", congo.ColorRed)
 		if p.GetStunCM() < 0 {
@@ -1860,7 +1966,7 @@ func (p *TPersona) Dumpshock() {
 			p.SetPhysCM(p.GetPhysCM() - physDamage)
 			printLog(strconv.Itoa(physDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
 		}
-	} else if p.GetSimSence() == "Hot-SIM VR" {
+	} else if p.GetSimSence() == "HOT-SIM" {
 		p.SetPhysCM(p.GetPhysCM() - biofeedbackDamage)
 		printLog(strconv.Itoa(biofeedbackDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
 
@@ -2049,10 +2155,10 @@ func (p *TPersona) ReceiveMatrixDamage(damage int) {
 
 //ReceiveBiofeedbackDamage -
 func (p *TPersona) ReceiveBiofeedbackDamage(damage int) {
-	if p.GetSimSence() == "Hot-SIM VR" {
+	if p.GetSimSence() == "HOT-SIM" {
 		p.SetPhysCM(p.GetPhysCM() - damage)
 		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Physical damage", congo.ColorYellow)
-	} else if p.GetSimSence() == "Cold-SIM VR" {
+	} else if p.GetSimSence() == "COLD-SIM" {
 		p.SetStunCM(p.GetStunCM() - damage)
 		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Stun damage", congo.ColorYellow)
 	} else if p.GetSimSence() == "AR" {
@@ -2086,6 +2192,8 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 	resistDicePool := 0
 	resistDicePool = resistDicePool + p.GetDeviceRating()
 	resistDicePool = resistDicePool + p.GetFirewall()
+	printLog("...Incoming matrix damage detected", congo.ColorGreen)
+
 	if p.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if p.GetFaction() == player.GetFaction() {
@@ -2098,7 +2206,8 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 			printLog("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
-	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
+	printLog("...Evaluated Firewall resources: "+strconv.Itoa(resistDicePool)+" mp/p", congo.ColorGreen)
+	damageSoak, gl, cgl := simpleTest(p.GetID(), resistDicePool, 1000, 0)
 	realDamage := damage - damageSoak
 	if gl {
 		if p.GetFaction() == player.GetFaction() {
@@ -2120,7 +2229,7 @@ func (p *TPersona) ResistMatrixDamage(damage int) int {
 	}
 
 	if p.GetFaction() == player.GetFaction() {
-		printLog(p.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked...", congo.ColorGreen)
+		printLog("..."+p.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked", congo.ColorGreen)
 		hold()
 	}
 	return realDamage
@@ -2143,7 +2252,7 @@ func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 			printLog("Program Biofeedback Filter: add 2 to resistPool - DEBUG", congo.ColorDefault)
 		}
 	}
-	damageSoak, gl, cgl := simpleTest(resistDicePool, 1000, 0)
+	damageSoak, gl, cgl := simpleTest(p.GetID(), resistDicePool, 1000, 0)
 	realDamage := damage - damageSoak
 	if gl {
 		if p.GetFaction() == player.GetFaction() {
@@ -2165,20 +2274,21 @@ func (p *TPersona) ResistBiofeedbackDamage(damage int) int {
 	}
 
 	if p.GetFaction() == player.GetFaction() {
-		printLog(p.GetName()+": "+strconv.Itoa(damageSoak)+" Biofeedback damage soaked...", congo.ColorGreen)
+		printLog("..."+p.GetName()+": "+strconv.Itoa(damageSoak)+" Biofeedback damage soaked", congo.ColorGreen)
 		hold()
 	}
 	return realDamage
 }
 
-func (p *TPersona) checkConvergence() {
+//CheckConvergence -
+func (p *TPersona) CheckConvergence() {
 	if p.grid.GetOverwatchScore() > 39 {
 		if p.convergenceFlag == false {
 			p.convergenceFlag = true
 			if p.GetFaction() == player.GetFaction() {
 				p.ToggleConvergence()
 				printLog("Warning!!! Convergence protocol engaged...", congo.ColorRed)
-				hold()
+				//printLog("Warning!!! Convergence protocol engaged...", congo.ColorRed)
 			}
 			convergenceDamage := p.ResistMatrixDamage(12)
 			p.ReceiveMatrixDamage(convergenceDamage)
@@ -2245,7 +2355,7 @@ func (p *TPersona) TriggerDataBomb(bombRating int) {
 		prgBonus = prgBonus + 4
 	}
 	resistPool := p.GetDeviceRating() + p.GetFirewall() + prgBonus
-	resistHits, rgl, rcgl := simpleTest(resistPool, 999, 0)
+	resistHits, rgl, rcgl := simpleTest(p.GetID(), resistPool, 999, 0)
 	//остановиться и перебросить при необходимости
 	fullDamage := xd6Test(bombRating)
 	if rgl == true {
@@ -2326,67 +2436,62 @@ func (p *TPersona) SetSearchProcess(turns int, sIconType, sIconName string) {
 //UpdateSearchProcess -
 func (p *TPersona) UpdateSearchProcess() {
 	host := player.GetHost()
-	//player.host.GetName()
-	/*printLog(Matrix.GetName()+"sdf", congo.ColorYellow)
-	mn := Matrix.name
-	hn := host.name
-	if host == Matrix {
-		printLog(Matrix.GetName()+"sdfdfg", congo.ColorYellow)
-	}
-	if mn == hn {
-		printLog(Matrix.GetName()+"sdfdfg3333", congo.ColorYellow)
-	}*/
-
-	//printLog(host.GetName(), congo.ColorYellow)
 	for i := range p.searchProcessStatus.SpentTurns {
 		if i < (len(p.searchProcessStatus.SearchIconName)) {
 			p.searchProcessStatus.SpentTurns[i] = p.searchProcessStatus.SpentTurns[i] + 1
 			if p.searchProcessStatus.SpentTurns[i] == p.searchProcessStatus.SearchTime[i] {
-				printLog(p.searchProcessStatus.SearchIconName[i], congo.ColorYellow)
-				printLog(p.searchProcessStatus.SearchIconType[i], congo.ColorYellow)
-
 				switch formatTargetName(p.searchProcessStatus.SearchIconType[i]) {
 				case "Host":
 					hostName := formatTargetName(p.searchProcessStatus.SearchIconName[i])
 					if HostExist(hostName) {
-
-						//			congo.WindowsMap.ByTitle["Log"].WPrintLn(gridList[0].(*TGrid).GetName(), congo.ColorGreen)
 						ImportHostFromDB(hostName)
-						printLog("hostTest = ", congo.ColorDefault)
-						if hosttest, ok := ObjByNames[player.name]; ok {
-							printLog("hostTest = "+hosttest.GetName(), congo.ColorDefault)
-						}
-
-						//player.grid.NewHost(name, rating)
 					} else {
-						player.grid.NewHost(hostName, 0) // -создаем всегда третий хост
+						player.grid.NewHost(hostName, 0) // -DEBUG: тут можно указать какой хост создавать (1-12: рейтинг/0: рандом)
 					}
-
-					//host := p.host
-					//host.NewFile(p.searchProcessStatus.SearchIconName[i])
-					//p.grid.NewHost(p.searchProcessStatus.SearchIconName[i], 0)
 				case "File":
 					if host != Matrix {
 						host.NewFile(p.searchProcessStatus.SearchIconName[i])
 					} else {
 						printLog("Matrix is just to vast. No File can be found outside the host...", congo.ColorGreen)
+						printLog("DEBUG: сложности с использованием прото-хоста в качестве носителя объектов", congo.ColorGreen)
 					}
 
 				default:
 				}
-				printLog("--DEBUG--", congo.ColorRed)
-				printLog("CREATING ICON:"+p.searchProcessStatus.SearchIconType[i]+" "+p.searchProcessStatus.SearchIconName[i]+" in " /* + host.GetName()*/, congo.ColorRed)
-				printLog(p.GetHost().GetName(), congo.ColorDefault)
-
+				printLog("Connection with "+p.searchProcessStatus.SearchIconType[i]+" '"+p.searchProcessStatus.SearchIconName[i]+"' established " /* + host.GetName()*/, congo.ColorGreen)
 				p.searchProcessStatus.SearchIconName = append(p.searchProcessStatus.SearchIconName[:i], p.searchProcessStatus.SearchIconName[i+1:]...)
 				p.searchProcessStatus.SearchIconType = append(p.searchProcessStatus.SearchIconType[:i], p.searchProcessStatus.SearchIconType[i+1:]...)
 				p.searchProcessStatus.SpentTurns = append(p.searchProcessStatus.SpentTurns[:i], p.searchProcessStatus.SpentTurns[i+1:]...)
 				p.searchProcessStatus.SearchTime = append(p.searchProcessStatus.SearchTime[:i], p.searchProcessStatus.SearchTime[i+1:]...)
-				//i--
 			}
 		}
 		//kill search process
 	}
+}
+
+//SetDownloadProcess -
+func (p *TPersona) SetDownloadProcess(size int, fileName string) {
+	p.downloadProcessStatus.FileSize = append(p.downloadProcessStatus.FileSize, size)
+	p.downloadProcessStatus.DownloadIconName = append(p.downloadProcessStatus.DownloadIconName, fileName)
+	p.downloadProcessStatus.DownloadedData = append(p.downloadProcessStatus.DownloadedData, 0)
+}
+
+//UpdateDownloadProcess -
+func (p *TPersona) UpdateDownloadProcess() {
+	for i := range p.downloadProcessStatus.DownloadIconName {
+		p.downloadProcessStatus.DownloadedData[i] = p.downloadProcessStatus.DownloadedData[i] + p.GetDataProcessing()*5
+		if p.downloadProcessStatus.DownloadedData[i] >= p.downloadProcessStatus.FileSize[i] {
+			printLog("Downloading of "+p.downloadProcessStatus.DownloadIconName[i]+" complete", congo.ColorGreen)
+			p.downloadProcessStatus.DownloadIconName = append(p.downloadProcessStatus.DownloadIconName[:i], p.downloadProcessStatus.DownloadIconName[i+1:]...)
+			p.downloadProcessStatus.FileSize = append(p.downloadProcessStatus.FileSize[:i], p.downloadProcessStatus.FileSize[i+1:]...)
+			p.downloadProcessStatus.DownloadedData = append(p.downloadProcessStatus.DownloadedData[:i], p.downloadProcessStatus.DownloadedData[i+1:]...)
+		}
+	}
+}
+
+//GetDownloadProcess -
+func (p *TPersona) GetDownloadProcess() DownloadProcess {
+	return p.downloadProcessStatus
 }
 
 ///////////////////////////////////////////////////////
@@ -2447,7 +2552,7 @@ func (h *THost) NewFile(name string) *TFile {
 	f.owner = h
 	f.host = h
 	hRatMod := 1
-	printLog("Host to create := "+h.GetName(), congo.ColorRed)
+	congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
 	if f.host == Matrix {
 		f.grid = player.grid
 		//f.host = Matrix
@@ -2466,10 +2571,10 @@ func (h *THost) NewFile(name string) *TFile {
 			}
 		}*/
 	}
-	printLog("2Host to create := "+h.GetName(), congo.ColorRed)
-	enRat, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.dataProcessing, 0)
+	congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
+	enRat, _, _ := simpleTest(h.GetID(), h.deviceRating+h.deviceRating, h.dataProcessing, 0)
 	f.encryptionRating = enRat
-	bombRat, _, _ := simpleTest(h.deviceRating+h.deviceRating, h.sleaze, 0)
+	bombRat, _, _ := simpleTest(h.GetID(), h.deviceRating+h.deviceRating, h.sleaze, 0)
 	f.dataBombRating = bombRat
 	f.lastEditTime = generateLastEditTime()
 
@@ -2483,6 +2588,7 @@ func (h *THost) NewFile(name string) *TFile {
 	f.size = hRatMod * 5 * dataDensity
 
 	f.id = id
+	congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
 	f.faction = h.faction
 	if name == "random" {
 		f.fileName = generateFileName()
@@ -2662,4 +2768,24 @@ func (f *TFile) GetFirewall() int {
 		return f.host.firewall
 	}
 	return f.device.firewall
+}
+
+//RollInitiative -
+func (f *TFile) RollInitiative() {
+	f.SetInitiative(f.GetDataProcessing() + f.GetIntuition() + xd6Test(4))
+}
+
+//GetIntuition -
+func (f *TFile) GetIntuition() int {
+	owner := f.GetOwner()
+	if persona, ok := owner.(IPersona); ok {
+		return persona.GetIntuition()
+	}
+	if host, ok := owner.(IHost); ok {
+		return host.GetDeviceRating()
+	}
+	if device, ok := owner.(IDevice); ok {
+		return device.GetDeviceRating()
+	}
+	return 0
 }

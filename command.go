@@ -23,6 +23,7 @@ func UserInput(input string) bool {
 	text := formatString(input)
 	text = cleanText(text)
 	congo.WindowsMap.ByTitle["Log"].WPrintLn(text, congo.ColorGreen)
+	hold()
 
 	if len(comm) < 2 {
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
@@ -35,17 +36,20 @@ func UserInput(input string) bool {
 	mAction = formatString(mAction)
 	mAction = cleanText(mAction)
 	//congo.WindowsMap.ByTitle["Log"].WPrintLn(mAction, congo.ColorGreen)
+	//printLog(mAction, congo.ColorRed)
+	mActionName = mAction
+	//printLog(mActionName, congo.ColorRed)
 	actionIsGood, mActionName = checkAction(mAction)
 	if actionIsGood == true {
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: " + mActionName + " is correct", congo.ColorYellow)
+	//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: "+mActionName+" is correct", congo.ColorYellow)
 	}
 	checkSource(comm[0])
-	if mActionName == "EXIT_HOST" || mActionName == "ERASE_MARK" || mActionName == "CHECK_OVERWATCH_SCORE" || mActionName == "LONGACT" {
+	if mActionName == "EXIT_HOST" || mActionName == "ERASE_MARK" || mActionName == "CHECK_OVERWATCH_SCORE" || mActionName == "LONGACT" || mActionName == "SWITCH_INTERFACE_MODE" {
 		TargetIcon = SourceIcon
 		doAction(mActionName)
 		return true
 	}
-	if mActionName == "WAIT" {
+	if mActionName == "WAIT" || mActionName == "FULL_DEFENCE" {
 		//TargetIcon = text
 		TargetIcon = SourceIcon
 		doAction(mActionName)
@@ -68,7 +72,7 @@ func UserInput(input string) bool {
 		return false
 	}
 
-	if mActionName == "LOAD_PROGRAM" || mActionName == "UNLOAD_PROGRAM" {
+	if mActionName == "LOAD_PROGRAM" || mActionName == "UNLOAD_PROGRAM" || mActionName == "LOGIN" {
 		//TargetIcon = text
 		TargetIcon = SourceIcon
 		if len(comm) < 3 {
@@ -142,6 +146,26 @@ func checkSource(source string) bool {
 	source = cleanText(source)
 	isGood := false
 	//var alias string
+	for _, obj := range ObjByNames {
+		if srcObj, ok := obj.(IPersona); ok {
+			//if srcObj.(IIcon).GetType() == "Persona" {
+			alias := string(srcObj.(IPersona).GetName())
+			alias = formatString(alias)
+			s := (hex.EncodeToString([]byte(source)))
+			a := (hex.EncodeToString([]byte(alias)))
+			if a == s {
+				//congo.WindowsMap.ByTitle["Log"].WPrintLn("SourceIcon is " + objectList[i].(*TPersona).GetName(), congo.ColorYellow)
+				if obj.(IPersona).IsPlayer() == true {
+					SourceIcon = srcObj
+					isGood = true
+					return isGood
+				}
+
+			}
+		}
+
+	}
+
 	for i := range objectList {
 		//srcObj := objectList[i]
 		if srcObj, ok := objectList[i].(IPersona); ok {
@@ -165,50 +189,14 @@ func checkSource(source string) bool {
 }
 
 func checkTarget(target, mActionName string) bool {
-	target = formatString(target)
-	target = cleanText(target)
-	isGood := false
-	if mActionName == "GRID_HOP" || mActionName == "HACK_ON_THE_FLY" || mActionName == "BRUTE_FORCE" || mActionName == "ENTER_HOST" || mActionName == "MATRIX_PERCEPTION" {
-		isGood = pickGrid(target, mActionName)
+	if pickTarget(target, mActionName) {
+		return true
 	}
-
-	//var alias string
-	for i := range objectList {
-		trgObj := objectList[i]
-
-		if trgObj.(IObj).GetType() == "Icon" || trgObj.(IObj).GetType() == "File" || trgObj.(IObj).GetType() == "Host" || trgObj.(IObj).GetType() == "Persona" || trgObj.(IObj).GetType() == "Grid" || trgObj.(IObj).GetType() == "IC" {
-			alias := trgObj.(IObj).GetName()
-			alias = formatString(alias)
-			alias = cleanText(alias)
-
-			if alias == target {
-				trgtType, valid := checkValidTarget(mActionName)
-				var canDo bool
-				if valid {
-					for j := range trgtType {
-						if trgObj.(IObj).GetType() == trgtType[j] {
-							canDo = true
-						}
-					}
-					if canDo {
-						//congo.WindowsMap.ByTitle["Log"].WPrintLn("Target is " + objectList[i].(IObj).GetName(), congo.ColorYellow)
-						isGood = true
-						TargetIcon = objectList[i]
-						//break
-					} else {
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Target is not apropriate for this action...", congo.ColorRed)
-					}
-				}
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn("Target is not apropriate for this action...", congo.ColorRed)
-			}
-		}
-
-	}
-
-	return isGood
+	//printLog("Error: target not found", congo.ColorGreen)
+	return false
 }
 
-func pickHost(target, mActionName string) bool {
+func pickHost(target, mActionName string) bool { //ненужная функция?
 	for i := range hostList {
 		trgObj := objectList[i]
 
@@ -224,47 +212,35 @@ func pickHost(target, mActionName string) bool {
 	return false
 }
 
-func pickGrid(target, mActionName string) bool {
-	//printLog("target = "+target, congo.ColorDefault)
-	for i := range gridList {
-		//if host, ok := target.(*THost); ok {
-		trgGrid := gridList[i]
-		//printLog("Search = "+trgGrid.GetGridName(), congo.ColorDefault)
-		//printLog("ID = "+strconv.Itoa(trgGrid.GetID()), congo.ColorDefault)
-		if host, ok := trgGrid.(*THost); ok {
+func pickTarget(target, mActionName string) bool {
+	target = formatString(target)
+	target = cleanText(target)
+	for _, obj := range ObjByNames {
+		if grid, ok := obj.(IGrid); ok {
 			var alias string
-			alias = host.GetName()
+			alias = grid.GetName()
 			alias = formatString(alias)
 			alias = cleanText(alias)
-			//		printLog("Search = "+alias, congo.ColorYellow)
 			if alias == target {
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn(alias+" is found", congo.ColorYellow)
-
-				//check if access to grid is ok via MARKs
-				TargetIcon = gridList[i].(IObj)
+				TargetIcon = grid
 				return true
 			}
-		} else {
-
-			trgGrid := gridList[i]
+		}
+		if icon, ok := obj.(IIcon); ok {
 			var alias string
-			alias = trgGrid.(IGrid).GetGridName()
+			alias = icon.GetName()
 			alias = formatString(alias)
 			alias = cleanText(alias)
 			if alias == target {
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn(alias+" is found", congo.ColorYellow)
-
-				//check if access to grid is ok via MARKs
-				TargetIcon = gridList[i].(IObj)
+				TargetIcon = icon
 				return true
 			}
 		}
 	}
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn("Grid not found...", congo.ColorRed)
 	return false
 }
 
-func checkValidTarget(mActionName string) (trgtType []string, valid bool) {
+/*func checkValidTarget(mActionName string) (trgtType []string, valid bool) { //тоже не нужная?
 	//var trgtType []string
 
 	switch mActionName {
@@ -336,6 +312,8 @@ func checkValidTarget(mActionName string) (trgtType []string, valid bool) {
 		valid = true
 	case "SWAP_PROGRAMS":
 		valid = true
+	case "SWITCH_INTERFACE_MODE":
+		valid = true
 	case "LONGACT":
 		//trgtType = append(trgtType, "Host")
 		valid = true
@@ -346,7 +324,7 @@ func checkValidTarget(mActionName string) (trgtType []string, valid bool) {
 		//return trgtType
 	}
 	return trgtType, valid
-}
+}*/
 
 func cleanText(s string) string {
 	out := ""

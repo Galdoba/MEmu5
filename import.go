@@ -180,13 +180,14 @@ func ImportHostFromDB(hostName string) *THost {
 	player.canSee.KnownData[h.id] = data
 	h.FillHostWithFiles()
 	h.LoadNextIC()
-	printLog("Importing host: "+h.GetName(), congo.ColorDefault)
+	//printLog("Importing host: "+h.GetName(), congo.ColorDefault)
 	gridList = append(gridList, &h)
 	ObjByNames[h.name] = &h
 	return &h
 }
 
-func ImportPlayerFromDB(alias string) *TPersona {
+//ImportPlayerFromDB -
+func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 	if !fileDBExists("PlayerDB.txt") {
 		//panic("'PlayerDB.txt' is not exists. Please create file in the same directory as 'MEmu.exe'")
 		os.Create("PlayerDB.txt")
@@ -207,11 +208,17 @@ func ImportPlayerFromDB(alias string) *TPersona {
 	allData := string(dataDB)
 	playerToImport := ""
 	playerData := strings.Split(allData, "####################")
+	found := false
 	for i := range playerData {
 		if strings.Contains(playerData[i], alias) {
 			playerToImport = playerData[i]
+			found = true
 		}
 
+	}
+	if !found {
+		printLog("...Incorrect username or passcode", congo.ColorRed)
+		return player, false
 	}
 	////////////////////////////////////////////
 
@@ -238,142 +245,144 @@ func ImportPlayerFromDB(alias string) *TPersona {
 		default:
 		}
 		//Import Computer Skill
-		switch strings.Contains(lines[i], "Computer : ") {
+		switch strings.Contains(lines[i], "Computer: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "Computer : ")
+			ratingS := strings.Split(lines[i], "Computer: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.computerSkill = rating
 		default:
 		}
 		//Import Cybercombat Skill
-		switch strings.Contains(lines[i], "Cybercombat : ") {
+		switch strings.Contains(lines[i], "Cybercombat: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "Cybercombat : ")
+			ratingS := strings.Split(lines[i], "Cybercombat: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.cybercombatSkill = rating
+			//printLog("CyberCobbat = "+strconv.Itoa(p.cybercombatSkill), congo.ColorYellow)
 		default:
 		}
 		//Import Hacking Skill
-		switch strings.Contains(lines[i], "Hacking : ") {
+		switch strings.Contains(lines[i], "Hacking: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "Hacking : ")
+			ratingS := strings.Split(lines[i], "Hacking: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.hackingSkill = rating
 		default:
 		}
 		//Import HardWare Skill
-		switch strings.Contains(lines[i], "HardWare : ") {
+		switch strings.Contains(lines[i], "HardWare: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "HardWare : ")
+			ratingS := strings.Split(lines[i], "HardWare: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.hardwareSkill = rating
 		default:
 		}
 		//Import Software Skill
-		switch strings.Contains(lines[i], "Software : ") {
+		switch strings.Contains(lines[i], "Software: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "Software : ")
+			ratingS := strings.Split(lines[i], "Software: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.softwareSkill = rating
 		default:
 		}
 		//Import Electronic Warfare Skill
-		switch strings.Contains(lines[i], "Electronic Warfare : ") {
+		switch strings.Contains(lines[i], "Electronic Warfare: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "Electronic Warfare : ")
+			ratingS := strings.Split(lines[i], "Electronic Warfare: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.electronicSkill = rating
 		default:
 		}
 		//Import BODY Attribute
-		switch strings.Contains(lines[i], "BODY : ") {
+		switch strings.Contains(lines[i], "BODY: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "BODY : ")
+			ratingS := strings.Split(lines[i], "BODY: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.body = rating
 		default:
 		}
 		//Import AGILITY Attribute
-		switch strings.Contains(lines[i], "AGILITY : ") {
+		switch strings.Contains(lines[i], "AGILITY: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "AGILITY : ")
+			ratingS := strings.Split(lines[i], "AGILITY: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.softwareSkill = rating
 		default:
 			//p.AGILITY = 0
 		}
 		//Import REACTION Attribute
-		switch strings.Contains(lines[i], "REACTION : ") {
+		switch strings.Contains(lines[i], "REACTION: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "REACTION : ")
+			ratingS := strings.Split(lines[i], "REACTION: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
-			p.softwareSkill = rating
+			p.reaction = rating
 		default:
 			//p.REACTION = 0
 		}
 		//Import STRENGTH Attribute
-		switch strings.Contains(lines[i], "STRENGTH : ") {
+		switch strings.Contains(lines[i], "STRENGTH: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "STRENGTH : ")
+			ratingS := strings.Split(lines[i], "STRENGTH: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.softwareSkill = rating
 		default:
 			//	p.STRENGTH = 0
 		}
 		//Import WILLPOWER Attribute
-		switch strings.Contains(lines[i], "WILLPOWER : ") {
+		switch strings.Contains(lines[i], "WILLPOWER: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "WILLPOWER : ")
+			ratingS := strings.Split(lines[i], "WILLPOWER: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.willpower = rating
 		default:
 		}
 		//Import LOGIC Attribute
-		switch strings.Contains(lines[i], "LOGIC : ") {
+		switch strings.Contains(lines[i], "LOGIC: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "LOGIC : ")
+			ratingS := strings.Split(lines[i], "LOGIC: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.logic = rating
 		default:
 		}
 		//Import INTUITION Attribute
-		switch strings.Contains(lines[i], "INTUITION : ") {
+		switch strings.Contains(lines[i], "INTUITION: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "INTUITION : ")
+			ratingS := strings.Split(lines[i], "INTUITION: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.intuition = rating
 		default:
 		}
 		//Import CHARISMA Attribute
-		switch strings.Contains(lines[i], "CHARISMA : ") {
+		switch strings.Contains(lines[i], "CHARISMA: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "CHARISMA : ")
+			ratingS := strings.Split(lines[i], "CHARISMA: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.charisma = rating
 		default:
 		}
 		//Import EDGE Attribute
-		switch strings.Contains(lines[i], "EDGE : ") {
+		switch strings.Contains(lines[i], "EDGE: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "EDGE : ")
+			ratingS := strings.Split(lines[i], "EDGE: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
-			p.softwareSkill = rating
+			p.edge = rating
+			p.maxEdge = rating
 		default:
 			//p.EDGE = 0
 		}
 		//Import RESONANCE Attribute
-		switch strings.Contains(lines[i], "RESONANCE : ") {
+		switch strings.Contains(lines[i], "RESONANCE: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "RESONANCE : ")
+			ratingS := strings.Split(lines[i], "RESONANCE: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.softwareSkill = rating
 		default:
 			//p.RESONANCE = 0
 		}
 		//Import DEPTH Attribute
-		switch strings.Contains(lines[i], "DEPTH : ") {
+		switch strings.Contains(lines[i], "DEPTH: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "DEPTH : ")
+			ratingS := strings.Split(lines[i], "DEPTH: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.softwareSkill = rating
 		default:
@@ -385,14 +394,14 @@ func ImportPlayerFromDB(alias string) *TPersona {
 	p.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
 	//p.maxMatrixCM = p.device.GetMatrixCM()
 	p.matrixCM = p.maxMatrixCM
-	p.id = id
+	//p.id = id
 	p.silentMode = true
-	p.simSence = "Hot-SIM VR"
+	p.simSence = "HOT-SIM"
 	p.maxStunCM = (p.GetWillpower()+1)/2 + 8
 	p.stunCM = p.maxStunCM
 	p.maxPhysCM = (p.body+1)/2 + 8
 	p.physCM = p.maxPhysCM
-	p.SetID()
+	//p.SetID()
 	p.host = Matrix
 	p.markSet.MarksFrom = make(map[int]int)
 	p.markSet.MarksFrom[p.id] = 4
@@ -402,8 +411,9 @@ func ImportPlayerFromDB(alias string) *TPersona {
 	//p.(IIcon)name = alias
 	p.connected = true
 	p.physLocation = false
-
-	objectList = append(objectList, &p)
-	id++
-	return &p
+	ObjByNames[p.name] = &p
+	//ObjByNames[p.name] = ObjByNames["Unknown"]
+	//objectList = append(objectList, &p)
+	//id++
+	return &p, true
 }

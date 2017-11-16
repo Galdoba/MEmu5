@@ -36,6 +36,11 @@ func (g *TGrid) GetType() string {
 	return "Grid"
 }
 
+//GetName -
+func (g *TGrid) GetName() string {
+	return g.name
+}
+
 //GetGridName -
 func (g *TGrid) GetGridName() string {
 	return g.name
@@ -48,6 +53,9 @@ func (g *TGrid) GetDeviceRating() int {
 
 //GetOverwatchScore -
 func (g *TGrid) GetOverwatchScore() int {
+	if g.overwatchScore < 0 {
+		g.overwatchScore = 0
+	}
 	return g.overwatchScore
 }
 
