@@ -361,32 +361,49 @@ func main() {
 
 	kbd := congo.CreateKeyboard()
 	kbd.StartKeyboard()
+	//SourceIcon = pickObjByID(player.GetID())
+	//doAction("WAIT")
 
 	for !canClose {
-		draw()
-		ev := kbd.ReadEvent()
-		if ev.GetEventType() == "Keyboard" {
-			var char string
-			key := ev.(*congo.KeyboardEvent).GetRune()
-			if key != 0 {
-				char = string(key)
-				w4.WPrint(char, congo.ColorGreen)
-				nom := strconv.Itoa(int(key))
-				noms := strings.Split(nom, "")
-				s := 0
-				for i := range noms {
-					g, _ := strconv.Atoi(noms[i])
-					s = s + g
-					if s > 6 {
-						s = s - 6
-					}
-				}
-				//w6.WPrint(fmt.Sprintf("%v ", s), congo.ColorGreen)
-			}
-
+		if congo.IsChanged() {
+			draw()
+			congo.ResetUpdate()
 		}
-		info = ev
-		congo.HandleEvent(ev)
+
+		if kbd.KeyPressed() {
+			ev := kbd.ReadEvent()
+			if ev.GetEventType() == "Keyboard" {
+				var char string
+				key := ev.(*congo.KeyboardEvent).GetRune()
+				if key != 0 {
+					congo.PostUpdate()
+					char = string(key)
+					w4.WPrint(char, congo.ColorGreen)
+
+					nom := strconv.Itoa(int(key))
+					noms := strings.Split(nom, "")
+					s := 0
+					for i := range noms {
+						g, _ := strconv.Atoi(noms[i])
+						s = s + g
+						if s > 6 {
+							s = s - 6
+						}
+					}
+					//w6.WPrint(fmt.Sprintf("%v ", s), congo.ColorGreen)
+				}
+
+			}
+			info = ev
+			congo.HandleEvent(ev)
+		} else {
+			time.Sleep(1)
+		}
+
+		if player.GetWaitFlag() {
+			SourceIcon = pickObjByID(player.GetID())
+			doAction("WAIT")
+		}
 
 	}
 

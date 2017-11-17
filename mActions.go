@@ -3799,20 +3799,19 @@ func SwapPrograms(src IObj, trg IObj) {
 
 //Wait -
 func Wait(src IObj, trg IObj) {
-	src = SourceIcon.(IPersona)
-	src = SourceIcon
-
-	icon := SourceIcon.(IPersona)
-	//icon.RollInitiative()
-	//text := TargetIcon.(string)
-	text := command
-	text = formatString(text)
-	text = cleanText(text)
-	comm := strings.SplitN(text, ">", 4)
+	persona := src.(IPersona)
+	comm := GetComm()
+	for i := range comm {
+		//printLog(comm[i], congo.ColorGreen)
+		if comm[i] == "-EVENT" {
+			persona.SetWaitFlag(true)
+			persona.SetInitiative(0)
+		}
+	}
 	if len(comm) > 2 {
 		waitTime := comm[2]
 		waitTimeInt, _ := strconv.Atoi(waitTime)
-		icon.SetInitiative(icon.GetInitiative() - waitTimeInt)
+		persona.SetInitiative(persona.GetInitiative() - waitTimeInt)
 	} else {
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Wait time unspecified...", congo.ColorGreen)
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Waiting until end of turn...", congo.ColorDefault)
@@ -3853,7 +3852,7 @@ func endAction() {
 	SourceIcon = nil
 	TargetIcon = nil
 	TargetIcon2 = nil
-	command = "--EMPTY"
+	command = ""
 	//outIndex := 0
 	for _, obj := range ObjByNames {
 		if ic, ok := obj.(IIC); ok {

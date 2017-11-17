@@ -144,6 +144,7 @@ func refreshPersonaWin() {
 	}
 	drawLineInWindow("Persona")
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Total Objects: "+strconv.Itoa(len(objectList)), congo.ColorYellow)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--waitFlag: "+strconv.FormatBool(player.GetWaitFlag()), congo.ColorYellow)
 
 	totalMarks := player.CountMarks()
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Confirmed Marks on Persona: "+strconv.Itoa(totalMarks), congo.ColorYellow)
@@ -293,7 +294,7 @@ func refreshEnviromentWin() {
 		whatCanSee := player.canSee.KnownData[host.GetID()]
 		if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
 			congo.WindowsMap.ByTitle["Enviroment"].WPrint("Icon: "+host.GetName(), congo.ColorGreen)
-			for i := 0; i < playerMarks; i++{
+			for i := 0; i < playerMarks; i++ {
 				congo.WindowsMap.ByTitle["Enviroment"].WPrint("*", congo.ColorGreen)
 			}
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
@@ -401,7 +402,7 @@ func refreshEnviromentWin() {
 			drawLine = true
 			if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
 				congo.WindowsMap.ByTitle["Enviroment"].WPrint("Icon: "+ic.GetName(), congo.ColorGreen)
-				for i := 0; i < playerMarks; i++{
+				for i := 0; i < playerMarks; i++ {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrint("*", congo.ColorGreen)
 				}
 				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
@@ -502,7 +503,7 @@ func refreshEnviromentWin() {
 			drawLine = true
 			if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
 				congo.WindowsMap.ByTitle["Enviroment"].WPrint("Icon: "+file.GetType()+" "+strconv.Itoa(file.GetID()), congo.ColorGreen)
-				for i := 0; i < playerMarks; i++{
+				for i := 0; i < playerMarks; i++ {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrint("*", congo.ColorGreen)
 				}
 				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
@@ -536,7 +537,7 @@ func refreshEnviromentWin() {
 				if whatCanSee[1] != "Unknown" || file.GetMarkSet().MarksFrom[player.GetID()] == 4 {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Last Edit Time: "+file.GetLastEditDate(), congo.ColorGreen)
 				}
-				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("DEBUG: "+file.GetName() + " value = " + strconv.Itoa(file.GetValue()), congo.ColorGreen)
+				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("DEBUG: "+file.GetName()+" value = "+strconv.Itoa(file.GetValue()), congo.ColorGreen)
 				if file.GetSilentRunningMode() == true {
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(file.GetName()+" is silent running", congo.ColorRed)
 				}

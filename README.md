@@ -55,6 +55,11 @@ Set players initiative to 0, and start new Combat Turn (Nessesary after you init
 wait
 ```
 
+wait until any "Search" or "Download" process is complete
+```
+wait>-event
+```
+
 And those work according the rules from the book:
 ```
 crack file

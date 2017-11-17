@@ -1368,6 +1368,7 @@ type TPersona struct {
 	id                    int
 	physLocation          bool
 	fullDefFlag           bool
+	waitFlag              bool
 	markSet               MarkSet
 	searchProcessStatus   SearchProcess
 	downloadProcessStatus DownloadProcess
@@ -1418,6 +1419,8 @@ type IPersonaOnly interface {
 	CheckConvergence()
 	GetFullDeffenceFlag() bool
 	SetFullDeffenceFlag(bool)
+	GetWaitFlag() bool
+	SetWaitFlag(bool)
 }
 
 var _ IPersona = (*TPersona)(nil)
@@ -1472,6 +1475,7 @@ func NewPlayer(alias string, d string) *TPersona {
 //RollInitiative -
 func (p *TPersona) RollInitiative() {
 	mode := p.GetSimSence()
+
 	switch mode {
 	case "AR":
 		p.SetInitiative(p.GetReaction() + p.GetIntuition() + xd6Test(1))
@@ -1480,6 +1484,9 @@ func (p *TPersona) RollInitiative() {
 	case "HOT-SIM":
 		p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(4))
 	default:
+	}
+	if p.waitFlag {
+		p.SetInitiative(0)
 	}
 	//p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(4))
 }
@@ -1492,6 +1499,16 @@ func (p *TPersona) GetFullDeffenceFlag() bool {
 //SetFullDeffenceFlag -
 func (p *TPersona) SetFullDeffenceFlag(newFDF bool) {
 	p.fullDefFlag = newFDF
+}
+
+//GetWaitFlag -
+func (p *TPersona) GetWaitFlag() bool {
+	return p.waitFlag
+}
+
+//SetWaitFlag -
+func (p *TPersona) SetWaitFlag(newWF bool) {
+	p.waitFlag = newWF
 }
 
 //IsPlayer -
@@ -2440,6 +2457,7 @@ func (p *TPersona) UpdateSearchProcess() {
 		if i < (len(p.searchProcessStatus.SearchIconName)) {
 			p.searchProcessStatus.SpentTurns[i] = p.searchProcessStatus.SpentTurns[i] + 1
 			if p.searchProcessStatus.SpentTurns[i] == p.searchProcessStatus.SearchTime[i] {
+				p.waitFlag = false
 				switch formatTargetName(p.searchProcessStatus.SearchIconType[i]) {
 				case "Host":
 					hostName := formatTargetName(p.searchProcessStatus.SearchIconName[i])
@@ -2481,6 +2499,7 @@ func (p *TPersona) UpdateDownloadProcess() {
 	for i := range p.downloadProcessStatus.DownloadIconName {
 		p.downloadProcessStatus.DownloadedData[i] = p.downloadProcessStatus.DownloadedData[i] + p.GetDataProcessing()*5
 		if p.downloadProcessStatus.DownloadedData[i] >= p.downloadProcessStatus.FileSize[i] {
+			p.waitFlag = false
 			printLog("Downloading of "+p.downloadProcessStatus.DownloadIconName[i]+" complete", congo.ColorGreen)
 			p.downloadProcessStatus.DownloadIconName = append(p.downloadProcessStatus.DownloadIconName[:i], p.downloadProcessStatus.DownloadIconName[i+1:]...)
 			p.downloadProcessStatus.FileSize = append(p.downloadProcessStatus.FileSize[:i], p.downloadProcessStatus.FileSize[i+1:]...)

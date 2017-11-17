@@ -146,6 +146,7 @@ func checkTurn() {
 	maxInit := 0
 	turnGo := true
 	lap := 0
+	autoWait := false
 	//outIndex := 0
 	for _, obj := range ObjByNames {
 		if icon, ok := obj.(IIcon); ok {
@@ -166,6 +167,13 @@ func checkTurn() {
 				if icon.GetType() == "File" {
 					icon.SetInitiative(-1)
 				}
+				if icon.GetName() == player.GetName() {
+					if player.GetWaitFlag() {
+						icon.SetInitiative(0)
+						//printLog("obj is player", congo.ColorDefault)
+						autoWait = true
+					}
+				}
 				maxInit = utils.Max(maxInit, icon.GetInitiative())
 				movemetOrder = append(movemetOrder, icon)
 			}
@@ -177,6 +185,7 @@ func checkTurn() {
 				if icon.GetType() != "File" {
 					//congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+": Initiative = "+strconv.Itoa(icon.GetInitiative()), congo.ColorDefault)
 				}
+
 			}
 		}
 		for i := range movemetOrder {
@@ -187,6 +196,10 @@ func checkTurn() {
 					icDecide(icon) //нужен целеуказывающий механизм для айсов - перевести из Листа в Мап
 					//continue
 				}
+				/*if player.GetWaitFlag() {
+					//player.SetInitiative(0)
+					//printLog("obj is player", congo.ColorDefault)
+				}*/
 
 			}
 			if len(movemetOrder)-1 < i { //костыль от Index Out of Range
@@ -200,6 +213,7 @@ func checkTurn() {
 				}
 				if obj.GetInitiative() == maxInit && maxInit > 0 {
 					if obj.IsPlayer() == true {
+
 						if lap > 10 {
 							turnGo = false
 						}
@@ -329,6 +343,16 @@ func checkTurn() {
 			refreshGridWin()
 			congo.Flush()
 			player.SetInitiative(999999)
+		} else {
+			//SourceIcon = pickObjByID(player.GetID())
+			//doAction("WAIT")
+		}
+	}
+	if autoWait {
+		if player.GetWaitFlag() {
+			autoWait = false
+			SourceIcon = pickObjByID(player.GetID())
+			//doAction("WAIT")
 		}
 	}
 	refreshEnviromentWin()
@@ -484,12 +508,14 @@ func checkTurn0() {
 				}
 				maxInit = utils.Max(maxInit, icon.GetInitiative())
 				movemetOrder = append(movemetOrder, icon)
+				printLog("append"+icon.GetName(), congo.ColorGreen)
 				//congo.WindowsMap.ByTitle["Log"].WPrintLn("*/*/*/*/*/**/*/*//*/**/", congo.ColorDefault)
 				/*congo.WindowsMap.ByTitle["Log"].WPrintLn("movementOrder:=", congo.ColorDefault)
 				for i := range movemetOrder {
 					congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(i)+" / "+movemetOrder[i].GetName()+" / Init = "+strconv.Itoa(movemetOrder[i].GetInitiative()), congo.ColorDefault)
 				}*/
 			}
+
 		}
 		sortMovementOrder(movemetOrder, maxInit)
 
@@ -542,6 +568,7 @@ func checkTurn0() {
 			if obj, ok := movemetOrder[i].(IIcon); ok {
 				if persona, ok := movemetOrder[i].(IPersona); ok {
 					persona.CheckConvergence()
+					//congo.WindowsMap.ByTitle["Log"].WPrintLn("persona turn", congo.ColorDefault)
 				}
 				if obj.GetInitiative() == maxInit && maxInit > 0 {
 					/*	congo.WindowsMap.ByTitle["Log"].WPrintLn("try: "+obj.GetName(), congo.ColorYellow)
@@ -652,14 +679,15 @@ func checkTurn0() {
 					}
 				}
 			}
+			//persona in MOVORD
 			//	movemetOrder = movemetOrder[:i]
 			//panic(1)
 		}
 
 		refreshPersonaWin()
 		if maxInit <= 0 {
-			rollInitiative()
 			hostAction()
+			rollInitiative()
 			STime = forwardShadowrunTime()
 			printLog("System time: "+STime, congo.ColorGreen)
 			Turn++
@@ -779,21 +807,22 @@ func rollInitiative() {
 	for _, obj := range ObjByNames {
 		if icon, ok := obj.(IIcon); ok {
 
-			sms := icon.GetSimSence()
-			dice := 0
-			switch sms {
-			case "AR":
-				dice = 1
-			case "COLD-SIM":
-				dice = 3
-			case "HOT-SIM":
-				dice = 4
-			default:
-				dice = 4
-				//panic(0)
-			}
+			/*	sms := icon.GetSimSence()
+				dice := 0
+				switch sms {
+				case "AR":
+					dice = 1
+				case "COLD-SIM":
+					dice = 3
+				case "HOT-SIM":
+					dice = 4
+				default:
+					dice = 4
+					//panic(0)
+				}*/
+			icon.RollInitiative()
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: "+obj.GetName()+" rolling initiative", congo.ColorYellow)
-			icon.SetInitiative(icon.GetDataProcessing() + icon.GetDeviceRating() + xd6Test(dice))
+			//icon.SetInitiative(icon.GetDataProcessing() + icon.GetDeviceRating() + xd6Test(dice))
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: " + obj.GetName() + " have " + strconv.Itoa(obj.GetInitiative()) + " initiative", congo.ColorDefault)
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: " + player.name + " have " + strconv.Itoa(player.GetInitiative()) + " initiative", congo.ColorDefault)
 		}

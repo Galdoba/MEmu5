@@ -22,8 +22,11 @@ func UserInput(input string) bool {
 	comm = strings.SplitN(command, ">", 6)
 	text := formatString(input)
 	text = cleanText(text)
-	congo.WindowsMap.ByTitle["Log"].WPrintLn(text, congo.ColorGreen)
-	hold()
+	if text != "" {
+		printLog(text, congo.ColorDefault)
+	}
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(text, congo.ColorGreen)
+	//hold()
 
 	if len(comm) < 2 {
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
@@ -41,7 +44,7 @@ func UserInput(input string) bool {
 	//printLog(mActionName, congo.ColorRed)
 	actionIsGood, mActionName = checkAction(mAction)
 	if actionIsGood == true {
-	//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: "+mActionName+" is correct", congo.ColorYellow)
+		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: "+mActionName+" is correct", congo.ColorYellow)
 	}
 	checkSource(comm[0])
 	if mActionName == "EXIT_HOST" || mActionName == "ERASE_MARK" || mActionName == "CHECK_OVERWATCH_SCORE" || mActionName == "LONGACT" || mActionName == "SWITCH_INTERFACE_MODE" {
