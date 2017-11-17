@@ -105,12 +105,12 @@ func initialize() {
 	})
 
 	congo.NewKeyboardAction("Add Line", "<space>", "", func(ev *congo.KeyboardEvent) bool {
-		congo.WindowsMap.ByTitle["z"].WPrint(" ", congo.ColorGreen)
+		congo.WindowsMap.ByTitle["User Input"].WPrint(" ", congo.ColorGreen)
 		return true
 	})
 
 	congo.NewKeyboardAction("Input", "<ENTER>", "", func(ev *congo.KeyboardEvent) bool {
-		input := congo.WindowsMap.ByTitle["z"].WRead()
+		input := congo.WindowsMap.ByTitle["User Input"].WRead()
 		if len(input) >= 2 {
 			sl := []byte(input)
 			sl = sl[:len(sl)-0]
@@ -123,22 +123,22 @@ func initialize() {
 			UserInput(player.GetName() + ">" + input)
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn(input)
 		}
-		congo.WindowsMap.ByTitle["z"].WClear()
+		congo.WindowsMap.ByTitle["User Input"].WClear()
 		draw()
 		return true
 	})
 
 	congo.NewKeyboardAction("Delete_input_char", "<BACKSPACE>", "", func(ev *congo.KeyboardEvent) bool {
-		input := congo.WindowsMap.ByTitle["z"].WRead()
+		input := congo.WindowsMap.ByTitle["User Input"].WRead()
 		if len(input) >= 2 {
 			sl := []byte(input)
 			sl = sl[:len(sl)-1]
 			input = string(sl)
 		} else {
-			congo.WindowsMap.ByTitle["z"].WClear()
+			congo.WindowsMap.ByTitle["User Input"].WClear()
 		}
-		congo.WindowsMap.ByTitle["z"].WClear()
-		congo.WindowsMap.ByTitle["z"].WPrint(input, congo.ColorGreen)
+		congo.WindowsMap.ByTitle["User Input"].WClear()
+		congo.WindowsMap.ByTitle["User Input"].WPrint(input, congo.ColorGreen)
 		return true
 	})
 
@@ -196,7 +196,7 @@ func initialize() {
 		//addDevice("Camera5")
 		//addDevice("Erika MCD-1")
 		//NewDevice("Erika MCD-1", 4)
-		congo.WindowsMap.ByTitle["z"].WPrint("matrix search>host", congo.ColorGreen)
+		congo.WindowsMap.ByTitle["User Input"].WPrint("matrix search>host", congo.ColorGreen)
 		draw()
 		return true
 	})
@@ -250,7 +250,7 @@ func initialize() {
 		congo.WindowsMap.ByTitle["Log"].SetSize((width * 3 / 10), height)
 		congo.WindowsMap.ByTitle["Persona"].SetSize(width*20/100, height-height/5+1)
 		congo.WindowsMap.ByTitle["Grid"].SetSize(width*20/100, height*2/10)
-		congo.WindowsMap.ByTitle["z"].SetSize((width*3/10)-2, 1)
+		congo.WindowsMap.ByTitle["User Input"].SetSize((width*3/10)-2, 3)
 		congo.WindowsMap.ByTitle["Enviroment"].SetSize(width/2, height-height/5+1)
 		congo.WindowsMap.ByTitle["Process"].SetSize(width/2, height*2/10)
 		congo.WindowsMap.ByTitle["Process"].SetAutoScroll(true)
@@ -258,7 +258,7 @@ func initialize() {
 		congo.WindowsMap.ByTitle["Log"].SetPosition(width-width*30/100, 0)
 		congo.WindowsMap.ByTitle["Persona"].SetPosition(0, 0)
 		congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
-		congo.WindowsMap.ByTitle["z"].SetPosition(width-(width*3/10)+1, height-2)
+		congo.WindowsMap.ByTitle["User Input"].SetPosition(width-(width*3/10)+1, height-5)
 		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width*20/100, 0)
 		congo.WindowsMap.ByTitle["Process"].SetPosition(width*20/100, height*8/10+1)
 
@@ -275,7 +275,7 @@ func draw() {
 	congo.WindowsMap.ByTitle["Grid"].WDraw()
 	congo.WindowsMap.ByTitle["Enviroment"].WDraw()
 	congo.WindowsMap.ByTitle["Log"].WDraw()
-	congo.WindowsMap.ByTitle["z"].WDraw()
+	congo.WindowsMap.ByTitle["User Input"].WDraw()
 	congo.WindowsMap.ByTitle["Process"].SetAutoScroll(true)
 	congo.WindowsMap.ByTitle["Process"].WDraw()
 	//windowList[0].(*congo.TWindow).WPrintLn("sdkjf11111111111h", congo.ColorDefault)
@@ -306,10 +306,10 @@ func main() {
 	w1 := congo.NewWindow(width-(width*3/10), 0, (width * 3 / 10), height, "Log", "Block")
 	w2 := congo.NewWindow(0, 0, width*20/100, height-height/5+1, "Persona", "Block")
 	w3 := congo.NewWindow(0, height-height*2/10, width*20/100, height*2/10, "Grid", "Block")
-	w4 := congo.NewWindow(width-(width*3/10)+1, height-2, (width*3/10)-2, 1, "z", "Block")
+	w4 := congo.NewWindow(width-(width*3/10)+1, height-3, (width*3/10)-2, 3, "User Input", "Block")
 	w5 := congo.NewWindow(width*20/100, 0, width/2, height-height/5+1, "Enviroment", "Block")
 	w6 := congo.NewWindow(width*20/100, height*8/10+1, width/2, height*2/10, "Process", "Block")
-	w4.SetBorderVisibility(false)
+	//w4.SetBorderVisibility(false)
 	windowList = append(windowList, w1)
 	windowList = append(windowList, w2)
 	windowList = append(windowList, w3)

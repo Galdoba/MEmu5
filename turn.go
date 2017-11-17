@@ -314,9 +314,9 @@ func checkTurn() {
 		if maxInit <= 0 {
 			rollInitiative()
 			hostAction()
+			STime = forwardShadowrunTime()
 			printLog("System time: "+STime, congo.ColorGreen)
 			Turn++
-			STime = forwardShadowrunTime()
 
 			turnGo = false
 		}

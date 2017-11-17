@@ -15,9 +15,9 @@ MEmu5 is an attempt to digitalise the abstract rules for the Matrix in Shadowrun
 to initiate an action just type:
 ```[ACTION_NAME]>[TARGET_NAME]>[OPTIONAL_ARGUMENTS]```
 
-load character/his characteristics and abilities with name "TestPC"
+load character/his characteristics and abilities with name "Testpc"
 ```
-login>TestPC 
+login>Testpc
 ```
 
 Do "Hack on the Fly" action on icon with name "Ares Host", 

@@ -2390,7 +2390,7 @@ func doAction(s string) bool {
 	if val, ok := MActions.MActionMap[s]; ok {
 		if attacker, ok := SourceIcon.(IIcon); ok {
 			if defender, ok := TargetIcon.(IPersona); ok {
-				if defender.GetID() == player.GetID() {
+				if defender.GetID() == player.GetID() && attacker.GetID() != player.GetID() {
 					printLog(attacker.GetName()+" attack detected...", congo.ColorYellow)
 					printLog("..."+defender.GetName()+": Evaiding", congo.ColorGreen)
 				}
@@ -2641,88 +2641,6 @@ func CrackFile(src IObj, trg IObj) {
 }
 
 //DataSpike - ++
-func DataSpike0(src IObj, trg IObj) {
-	src = SourceIcon
-	trg = TargetIcon
-	var netHits int
-	persona := src.(IPersona)
-	isComplexAction()
-	comm := GetComm()
-	attMod := 0
-	printLog("Initiating Data Spike sequence...", congo.ColorGreen)
-	targetList := pickTargets(comm)
-	printLog("...Allocating resources:", congo.ColorGreen)
-	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
-	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-	attMod = calculateAttMods(comm, persona, targetList)
-	dp1 = dp1 + attMod
-	if dp1 < 0 {
-		dp1 = 0
-	}
-	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-	limit := persona.GetAttack()
-	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
-	suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
-	if gl == true {
-		addOverwatchScore(dp1 - suc1)
-		printLog("...Error: Attack protocol glitch detected", congo.ColorYellow)
-	}
-	if cgl == true {
-		addOverwatchScore(dp1)
-		persona.GetHost().SetAlert("Active Alert")
-		printLog("...Error: Attack protocol critical failure", congo.ColorRed)
-	}
-	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
-	for i := range targetList {
-		if icon, ok := targetList[i].(IIcon); ok {
-			host := icon.GetHost()
-			dp2 := icon.GetDeviceRating() + icon.GetFirewall()
-			suc2, rgl, rcgl := simpleTest(icon.GetID(), dp2, 1000, 0)
-			addOverwatchScore(suc2)
-			if rgl == true {
-				printLog("...Unexpected exploit detected!", congo.ColorGreen)
-				suc1++
-			}
-			if rcgl == true {
-				addOverwatchScore(-dp2)
-				printLog("...Target's firewall critical falure", congo.ColorGreen)
-			}
-			netHits = suc1 - suc2
-			if netHits > 0 {
-				damage := netHits + persona.GetAttack()
-				realDamage := icon.ResistMatrixDamage(damage)
-				icon.ReceiveMatrixDamage(realDamage)
-				if persona.CheckRunningProgram("Biofeedback") {
-					if target, ok := icon.(IPersona); ok {
-						bfDamage := target.ResistBiofeedbackDamage(realDamage)
-						target.ReceivePhysBiofeedbackDamage(bfDamage)
-					} else {
-						printLog("...Error: "+icon.GetName()+" is immune to Biofeedback Damage", congo.ColorGreen)
-					}
-				}
-				if persona.CheckRunningProgram("Blackout") {
-					if target, ok := icon.(IPersona); ok {
-						bfDamage := target.ResistBiofeedbackDamage(realDamage)
-						target.ReceiveStunBiofeedbackDamage(bfDamage)
-					} else {
-						printLog("...Error: "+icon.GetName()+" is immune to Biofeedback Damage", congo.ColorGreen)
-					}
-				}
-				if host.GetHostAlertStatus() == "No Alert" {
-					host.alert = "Passive Alert"
-				}
-			} else {
-				persona.ReceiveMatrixDamage(-netHits)
-			}
-		} else {
-			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
-		}
-	}
-	endAction()
-
-}
-
-//DataSpike - ++
 func DataSpike(src IObj, trg IObj) {
 	persona := src.(IPersona)
 	isComplexAction()
@@ -2792,6 +2710,7 @@ func DataSpike(src IObj, trg IObj) {
 			} else {
 				persona.ReceiveMatrixDamage(-netHits)
 			}
+
 		} else {
 			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
@@ -2802,93 +2721,59 @@ func DataSpike(src IObj, trg IObj) {
 
 //DisarmDataBomb -
 func DisarmDataBomb(src IObj, trg IObj) {
-	src = SourceIcon.(*TPersona)
-	trg = TargetIcon
-	icon := SourceIcon.(IPersona)
-	attMod, defMod := getModifiers(src, trg)
+	persona := src.(IPersona)
 	isComplexAction()
-	dp1 := icon.GetSoftwareSkill() + icon.GetIntuition() + attMod
-	limit := src.(IPersona).GetFirewall()
-	if icon.CheckRunningProgram("Defuse") {
-		dp1 = dp1 + 4
+	comm := GetComm()
+	attMod := 0
+	printLog("Initiating Disarm Databomb sequence...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	printLog("...Allocating resources:", congo.ColorGreen)
+	dp1 := persona.GetSoftwareSkill() + persona.GetIntuition()
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	attMod = calculateAttMods(comm, persona, targetList)
+	dp1 = dp1 + attMod
+	if dp1 < 0 {
+		dp1 = 0
 	}
-	suc1, gl, cgl := simpleTest(icon.GetID(), dp1, limit, 0)
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 0", congo.ColorYellow)
-	if trg, ok := trg.(*TFile); ok {
-		dp2 := trg.GetDataBombRating()*2 + defMod
-		suc2, glt, cglt := simpleTest(trg.GetID(), dp2, 1000, 0)
-		if gl == true {
-			addOverwatchScore(dp1 - suc1)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error! Unexpected trigger initiated....", congo.ColorYellow)
-		}
-		if cgl == true {
-			addOverwatchScore(dp1 - suc1)
-			suc2++
-			trg.SetDataBombRating(trg.GetDataBombRating() + 1)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Critical Error Erupted....", congo.ColorRed)
-		}
-		if glt == true {
-			addOverwatchScore(-suc2)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb lag detected....", congo.ColorGreen)
-		}
-		if cglt == true {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb critical lag detected....", congo.ColorGreen)
-			suc1++
-		}
-		//Тут надо остановиться и спросить про перебросс
-
-		netHits := suc1 - suc2
-		addOverwatchScore(suc2)
-
-		if netHits > 0 {
-			trg.SetDataBombRating(0)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb Defused...", congo.ColorGreen)
-		} else {
-			src.(*TPersona).TriggerDataBomb(trg.GetDataBombRating())
-			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Step 3 - fail", congo.ColorYellow)
-			//
-			/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb triggered...", congo.ColorRed)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Host Alert triggered...", congo.ColorRed)
-			trg.GetHost().SetAlert("Active Alert")
-			prgBonus := 0
-			if src.(*TPersona).CheckRunningProgram("Armor") {
-				prgBonus = prgBonus + 2
-			}
-			if src.(*TPersona).CheckRunningProgram("Defuse") {
-				prgBonus = prgBonus + 4
-			}
-			resistPool := src.(*TPersona).GetDeviceRating() + src.(*TPersona).GetFirewall() + prgBonus
-			resistHits, rgl, rcgl := simpleTest( focusIcon.GetID() , focusIcon.GetID() ,resistPool, 999, 0)
-			//остановиться и перебросить при необходимости
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(resistHits)+" of incomming Matrix damage has beeb resisted", congo.ColorGreen)
-			fullDamage := xd6Test(trg.GetDataBombRating())
+	printLog("...Evaluated Software resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	limit := persona.GetFirewall()
+	printLog("...Hardware limit: "+strconv.Itoa(limit)+" op/p", congo.ColorGreen)
+	suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+	if gl == true {
+		addOverwatchScore(dp1 - suc1)
+		printLog("...Error: Disarming protocol glitch detected", congo.ColorYellow)
+	}
+	if cgl == true {
+		addOverwatchScore(dp1)
+		persona.GetHost().SetAlert("Active Alert")
+		printLog("...Error: Disarming protocol critical failure", congo.ColorRed)
+	}
+	for i := range targetList {
+		if file, ok := targetList[i].(IFile); ok {
+			dp2 := file.GetDataBombRating() * 2
+			suc2, rgl, rcgl := simpleTest(file.GetID(), dp2, 1000, 0)
+			addOverwatchScore(suc2)
 			if rgl == true {
-				fullDamage = fullDamage + 2
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Warning!! Firewall error erupted...", congo.ColorYellow)
+				printLog("..."+file.GetName()+": Firewall exploit detected", congo.ColorGreen)
+				suc1++
 			}
 			if rcgl == true {
-				addOverwatchScore(xd6Test(trg.GetDataBombRating()))
-				fullDamage = fullDamage + xd6Test(trg.GetDataBombRating())
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Danger!! Critical error erupted...", congo.ColorRed)
+				addOverwatchScore(-dp2)
+				printLog("..."+file.GetName()+": Firewall critical failure", congo.ColorGreen)
 			}
-
-			realDamage := fullDamage - resistHits
-			if realDamage < 0 {
-				realDamage = 0
+			netHits := suc1 - suc2
+			if netHits > 0 {
+				file.SetDataBombRating(0)
+				printLog(persona.GetName()+": Databomb Disarmed", congo.ColorGreen)
+			} else {
+				persona.TriggerDataBomb(file.GetDataBombRating())
+				file.SetDataBombRating(0)
 			}
-			src.(*TPersona).ReceiveMatrixDamage(realDamage)
-			//src.(*TPersona).SetMatrixCM(src.(*TPersona).GetMatrixCM() - realDamage)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn(src.(*TPersona).GetName()+" receive "+strconv.Itoa(realDamage)+" of matrix damage", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Databomb destroyed", congo.ColorGreen)
-			//*/
-			trg.SetDataBombRating(0)
-			canSee := src.(*TPersona).canSee.KnownData[trg.GetID()]
-			canSee[3] = strconv.Itoa(trg.GetDataBombRating()) // 3- отвечает за рейтинг бомбы
-			src.(*TPersona).canSee.KnownData[trg.GetID()] = canSee
-
+			persona.ChangeFOWParametr(file.GetID(), 3, strconv.Itoa(file.GetDataBombRating())) // 3- отвечает за DataBomb
+		} else {
+			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
 	}
-
 	endAction()
 }
 
@@ -3669,7 +3554,7 @@ func SwapAttributes(src IObj, trg IObj) {
 //LoadProgram -
 func LoadProgram(src IObj, trg IObj) {
 	src = SourceIcon
-	congo.WindowsMap.ByTitle["z"].WClear()
+	congo.WindowsMap.ByTitle["User Input"].WClear()
 	if persona, ok := src.(*TPersona); ok {
 		//text := TargetIcon.(string)
 		text := command
@@ -3737,7 +3622,7 @@ func LoadProgram(src IObj, trg IObj) {
 //Login -
 func Login(src IObj, trg IObj) {
 	src = SourceIcon
-	congo.WindowsMap.ByTitle["z"].WClear()
+	congo.WindowsMap.ByTitle["User Input"].WClear()
 	text := command
 	text = formatString(text)
 	text = cleanText(text)
@@ -3784,7 +3669,7 @@ func Login(src IObj, trg IObj) {
 //UnloadProgram -
 func UnloadProgram(src IObj, trg IObj) {
 	src = SourceIcon
-	congo.WindowsMap.ByTitle["z"].WClear()
+	congo.WindowsMap.ByTitle["User Input"].WClear()
 	if persona, ok := src.(*TPersona); ok {
 		//text := TargetIcon.(string)
 		text := command
@@ -3830,7 +3715,7 @@ func UnloadProgram(src IObj, trg IObj) {
 //SwapPrograms - ++
 func SwapPrograms(src IObj, trg IObj) {
 	src = SourceIcon
-	congo.WindowsMap.ByTitle["z"].WClear()
+	congo.WindowsMap.ByTitle["User Input"].WClear()
 	if persona, ok := src.(*TPersona); ok {
 		//text := TargetIcon.(string)
 		text := command
@@ -3942,7 +3827,7 @@ func Wait(src IObj, trg IObj) {
 //FullDefence -
 func FullDefence(src IObj, trg IObj) {
 	src = SourceIcon
-	congo.WindowsMap.ByTitle["z"].WClear()
+	congo.WindowsMap.ByTitle["User Input"].WClear()
 	if persona, ok := src.(*TPersona); ok {
 		printLog("Full defence protocol initiated", congo.ColorGreen)
 		persona.SetFullDeffenceFlag(true)
