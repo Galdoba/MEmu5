@@ -25,7 +25,7 @@ var (
 	key              string
 	id               int
 	windowList       []interface{}
-	objectList       []IObj
+	//objectList       []IObj
 
 	gridList  []IGrid
 	hostList  []IObj
@@ -95,6 +95,7 @@ func initialize() {
 		} else {
 			activeWindow++
 		}
+		
 		congo.WindowsMap.ByTitle[windowList[activeWindow]].SetFocus(true)
 		return true
 	})
@@ -130,15 +131,16 @@ func initialize() {
 
 	congo.NewKeyboardAction("Delete_input_char", "<BACKSPACE>", "", func(ev *congo.KeyboardEvent) bool {
 		input := congo.WindowsMap.ByTitle["User Input"].WRead()
-		if len(input) >= 2 {
+		if len(input) > 2 {
 			sl := []byte(input)
-			sl = sl[:len(sl)-1]
+			sl = sl[:len(sl)-3]
 			input = string(sl)
 		} else {
 			congo.WindowsMap.ByTitle["User Input"].WClear()
 		}
 		congo.WindowsMap.ByTitle["User Input"].WClear()
 		congo.WindowsMap.ByTitle["User Input"].WPrint(input, congo.ColorGreen)
+		draw()
 		return true
 	})
 
@@ -250,7 +252,7 @@ func initialize() {
 		congo.WindowsMap.ByTitle["Log"].SetSize((width * 3 / 10), height)
 		congo.WindowsMap.ByTitle["Persona"].SetSize(width*20/100, height-height/5+1)
 		congo.WindowsMap.ByTitle["Grid"].SetSize(width*20/100, height*2/10)
-		congo.WindowsMap.ByTitle["User Input"].SetSize((width*3/10)-2, 3)
+		congo.WindowsMap.ByTitle["User Input"].SetSize((width*3/10), 3)
 		congo.WindowsMap.ByTitle["Enviroment"].SetSize(width/2, height-height/5+1)
 		congo.WindowsMap.ByTitle["Process"].SetSize(width/2, height*2/10)
 		congo.WindowsMap.ByTitle["Process"].SetAutoScroll(true)
@@ -258,7 +260,7 @@ func initialize() {
 		congo.WindowsMap.ByTitle["Log"].SetPosition(width-width*30/100, 0)
 		congo.WindowsMap.ByTitle["Persona"].SetPosition(0, 0)
 		congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
-		congo.WindowsMap.ByTitle["User Input"].SetPosition(width-(width*3/10)+1, height-5)
+		congo.WindowsMap.ByTitle["User Input"].SetPosition(width-(width*3/10), height-3)
 		congo.WindowsMap.ByTitle["Enviroment"].SetPosition(width*20/100, 0)
 		congo.WindowsMap.ByTitle["Process"].SetPosition(width*20/100, height*8/10+1)
 
@@ -306,7 +308,7 @@ func main() {
 	w1 := congo.NewWindow(width-(width*3/10), 0, (width * 3 / 10), height, "Log", "Block")
 	w2 := congo.NewWindow(0, 0, width*20/100, height-height/5+1, "Persona", "Block")
 	w3 := congo.NewWindow(0, height-height*2/10, width*20/100, height*2/10, "Grid", "Block")
-	w4 := congo.NewWindow(width-(width*3/10)+1, height-3, (width*3/10)-2, 3, "User Input", "Block")
+	w4 := congo.NewWindow(width-(width*3/10), height-3, (width*3/10), 3, "User Input", "Block") //width*3/10)+1, height, (width*3/10)-2, 3
 	w5 := congo.NewWindow(width*20/100, 0, width/2, height-height/5+1, "Enviroment", "Block")
 	w6 := congo.NewWindow(width*20/100, height*8/10+1, width/2, height*2/10, "Process", "Block")
 	//w4.SetBorderVisibility(false)

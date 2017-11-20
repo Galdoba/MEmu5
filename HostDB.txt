@@ -46,3 +46,32 @@ Host_IC:
  >Jammer IC
 
 #########################
+          
+Host: Bravo3
+Grid: MCT GlobeNet
+Host_Atributes:
+  Rating: 3
+  Attack: 3
+  Sleaze: 6
+  Data Processing: 5
+  Firewall: 4
+Host_IC:
+ >Patrol IC
+ >Probe IC
+ >Marker IC
+
+#########################
+          
+Host: Bravo2
+Grid: Ares Global Grid
+Host_Atributes:
+  Rating: 2
+  Attack: 3
+  Sleaze: 4
+  Data Processing: 5
+  Firewall: 2
+Host_IC:
+ >Patrol IC
+ >Marker IC
+
+#########################

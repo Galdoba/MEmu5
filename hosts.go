@@ -49,7 +49,7 @@ type IHost interface {
 	SetAlert(string)
 	DeleteIC(*TIC) bool
 	DeleteFile(*TFile) bool
-	PickPatrolIC() *TIC
+	PickPatrolIC() IIC
 	GetICState() ICList
 }
 
@@ -164,8 +164,23 @@ func (h *THost) ToggleConvergence() bool {
 }
 
 //PickPatrolIC -
-func (h *THost) PickPatrolIC() *TIC {
-	for i := 0; i < len(h.icState.icName); i++ {
+func (h *THost) PickPatrolIC() IIC {
+	var patrolFound bool
+	var try int
+	for !patrolFound {
+		patroIC := pickIconByName("Patrol IC")
+		if patroIC.GetHost() != h {
+			try++
+		}
+		if try > 1000 {
+			panic("Patrol IC was not found in 1000 cycles")
+		}
+		return patroIC.(IIC)
+	}
+	return nil
+}
+
+/*	for i := 0; i < len(h.icState.icName); i++ {
 		if h.icState.icName[i] == "Patrol IC" && h.icState.icStatus[i] == true {
 			for j := range objectList {
 				if patrolIC, ok := objectList[j].(*TIC); ok {
@@ -177,7 +192,7 @@ func (h *THost) PickPatrolIC() *TIC {
 		}
 	}
 	return nil
-}
+}*/
 
 //LoadNextIC -
 func (h *THost) LoadNextIC() bool {
@@ -252,14 +267,12 @@ func (h *THost) DeleteIC(ic *TIC) bool {
 func (h *THost) DeleteFile(file *TFile) bool {
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("Delete file: "+file.GetName()+"...", congo.ColorGreen)
 	hold()
-	for i := range objectList {
-		if ftDel, ok := objectList[i].(*TFile); ok {
+	for _, obj := range ObjByNames {
+		if flDel, ok := obj.(IFile); ok {
 			congo.WindowsMap.ByTitle["Log"].WPrint(".", congo.ColorGreen)
 			hold()
-			if ftDel.GetName() == file.GetName() {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn(".."+ftDel.GetName()+" deleted", congo.ColorGreen)
-				hold()
-				objectList = append(objectList[:i], objectList[i+1:]...)
+			if flDel.GetName() == file.GetName() {
+				delete(ObjByNames, file.GetName())
 				return true
 			}
 		}
@@ -275,22 +288,39 @@ func (h *THost) GatherMarks() {
 	var slaves []int
 	var notSlaves []int
 	slaves = append(slaves, h.id) //add host
-	for s := range objectList {
+	for _, obj := range ObjByNames {
+		if icon, ok := obj.(IIcon); ok {
+			if icon.GetOwner() == h {
+				slaves = append(slaves, icon.GetID()) //add slave
+			} else {
+				notSlaves = append(notSlaves, icon.GetID()) //add non-slave
+			}
+		}
+	}
+	/*	for _, obj := range ObjByNames{
+		if icon, ok := obj.(IIcon); ok {
+			if icon.GetOwner() != h {
+				notSlaves = append(notSlaves, icon.GetID()) //add non-slave
+			}
+		}
+	}*/
+
+	/*	for s := range objectList {
 		if icon, ok := objectList[s].(IIcon); ok {
 			if icon.GetOwner() == h {
 				slaves = append(slaves, icon.GetID()) //add slave
 			}
 		}
-	}
-	for ns := range objectList {
+	}*/
+	/*for ns := range objectList {
 		if icon, ok := objectList[ns].(IIcon); ok {
 			if icon.GetOwner() != h {
 				notSlaves = append(notSlaves, icon.GetID()) //add non-slave
 			}
 		}
-	}
-	for i := range objectList {
-		if notSlaveToCheck, ok := objectList[i].(IIcon); ok {
+	}*/
+	for _, obj := range ObjByNames {
+		if notSlaveToCheck, ok := obj.(IIcon); ok {
 			if notSlaveToCheck.GetOwner() != h {
 				markMap := notSlaveToCheck.GetMarkSet()
 				//				canSee := notSlaveToCheck.GetFieldOfView()
@@ -446,6 +476,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	gridList = append(gridList, &h)
 	ObjByNames[h.name] = &h
 	//	windowList[0].(*congo.TWindow).WPrintLn(h.HostToString(), congo.ColorYellow)
+	h.HostToString()
 	return &h
 }
 
@@ -539,12 +570,16 @@ func (h *THost) GetMarkSet() MarkSet {
 
 //SetAlert -
 func (h *THost) SetAlert(newAlert string) {
+	notify := false
+	if h.alert != "Active Alert" {
+		notify = true
+	}
 	h.alert = newAlert
 	if player.GetHost() == h && h.name != "Matrix" {
 		if h.alert == "Passive Alert" {
 			printLog("...Host now in Passive Alert mode!", congo.ColorYellow)
 		}
-		if h.alert == "Active Alert" {
+		if h.alert == "Active Alert" && notify == true {
 			printLog("...Host now in Active Alert mode!", congo.ColorRed)
 			printLog("SYSTEM MESSAGE:", congo.ColorDefault)
 			printLog("Attention all users!", congo.ColorDefault)

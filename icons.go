@@ -179,8 +179,8 @@ func (o *TObj) ChangeFOWParametr(id, key int, val string) {
 //ClearMarks -
 func (o *TObj) ClearMarks() {
 	for i := range o.markSet.MarksFrom {
-		for j := range objectList {
-			if obj, ok := objectList[j].(*TObj); ok {
+		for _, j := range ObjByNames {
+			if obj, ok := j.(*TObj); ok {
 				obj.GetFaction()
 			} else {
 				delete(o.markSet.MarksFrom, i)
@@ -201,20 +201,28 @@ func pickObjByID(id int) IObj {
 			return obj
 		}
 	}
+	return nil
+}
 
-	/*for i := 0; i < len(objectList); i++ {
-		if id == objectList[i].(IObj).GetID() {
-			return objectList[i] //.(*TObj)
+func pickIconByName(oName string) IIcon {
+	for _, obj := range ObjByNames {
+		if icon, ok := obj.(IIcon); ok {
+			if icon.GetName() == oName {
+				return icon
+			}
 		}
 	}
-	//check if obj is *THOST
-	for i := 0; i < len(gridList); i++ {
-		if host, ok := gridList[i].(*THost); ok {
-			if host.GetID() == id {
+	return nil
+}
+
+func pickHost(hName string) IHost { //ненужная функция?
+	for _, obj := range ObjByNames {
+		if host, ok := obj.(IHost); ok {
+			if host.GetName() == hName {
 				return host
 			}
 		}
-	}*/
+	}
 	return nil
 }
 
@@ -1103,7 +1111,6 @@ func NewDevice(model string, rating int) *TDevice {
 	d.canSee.KnownData = make(map[int][30]string)
 	d.linklocked.LockedByID = make(map[int]bool)
 	d.name = d.GetType() + " " + strconv.Itoa(d.id)
-	objectList = append(objectList, &d)
 	//id++
 	return &d
 }
@@ -1467,7 +1474,6 @@ func NewPlayer(alias string, d string) *TPersona {
 	p.connected = true
 	p.physLocation = false
 
-	objectList = append(objectList, &p)
 	id++
 	return &p
 }
@@ -1905,8 +1911,8 @@ func (p *TPersona) ClearLocks() {
 	//hostID := 999999
 	for i := range p.linklocked.LockedByID {
 		valid := false
-		for j := range objectList {
-			if objectList[j].(IObj).GetID() == i {
+		for _, obj := range ObjByNames {
+			if obj.GetID() == i {
 
 				valid = true
 				break
@@ -2578,7 +2584,6 @@ func (h *THost) NewFile(name string) *TFile {
 		f.device = addDevice("noDevice")
 		f.silentMode = false
 		ObjByNames[f.name] = &f
-		objectList = append(objectList, &f)
 		return &f
 		//} else {
 		//h.GetGrid()
@@ -2637,7 +2642,6 @@ func (h *THost) NewFile(name string) *TFile {
 	//f.grid = "ARES GRID"
 	//f.name = f.GetType() + " " + strconv.Itoa(id)
 	ObjByNames[f.name] = &f
-	objectList = append(objectList, &f)
 	id = id + xd6Test(3)
 	return &f
 
@@ -2791,7 +2795,7 @@ func (f *TFile) GetFirewall() int {
 
 //RollInitiative -
 func (f *TFile) RollInitiative() {
-	f.SetInitiative(f.GetDataProcessing() + f.GetIntuition() + xd6Test(4))
+	f.SetInitiative(-1)
 }
 
 //GetIntuition -

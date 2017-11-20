@@ -143,7 +143,7 @@ func refreshPersonaWin() {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Full Defence = "+strconv.FormatBool(player.GetFullDeffenceFlag()), congo.ColorYellow)
 	}
 	drawLineInWindow("Persona")
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Total Objects: "+strconv.Itoa(len(objectList)), congo.ColorYellow)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Total Objects: "+strconv.Itoa(len(ObjByNames)), congo.ColorYellow)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--waitFlag: "+strconv.FormatBool(player.GetWaitFlag()), congo.ColorYellow)
 
 	totalMarks := player.CountMarks()

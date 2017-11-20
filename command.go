@@ -118,8 +118,8 @@ func UserInput(input string) bool {
 		return true
 	}
 	if len(comm) < 3 {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format", congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format", congo.ColorDefault)
 		congo.WindowsMap.ByTitle["Log"].WDraw()
 		return false
 	}
@@ -169,6 +169,8 @@ func checkSource(source string) bool {
 
 	}
 
+/*	pickIconByName(player.GetName())
+
 	for i := range objectList {
 		//srcObj := objectList[i]
 		if srcObj, ok := objectList[i].(IPersona); ok {
@@ -187,7 +189,7 @@ func checkSource(source string) bool {
 
 			}
 		}
-	}
+	}*/
 	return isGood
 }
 
@@ -199,7 +201,7 @@ func checkTarget(target, mActionName string) bool {
 	return false
 }
 
-func pickHost(target, mActionName string) bool { //ненужная функция?
+/*func pickHost(target, mActionName string) bool { //ненужная функция?
 	for i := range hostList {
 		trgObj := objectList[i]
 
@@ -213,7 +215,7 @@ func pickHost(target, mActionName string) bool { //ненужная функци
 		}
 	}
 	return false
-}
+}*/
 
 func pickTarget(target, mActionName string) bool {
 	target = formatString(target)
