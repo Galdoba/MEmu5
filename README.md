@@ -4,9 +4,9 @@ MEmu5 is an attempt to digitalise the abstract rules for the Matrix in Shadowrun
 
 ## Get started
 
-1. Edit "playerDB.txt" to add your character using template provided.
-2. run Sr5MEmu.exe
-3. activate your character: ```login>[charName]```
+1. Edit "playerDB.txt" to add your character using template provided. 
+2. run MEmu5.exe
+3. activate your character: ```login>[charName]``` (Decker is the name of test character)
 4. search host: ```matrix search>host>[hostName]```
 5. do your shadowstuff using rules in Shadowrun 5 Core Rule Book (p. 217-249)
 
