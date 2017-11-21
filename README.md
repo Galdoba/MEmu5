@@ -11,6 +11,10 @@ MEmu5 is an attempt to digitalise the abstract rules for the Matrix in Shadowrun
 5. do your shadowstuff using rules in Shadowrun 5 Core Rule Book (p. 217-249)
 
 
+Latest Build can be found here:
+https://www.dropbox.com/sh/typ2ztf1qtn9t33/AAC2CKFcq8vNDA-udDCWYwG5a?dl=0
+
+
 ## Supported features
 
 ### Hosts
