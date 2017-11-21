@@ -48,9 +48,11 @@ you can spend Edge using "Push the Limit", "Negate Glitch" and "Reroll" interrup
 
 ## I would be glad to receive:
 
-full (detailed) description of bugs you encounter
+Full (detailed) description of bugs you encounter
 
 Ideas and maybe advice on how to do a better code
+
+You can send it all to galdoba@mail.ru
 
 ## Actions Guide
 
@@ -58,7 +60,7 @@ To initiate an action just type:
 ```[ACTION_NAME]>[TARGET_NAME]>[OPTIONAL_ARGUMENTS]```
 Input is NOT caSE SEnseTiVe
 
-load character/his characteristics and abilities:
+"Login":
 ```
 login>decker	# will read "PlayerDB.txt" and get all info on character named "Decker"
 ```
@@ -72,28 +74,102 @@ hack on the fly>patrol ic           # will perform HotF action on IC with name "
 hack on the fly>TrACk ic>-3m>-pl	# will perform HotF action on IC with name "Track IC" with modifier -10 to Dicepool in attempt to place 3 MARKs using "Push the Limits" rules
 ```
 
-Set your mode to COLD-SIM VR acording to rules in CRB
+"Brute Force":
+optional arguments: "-2m", "-3m", "-pl"
 ```
-switch interface mode>cold vr 
+brute force>bravo3           # will perform BF action on host with name "Bravo3"
+brute force>file 17>-2m         # will perform BF action on file with name "File 17" with modifier -4 to Dicepool in attempt to place 2 MARKs
+brute force>patrol ic           # will perform BF action on IC with name "Patrol IC"
+brute force>TrACk ic>-3m>-pl	# will perform BF action on IC with name "Track IC" with modifier -10 to Dicepool in attempt to place 3 MARKs using "Push the Limits" rules
 ```
 
-Scan all environment in attempt to find hidden (silent running) icons.
-Will inform you how many hidden icons are in the same enviroment as 
-the player and will spot 1 random icon
+"Crack File":
+optional arguments: "-pl"
 ```
-matrix perception>all			
+crack file>file 9           # will perform Crack file action on file with name "File 9"
+```
+
+"Check Overwatch Score":
+optional arguments: "-pl"
+```
+check overwatch score           # will perform inform player on current OS acording to rules in CRB. This is alternative to running "Baby Monitor" program
+```
+
+"Disarm data bomb":
+optional arguments: "-pl"
+```
+disarm databomb>file 9           # will perform Disarm Data Bomb action on file with name "File 9"
+```
+
+"Enter Host":
+```
+enter host>bravo3           # will enter to host with name "Bravo3" if player has MARK on that host
+```
+
+"Exit Host":
+```
+exit host           # will leave current host if player is not Link-locked
+```
+
+"Erase mark":
+optional arguments: "-pl"
+```
+erase mark           # will atempt to delete 1 random MARK placed on player (will add option to delete mark on another Icons)
+```
+
+"Edit File":
+optional arguments: "copy", "delete", "download", "encrypt"
+```
+Edit>file 9           # will do... nothing. Will run test and change "Last Edit Date" of the file to current time. Needed mostly for RolePlaing purposes. (Not implemented properly) 
+Edit>file 9>copy           # will create a new file with ownership of the player
+Edit>file 9>delete           # will destroy file
+Edit>file 9>download           # will initiate download process. (at the end of turn (Data Processing*5) Mp will be transfered to players device
+Edit>file 9>encrypt           # will set Encryption Rating according to rules in CRB (Not implemented yet)
+```
+
+"Grid Hop":
+```
+grid hop>local grid           # change current grid to grid with the name "Local Grid" (so far all grids are open - will add restrictions in later versions)
+```
+
+"Load Program":
+```
+load program>shell           # load program "Shell". (Most programs are working and so far all available for a player. Look for descryptions in CRB and DT)
+```
+
+"Swap Attributes":
+```
+swap attributes>attack>sleaze           # will swap "Attack" and "Sleaze" attributes on player's device if device allows
+```
+
+"Swap Programs":
+```
+swap programs>armor>baby monitor           # unload program "Armor" and load program "Baby Monitor" in it's place
+```
+
+"Switch Interface Mode":
+```
+switch interface mode>ar       # set your mode to AR acording to rules in CRB
+switch interface mode>cold       # set your mode to COLD-SIM VR acording to rules in CRB
+switch interface mode>hot       # set your mode to HOT-SIM VR acording to rules in CRB
+```
+
+"Matrrix Perception":
+optional arguments: "-pl", "all"
+```
+matrix perception>all			#Scan environment (Current Host) in attempt to find hidden (silent running) icons. Will inform how many hidden icons are there and will try to spot 1 random icon
 matrix perception>file 10	# scan icon with name "file 10"
 ```
 
-Will initiate search for icon type "Host" with name "Alpha" 
-(will take few combat turns acording to rules in Core Rule Book)
+"Matrix search":
+optional arguments: "-pl"
 ```
-matrix search>host>alpha
-matrix search>file>system log
+matrix search>host>alpha        # will initiate search for icon type "Host" with name "Alpha" (will take few combat turns acording to rules in Core Rule Book)
+matrix search>file>system log   # will initiate search for icon type "File" with random name and filename "SYSTEM_LOG" (will take few combat turns acording to rules in Core Rule Book)
 ```
 
-Wait: 
-Set players initiative to 0, and start new Combat Turn (Nessesary after you initiated search or download)
+"Wait": 
+(Nessesary after you initiated search or download)
 ```
 wait                #wait until End of Combat Turn
 wait>14             #drop players initiative by 14

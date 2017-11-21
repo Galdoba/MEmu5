@@ -37,7 +37,7 @@ func InitMatrixActionMap() {
 	MActions.MActionMap["CRACK_FILE"] = CrackFile
 	MActions.MActionMap["DATA_SPIKE"] = DataSpike
 	MActions.MActionMap["DISARM_DATABOMB"] = DisarmDataBomb
-	MActions.MActionMap["EDIT"] = Edit
+	MActions.MActionMap["EDIT_FILE"] = Edit
 	MActions.MActionMap["ENTER_HOST"] = EnterHost
 	MActions.MActionMap["EXIT_HOST"] = ExitHost
 	MActions.MActionMap["ERASE_MARK"] = EraseMark
@@ -2054,9 +2054,9 @@ func checkAction(actionName string) (bool, string) {
 		actionIsGood = true
 		mActionName = "DISARM_DATABOMB"
 		return actionIsGood, mActionName
-	case "EDIT":
+	case "EDIT_FILE":
 		actionIsGood = true
-		mActionName = "EDIT"
+		mActionName = "EDIT_FILE"
 		return actionIsGood, mActionName
 	case "ENTER_HOST":
 		actionIsGood = true
