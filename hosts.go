@@ -608,22 +608,22 @@ func (h *THost) UnlockIcon(icon IIcon) {
 
 //HostToString -
 func (h *THost) HostToString() string {
-	hString := "          \n"
-	hString = hString + "Host: " + h.name + "\n"
-	hString = hString + "Grid: " + h.grid.name + "\n"
-	hString = hString + "Host_Atributes:" + "\n"
-	hString = hString + "  Rating: " + strconv.Itoa(h.deviceRating) + "\n"
-	hString = hString + "  Attack: " + strconv.Itoa(h.attack) + "\n"
-	hString = hString + "  Sleaze: " + strconv.Itoa(h.sleaze) + "\n"
-	hString = hString + "  Data Processing: " + strconv.Itoa(h.dataProcessing) + "\n"
-	hString = hString + "  Firewall: " + strconv.Itoa(h.firewall) + "\n"
-	hString = hString + "Host_IC:" + "\n"
+	hString := "          \r\n"
+	hString = hString + "Host: " + h.name + "\r\n"
+	hString = hString + "Grid: " + h.grid.name + "\r\n"
+	hString = hString + "Host_Atributes:" + "\r\n"
+	hString = hString + "  Rating: " + strconv.Itoa(h.deviceRating) + "\r\n"
+	hString = hString + "  Attack: " + strconv.Itoa(h.attack) + "\r\n"
+	hString = hString + "  Sleaze: " + strconv.Itoa(h.sleaze) + "\r\n"
+	hString = hString + "  Data Processing: " + strconv.Itoa(h.dataProcessing) + "\r\n"
+	hString = hString + "  Firewall: " + strconv.Itoa(h.firewall) + "\r\n"
+	hString = hString + "Host_IC:" + "\r\n"
 
 	for i := 0; i < h.deviceRating; i++ {
-		hString = hString + " >" + h.icState.icName[i] + "\n"
+		hString = hString + " >" + h.icState.icName[i] + "\r\n"
 	}
-	hString = hString + "\n"
-	hString = hString + "#########################\n" // Конец хоста (сепаратор)
+	hString = hString + "\r\n"
+	hString = hString + "#########################\r\n" // Конец хоста (сепаратор)
 
 	file, err := os.OpenFile("HostDB.txt", os.O_APPEND|os.O_WRONLY|os.O_RDWR, 0600) // открываем файл: Имя, ключи, что-то еще
 	if err != nil {
@@ -647,7 +647,7 @@ func HostExist(hostName string) bool {
 		log.Fatal(err)
 	}
 	content := string(data)
-	cont := strings.Split(content, "\n")
+	cont := strings.Split(content, "\r\n")
 	subStr := "Host: " + hostName
 
 	for i := 0; i < len(cont); i++ {

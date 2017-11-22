@@ -1,60 +1,106 @@
 
-Alias: Testpc
+Alias: Template
 Device: Sony CIY-720
 ////Attributes:
+
 BODY: 1
-AGILITY: 0 - not used now. Might be needed for Foundation.
-REACTION: 4
-STRENGTH: 0 - not used now. Might be needed for Foundation.
+
+AGILITY: 1 - not used now. Might be needed for Foundation.
+
+REACTION: 1
+
+STRENGTH: 1 - not used now. Might be needed for Foundation.
+
 WILLPOWER: 1
-LOGIC: 4
-INTUITION: 7
-CHARISMA: 5
-EDGE: 3
+
+LOGIC: 1
+
+INTUITION: 1
+
+CHARISMA: 1
+
+EDGE: 1
+
 RESONANCE: 0 - not used now.
+
 DEPTH: 0 - not used now.
+
 ////Skills:
-Computer: 6
-Cybercombat: 8
-Electronic Warfare: 4
-Hacking: 4
-Hardware: 4
-Software: 4
+
+Computer: 1
+
+Cybercombat: 1
+
+Electronic Warfare: 1
+
+Hacking: 1
+
+Hardware: 1
+
+Software: 1
+
 ////Specialisations:
 (NOT IMPLEMENTED)
+
 ////Qualities:
 (NOT IMPLEMENTED)
+
 ////SIN:
 (NOT IMPLEMENTED)
 
-####################
-          
-Alias: Decker
-Device: Hermes Chariot
-////Attributes:
-BODY: 3
-AGILITY: 2 - not used now. Might be needed for Foundation.
-REACTION: 3
-STRENGTH: 3 - not used now. Might be needed for Foundation.
-WILLPOWER: 5
-LOGIC: 6
-INTUITION: 4
-CHARISMA: 2
-EDGE: 2
-RESONANCE: 0 - not used now.
-DEPTH: 0 - not used now.
-////Skills:
-Computer: 6
-Cybercombat: 6
-Electronic Warfare: 6
-Hacking: 7
-Hardware: 6
-Software: 6
-////Specialisations:
-(NOT IMPLEMENTED)
-////Qualities:
-(NOT IMPLEMENTED)
-////SIN:
-(NOT IMPLEMENTED)
 
 #########################
+
+Alias: Decker
+Device: Hermes Chariot
+
+////Attributes:
+
+BODY: 3
+
+AGILITY: 2 - not used now. Might be needed for Foundation.
+
+REACTION: 3
+
+STRENGTH: 3 - not used now. Might be needed for Foundation.
+
+WILLPOWER: 5
+
+LOGIC: 6
+
+INTUITION: 4
+
+CHARISMA: 2
+
+EDGE: 2
+
+RESONANCE: 0 - not used now.
+
+DEPTH: 0 - not used now.
+
+////Skills:
+
+Computer: 6
+
+Cybercombat: 6
+
+Electronic Warfare: 6
+
+Hacking: 7
+
+Hardware: 6
+
+Software: 6
+
+////Specialisations:
+(NOT IMPLEMENTED)
+
+////Qualities:
+(NOT IMPLEMENTED)
+
+////SIN:
+(NOT IMPLEMENTED)
+
+
+#########################
+

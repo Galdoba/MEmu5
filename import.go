@@ -57,7 +57,7 @@ func ImportHostFromDB(hostName string) *THost {
 	}
 	allData := string(dataDB)
 	hostToImport := ""
-	hostData := strings.Split(allData, "####################\n")
+	hostData := strings.Split(allData, "####################\r\n")
 	for i := range hostData {
 		if strings.Contains(hostData[i], hostName) {
 			hostToImport = hostData[i]
@@ -65,7 +65,7 @@ func ImportHostFromDB(hostName string) *THost {
 
 	}
 
-	lines := strings.Split(hostToImport, "\n")
+	lines := strings.Split(hostToImport, "\r\n")
 	for i := range lines {
 		//Import Name
 		switch strings.Contains(lines[i], "Host: ") {
@@ -222,7 +222,7 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 	}
 	////////////////////////////////////////////
 
-	lines := strings.Split(playerToImport, "\n")
+	lines := strings.Split(playerToImport, "\r\n")
 
 	for i := range lines {
 		//Import Name
