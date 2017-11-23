@@ -47,7 +47,7 @@ func UserInput(input string) bool {
 		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: "+mActionName+" is correct", congo.ColorYellow)
 	}
 	checkSource(comm[0])
-	if mActionName == "EXIT_HOST" || mActionName == "ERASE_MARK" || mActionName == "CHECK_OVERWATCH_SCORE" || mActionName == "LONGACT" || mActionName == "SWITCH_INTERFACE_MODE" {
+	if mActionName == "EXIT_HOST" || mActionName == "ERASE_MARK" || mActionName == "CHECK_OVERWATCH_SCORE" || mActionName == "LONGACT" || mActionName == "SWITCH_INTERFACE_MODE" || mActionName == "SILENT_MODE" {
 		TargetIcon = SourceIcon
 		doAction(mActionName)
 		return true
@@ -60,14 +60,12 @@ func UserInput(input string) bool {
 	}
 
 	if mActionName == "SWAP_ATTRIBUTES" || mActionName == "SWAP_PROGRAMS" {
-		//TargetIcon = text
 		TargetIcon = SourceIcon
 		if len(comm) < 4 {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not enough data...", congo.ColorYellow)
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [ATTRIBUTE 1] > [ATTRIBUTE 2]' Format", congo.ColorDefault)
 			return false
 		} else if len(comm) == 4 {
-			//TargetIcon = text
 			TargetIcon = SourceIcon
 			doAction(mActionName)
 			return true
@@ -76,14 +74,12 @@ func UserInput(input string) bool {
 	}
 
 	if mActionName == "LOAD_PROGRAM" || mActionName == "UNLOAD_PROGRAM" || mActionName == "LOGIN" {
-		//TargetIcon = text
 		TargetIcon = SourceIcon
 		if len(comm) < 3 {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not enough data...", congo.ColorYellow)
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [ATTRIBUTE 1] > [ATTRIBUTE 2]' Format", congo.ColorDefault)
 			return false
 		} else if len(comm) == 3 {
-			//TargetIcon = text
 			TargetIcon = SourceIcon
 			doAction(mActionName)
 			return true
@@ -98,7 +94,6 @@ func UserInput(input string) bool {
 			target = cleanText(target)
 			if target == "ALL" {
 				mActionName = "SCAN_ENVIROMENT"
-				//TargetIcon = "ALL"
 				doAction(mActionName)
 				return true
 			}
@@ -168,28 +163,6 @@ func checkSource(source string) bool {
 		}
 
 	}
-
-/*	pickIconByName(player.GetName())
-
-	for i := range objectList {
-		//srcObj := objectList[i]
-		if srcObj, ok := objectList[i].(IPersona); ok {
-			//if srcObj.(IIcon).GetType() == "Persona" {
-			alias := string(srcObj.(IPersona).GetName())
-			alias = formatString(alias)
-			s := (hex.EncodeToString([]byte(source)))
-			a := (hex.EncodeToString([]byte(alias)))
-			if a == s {
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn("SourceIcon is " + objectList[i].(*TPersona).GetName(), congo.ColorYellow)
-				if objectList[i].(IPersona).IsPlayer() == true {
-					SourceIcon = objectList[i]
-					isGood = true
-					return isGood
-				}
-
-			}
-		}
-	}*/
 	return isGood
 }
 
@@ -200,22 +173,6 @@ func checkTarget(target, mActionName string) bool {
 	//printLog("Error: target not found", congo.ColorGreen)
 	return false
 }
-
-/*func pickHost(target, mActionName string) bool { //ненужная функция?
-	for i := range hostList {
-		trgObj := objectList[i]
-
-		if trgObj.(IObj).GetType() == "Host" {
-			alias := trgObj.(IObj).GetName()
-			alias = formatString(alias)
-			alias = cleanText(alias)
-			if alias == target {
-
-			}
-		}
-	}
-	return false
-}*/
 
 func pickTarget(target, mActionName string) bool {
 	target = formatString(target)
@@ -244,92 +201,6 @@ func pickTarget(target, mActionName string) bool {
 	}
 	return false
 }
-
-/*func checkValidTarget(mActionName string) (trgtType []string, valid bool) { //тоже не нужная?
-	//var trgtType []string
-
-	switch mActionName {
-	case "BRUTE_FORCE":
-		trgtType = append(trgtType, "Icon")
-		trgtType = append(trgtType, "Host")
-		trgtType = append(trgtType, "Grid")
-		trgtType = append(trgtType, "File")
-		trgtType = append(trgtType, "IC")
-		valid = true
-	case "CRACK_FILE":
-		trgtType = append(trgtType, "File")
-		valid = true
-	case "CHECK_OVERWATCH_SCORE":
-		trgtType = append(trgtType, "Grid")
-		valid = true
-	case "DATA_SPIKE":
-		trgtType = append(trgtType, "Persona")
-		trgtType = append(trgtType, "Icon")
-		trgtType = append(trgtType, "IC")
-		valid = true
-	case "DISARM_DATABOMB":
-		trgtType = append(trgtType, "File")
-		valid = true
-	case "EDIT":
-		trgtType = append(trgtType, "File")
-		valid = true
-	case "ENTER_HOST":
-		trgtType = append(trgtType, "Host")
-		valid = true
-	case "EXIT_HOST":
-		trgtType = append(trgtType, "Host")
-		valid = true
-	case "ERASE_MARK":
-		valid = true
-	case "GRID_HOP":
-		trgtType = append(trgtType, "Grid")
-		valid = true
-	case "HACK_ON_THE_FLY":
-		trgtType = append(trgtType, "Icon")
-		trgtType = append(trgtType, "Host")
-		trgtType = append(trgtType, "Grid")
-		trgtType = append(trgtType, "File")
-		trgtType = append(trgtType, "IC")
-		valid = true
-	case "MATRIX_PERCEPTION":
-		trgtType = append(trgtType, "Icon")
-		trgtType = append(trgtType, "Host")
-		trgtType = append(trgtType, "Grid")
-		trgtType = append(trgtType, "File")
-		trgtType = append(trgtType, "IC")
-		valid = true
-	case "SCAN_ENVIROMENT":
-
-		valid = true
-
-	case "MATRIX_SEARCH":
-		//всегда валидно ибо цели нет
-
-		valid = true
-	case "SWAP_ATTRIBUTE":
-		valid = true
-	case "LOAD_PROGRAM":
-		valid = true
-	case "UNLOAD_PROGRAM":
-		valid = true
-	case "SET_DATABOMB":
-		trgtType = append(trgtType, "File")
-		valid = true
-	case "SWAP_PROGRAMS":
-		valid = true
-	case "SWITCH_INTERFACE_MODE":
-		valid = true
-	case "LONGACT":
-		//trgtType = append(trgtType, "Host")
-		valid = true
-	default:
-		trgtType = append(trgtType, "NO_VALID")
-		//trgtType[0] = "noValidTarget"
-		valid = false
-		//return trgtType
-	}
-	return trgtType, valid
-}*/
 
 func cleanText(s string) string {
 	out := ""

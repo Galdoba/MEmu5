@@ -126,6 +126,11 @@ func refreshPersonaWin() {
 	}
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" ", col)
 	drawLineInWindow("Persona")
+	if player.GetSilentRunningMode() {
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Running Silent: TRUE", congo.ColorGreen)
+	} else {
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Running Silent: FALSE", congo.ColorYellow)
+	}
 
 	if player.GetInitiative() > 9000 {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona Initiative: null", congo.ColorRed)

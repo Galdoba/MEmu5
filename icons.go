@@ -1458,7 +1458,7 @@ func NewPlayer(alias string, d string) *TPersona {
 	p.edge = 100
 	p.maxEdge = 100
 	p.id = id
-	p.silentMode = true
+	//p.silentMode = false
 	p.simSence = "HOT-SIM"
 	p.maxStunCM = (p.willpower+1)/2 + 8
 	p.stunCM = p.maxStunCM

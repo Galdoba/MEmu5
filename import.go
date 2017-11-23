@@ -395,7 +395,6 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 	//p.maxMatrixCM = p.device.GetMatrixCM()
 	p.matrixCM = p.maxMatrixCM
 	//p.id = id
-	p.silentMode = true
 	p.simSence = "HOT-SIM"
 	p.maxStunCM = (p.GetWillpower()+1)/2 + 8
 	p.stunCM = p.maxStunCM

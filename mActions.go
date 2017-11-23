@@ -23,6 +23,7 @@ func InitMatrixActionMap() {
 	MActions.MActionMap = map[string]interface{}{}
 	MActions.MActionMap["BRUTE_FORCE"] = BruteForce
 	MActions.MActionMap["SWITCH_INTERFACE_MODE"] = SwitchInterfaceMode
+	MActions.MActionMap["SILENT_MODE"] = SwitchSilentMode
 	MActions.MActionMap["CHECK_OVERWATCH_SCORE"] = CheckOverwatchScore
 	MActions.MActionMap["CRACK_FILE"] = CrackFile
 	MActions.MActionMap["DATA_SPIKE"] = DataSpike
@@ -100,6 +101,10 @@ func PatrolICActionArea(src IObj, trg IObj) {
 				printLog("..."+icon.GetName()+" is being scanned", congo.ColorGreen)
 			}
 			dp2 := 0
+			netHits := 0
+			suc2 := 0
+			dgl := false
+			dcgl := false
 			if icon.GetSilentRunningMode() {
 				dp2 = icon.GetSleaze() + icon.GetDeviceRating()
 				if persona, ok := icon.(IPersona); ok {
@@ -108,15 +113,18 @@ func PatrolICActionArea(src IObj, trg IObj) {
 				if icon.GetFaction() == player.GetFaction() {
 					printLog("..."+icon.GetName()+" evaiding", congo.ColorGreen)
 				}
+				suc2, dgl, dcgl = simpleTest(icon.GetID(), dp2, 1000, 0)
+			} else {
+				dp2 = 0
 			}
-			suc2, dgl, dcgl := simpleTest(icon.GetID(), dp2, 1000, 0)
+			//suc2, dgl, dcgl := simpleTest(icon.GetID(), dp2, 1000, 0)
 			if dgl {
 				suc1++
 			}
 			if dcgl {
 				suc1++
 			}
-			netHits := suc1 - suc2
+			netHits = suc1 - suc2
 			if netHits > 0 {
 				patrolIC.ChangeFOWParametr(icon.GetID(), 0, "Spotted")
 				if icon.GetFaction() == player.GetFaction() {
@@ -157,12 +165,12 @@ func PatrolICActionTarget(src IObj, trg IObj) {
 		if icon, ok := trg.(IIcon); ok {
 			if !icon.GetSilentRunningMode() {
 				if suc1 > 0 {
-					patrolIC.ChangeFOWParametr(icon.GetID(), 0, "Spotted")
-					host.ChangeFOWParametr(icon.GetID(), 0, "Spotted")
-					host.SetAlert("Active Alert")
 					if icon.GetFaction() == player.GetFaction() {
 						printLog("..."+icon.GetName()+" was affected", congo.ColorYellow)
 					}
+					patrolIC.ChangeFOWParametr(icon.GetID(), 0, "Spotted")
+					host.ChangeFOWParametr(icon.GetID(), 0, "Spotted")
+					host.SetAlert("Active Alert")
 				}
 			} else {
 				dp2 := icon.GetSleaze() + icon.GetDeviceRating()
@@ -1487,6 +1495,10 @@ func checkAction(actionName string) (bool, string) {
 		actionIsGood = true
 		mActionName = "BRUTE_FORCE"
 		return actionIsGood, mActionName
+	case "SILENT_MODE":
+		actionIsGood = true
+		mActionName = "SILENT_MODE"
+		return actionIsGood, mActionName
 	case "SWITCH_INTERFACE_MODE":
 		actionIsGood = true
 		mActionName = "SWITCH_INTERFACE_MODE"
@@ -2264,13 +2276,12 @@ func EnterHost(src IObj, trg IObj) {
 	persona := SourceIcon.(IPersona)
 	if host, ok := TargetIcon.(*THost); ok {
 		printLog("Entering Host...", congo.ColorGreen)
-		printLog("...Target host: "+host.GetName(), congo.ColorGreen)
+		printLog("..."+host.GetName(), congo.ColorGreen)
 		if checkLinkLock(persona) == true {
 			printLog("...Error: "+persona.GetName()+" is Locked", congo.ColorYellow)
 		} else {
 			if !checkExistingMarks(persona.GetID(), host.GetID(), 1) {
 				congo.WindowsMap.ByTitle["Log"].WPrintLn("...ACCESS DENIED", congo.ColorRed)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("...Not Enough Marks on "+host.GetName(), congo.ColorYellow)
 			} else { //выполняем само действие
 				persona.SetHost(host)
 			}
@@ -2287,13 +2298,41 @@ func ExitHost(src IObj, trg IObj) {
 	persona := SourceIcon.(IPersona)
 	//host := persona.GetHost()
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
-	printLog("Leaving host... ", congo.ColorGreen)
+	printLog("Switching silent running ... ", congo.ColorGreen)
 	if checkLinkLock(persona) == true && src.(IObj).GetFaction() == player.GetFaction() {
 		printLog("...Error: "+src.(IPersona).GetName()+" is Locked", congo.ColorYellow)
 	} else {
 		//persona.SetHost(host.GetHost())   -  логика для сложных хостов
 		src.(IPersona).SetHost(Matrix)
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("...successful", congo.ColorGreen)
+	}
+	endAction()
+}
+
+//SwitchSilentMode - ++
+func SwitchSilentMode(src IObj, trg IObj) {
+	if persona, ok := src.(IPersona); ok {
+		printLog("Switching silent running mode...", congo.ColorGreen)
+		text := command
+		text = formatString(text)
+		text = cleanText(text)
+		comm := strings.SplitN(text, ">", 4)
+		newMode := comm[2]
+		newMode = strings.Replace(newMode, "-", "_", -1)
+		newMode = strings.Replace(newMode, " ", "_", -1)
+		newMode = strings.Replace(newMode, "_", "", -1)
+		switch newMode {
+		case "ON":
+			printLog("...Silent running mode is now: ON", congo.ColorGreen)
+			persona.SetSilentRunningMode(true)
+			isSimpleAction()
+		case "OFF":
+			printLog("...Silent running mode is now: OFF", congo.ColorYellow)
+			persona.SetSilentRunningMode(false)
+			isSimpleAction()
+		default:
+			printLog("...Error: Argument is invalid...", congo.ColorYellow)
+		}
 	}
 	endAction()
 }
@@ -3131,6 +3170,11 @@ func addOverwatchScoreToTarget(suc2 int) {
 }
 
 func endAction() {
+	//comm := GetComm()
+	//if SourceIcon.(IIcon).GetID() == player.GetID() && comm[1] != "WAIT" {
+	//	hold()
+	//	drawLineInWindow("Log")
+	//}
 	SourceIcon = nil
 	TargetIcon = nil
 	TargetIcon2 = nil

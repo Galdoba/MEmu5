@@ -226,7 +226,7 @@ func checkTurn() {
 							for _, obj := range ObjByNames {
 								if intruder, ok := obj.(IPersona); ok {
 
-									congo.WindowsMap.ByTitle["Log"].WPrintLn(ic.GetName()+" try "+intruder.GetName(), congo.ColorDefault)
+									//congo.WindowsMap.ByTitle["Log"].WPrintLn(ic.GetName()+" try "+intruder.GetName(), congo.ColorDefault)
 
 									marks := intruder.GetMarkSet() //смотрим какие марки есть на вторженце
 									for id, qty := range marks.MarksFrom {
@@ -308,7 +308,7 @@ func checkTurn() {
 							ic.(*TIC).TakeFOWfromHost()
 						}
 						if mActionName != "ICWAIT" && ic.GetHost() == player.GetHost() {
-							printLog("Attack of "+ic.GetName()+" detected...", congo.ColorYellow)
+							//printLog("Attack of "+ic.GetName()+" detected...", congo.ColorYellow)
 							//printLog("Action: "+mActionName, congo.ColorYellow)
 						}
 						doAction(mActionName)
