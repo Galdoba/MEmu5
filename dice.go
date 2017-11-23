@@ -231,9 +231,9 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 	sourceIcon := makeDicePool(dicePool1)
 	sourceIcon.roll()
 	if rollerID == player.GetID() {
-		congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array: ", congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array:", congo.ColorGreen)
 		for i := range sourceIcon.pool {
-			congo.WindowsMap.ByTitle["Log"].WPrint(strconv.Itoa(sourceIcon.pool[i])+" ", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrint(" "+strconv.Itoa(sourceIcon.pool[i]), congo.ColorGreen)
 		}
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
 

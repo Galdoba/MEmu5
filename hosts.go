@@ -47,8 +47,8 @@ type IHost interface {
 	GatherMarks()
 	//GiveMarks()
 	SetAlert(string)
-	DeleteIC(*TIC) bool
-	DeleteFile(*TFile) bool
+	DeleteIC(IIC) bool
+	DeleteFile(IFile) bool
 	PickPatrolIC() IIC
 	GetICState() ICList
 }
@@ -217,7 +217,7 @@ func (h *THost) LoadNextIC() bool {
 }
 
 //DeleteIC -
-func (h *THost) DeleteIC(ic *TIC) bool {
+func (h *THost) DeleteIC(ic IIC) bool {
 	//ObjByNames[ic.GetName()] = nil
 	//delete(ObjByNames, ic.GetName())
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("IC Name= "+ic.GetName(), congo.ColorDefault)
@@ -264,7 +264,7 @@ func (h *THost) DeleteIC(ic *TIC) bool {
 }
 
 //DeleteFile -
-func (h *THost) DeleteFile(file *TFile) bool {
+func (h *THost) DeleteFile(file IFile) bool {
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("Delete file: "+file.GetName()+"...", congo.ColorGreen)
 	hold()
 	for _, obj := range ObjByNames {

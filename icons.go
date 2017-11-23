@@ -67,6 +67,7 @@ type IObj interface {
 	ChangeFOWParametr(int, int, string)
 	Scanable() bool
 	CountMarks() int
+	ClearMarks()
 	GetDeviceRating() int
 	SetDeviceRating(int)
 }
