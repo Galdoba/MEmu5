@@ -159,9 +159,8 @@ func checkTurn() {
 			}
 		}
 	}
-
 	for turnGo == true && player.isOnline() == true {
-		maxInit = 0
+		//maxInit = 0
 		var movemetOrder []IIcon
 		for _, obj := range ObjByNames {
 			if icon, ok := obj.(IIcon); ok {
@@ -178,7 +177,7 @@ func checkTurn() {
 				movemetOrder = append(movemetOrder, icon)
 			}
 		}
-		sortMovementOrder(movemetOrder, maxInit)
+		//sortMovementOrder(movemetOrder, maxInit)
 		refreshEnviromentWin()
 		for i := range movemetOrder {
 			if icon, ok := movemetOrder[i].(IIcon); ok {
@@ -338,7 +337,7 @@ func checkTurn() {
 
 			turnGo = false
 		}
-		if lap > 10 {
+		if lap > 1000 {
 			turnGo = false
 		}
 		if player.isOnline() == false {
@@ -351,6 +350,7 @@ func checkTurn() {
 			//SourceIcon = pickObjByID(player.GetID())
 			//doAction("WAIT")
 		}
+		lap++
 	}
 	if autoWait {
 		if player.GetWaitFlag() {
@@ -777,6 +777,7 @@ func hostAction() {
 		persona.SetFullDeffenceFlag(false)
 		persona.UpdateSearchProcess()
 		persona.UpdateDownloadProcess()
+		persona.RollInitiative()
 	}
 
 	keysForHost := getSortedKeysByType("Host")

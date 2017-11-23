@@ -2291,6 +2291,7 @@ func EnterHost(src IObj, trg IObj) {
 		printLog("...Error: Target is not a Host", congo.ColorGreen)
 	}
 	endAction()
+	printLog("End", congo.ColorGreen)
 }
 
 //ExitHost - ++
@@ -3188,11 +3189,13 @@ func endAction() {
 			}
 		}
 	}
+
 	checkTurn()
 	refreshEnviromentWin()
 	refreshPersonaWin()
 	refreshGridWin()
 	refreshProcessWin()
+
 }
 
 func isComplexAction() {
