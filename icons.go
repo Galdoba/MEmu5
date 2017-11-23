@@ -2484,6 +2484,7 @@ func (p *TPersona) UpdateSearchProcess() {
 				default:
 				}
 				printLog("Connection with "+p.searchProcessStatus.SearchIconType[i]+" '"+p.searchProcessStatus.SearchIconName[i]+"' established " /* + host.GetName()*/, congo.ColorGreen)
+				p.RollInitiative()
 				p.searchProcessStatus.SearchIconName = append(p.searchProcessStatus.SearchIconName[:i], p.searchProcessStatus.SearchIconName[i+1:]...)
 				p.searchProcessStatus.SearchIconType = append(p.searchProcessStatus.SearchIconType[:i], p.searchProcessStatus.SearchIconType[i+1:]...)
 				p.searchProcessStatus.SpentTurns = append(p.searchProcessStatus.SpentTurns[:i], p.searchProcessStatus.SpentTurns[i+1:]...)
@@ -2508,6 +2509,7 @@ func (p *TPersona) UpdateDownloadProcess() {
 		if p.downloadProcessStatus.DownloadedData[i] >= p.downloadProcessStatus.FileSize[i] {
 			p.waitFlag = false
 			printLog("Downloading of "+p.downloadProcessStatus.DownloadIconName[i]+" complete", congo.ColorGreen)
+			p.RollInitiative()
 			p.downloadProcessStatus.DownloadIconName = append(p.downloadProcessStatus.DownloadIconName[:i], p.downloadProcessStatus.DownloadIconName[i+1:]...)
 			p.downloadProcessStatus.FileSize = append(p.downloadProcessStatus.FileSize[:i], p.downloadProcessStatus.FileSize[i+1:]...)
 			p.downloadProcessStatus.DownloadedData = append(p.downloadProcessStatus.DownloadedData[:i], p.downloadProcessStatus.DownloadedData[i+1:]...)

@@ -2281,9 +2281,10 @@ func EnterHost(src IObj, trg IObj) {
 			printLog("...Error: "+persona.GetName()+" is Locked", congo.ColorYellow)
 		} else {
 			if !checkExistingMarks(persona.GetID(), host.GetID(), 1) {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("...ACCESS DENIED", congo.ColorRed)
+				printLog("...ACCESS DENIED", congo.ColorRed)
 			} else { //выполняем само действие
 				persona.SetHost(host)
+				printLog("SYSTEM MESSAGE: You are now connected to "+host.GetName(), congo.ColorDefault)
 			}
 		}
 	} else {
@@ -2291,7 +2292,6 @@ func EnterHost(src IObj, trg IObj) {
 		printLog("...Error: Target is not a Host", congo.ColorGreen)
 	}
 	endAction()
-	printLog("End", congo.ColorGreen)
 }
 
 //ExitHost - ++
