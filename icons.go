@@ -1380,6 +1380,7 @@ type TPersona struct {
 	markSet               MarkSet
 	searchProcessStatus   SearchProcess
 	downloadProcessStatus DownloadProcess
+	specialization        []string
 }
 
 //IPersona -
@@ -1429,6 +1430,7 @@ type IPersonaOnly interface {
 	SetFullDeffenceFlag(bool)
 	GetWaitFlag() bool
 	SetWaitFlag(bool)
+	HaveValidSpec([]string) (bool, string)
 }
 
 var _ IPersona = (*TPersona)(nil)
@@ -1474,9 +1476,26 @@ func NewPlayer(alias string, d string) *TPersona {
 	//p.(IIcon)name = alias
 	p.connected = true
 	p.physLocation = false
+	//p.specializations
 
 	id++
 	return &p
+}
+
+//GetSpecializationList()
+func (p *TPersona) GetSpecializationList() []string {
+	return p.specialization
+}
+
+func (p *TPersona) HaveValidSpec(spec []string) (bool, string) {
+	for i := range p.specialization {
+		for j := range spec {
+			if p.specialization[i] == spec[j] {
+				return true, spec[j]
+			}
+		}
+	}
+	return false, "--NO_SPEC--"
 }
 
 //RollInitiative -

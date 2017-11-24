@@ -252,6 +252,20 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			p.computerSkill = rating
 		default:
 		}
+		//Import Computer Specialization
+		switch strings.Contains(lines[i], "ComputerSpec: ") {
+		case true:
+			specListS := strings.Split(lines[i], "ComputerSpec: ")
+			specList := specListS[1]
+			specList = strings.Trim(specList, SPACES)
+			specs := strings.Split(specList, ";")
+			for i := range specs {
+				specs[i] = "CompSpec_" + specs[i]
+				p.specialization = append(p.specialization /*"CompSpec_"+*/, specs[i])
+			}
+			p.specialization = specs
+		default:
+		}
 		//Import Cybercombat Skill
 		switch strings.Contains(lines[i], "Cybercombat: ") {
 		case true:
@@ -259,6 +273,20 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.cybercombatSkill = rating
 			//printLog("CyberCobbat = "+strconv.Itoa(p.cybercombatSkill), congo.ColorYellow)
+		default:
+		}
+		//Import CyberCombat Specialization
+		switch strings.Contains(lines[i], "CybercombatSpec: ") {
+		case true:
+			specListS := strings.Split(lines[i], "CybercombatSpec: ")
+			specList := specListS[1]
+			specList = strings.Trim(specList, SPACES)
+			specs := strings.Split(specList, ";")
+			for i := range specs {
+				specs[i] = "CyberSpec_" + specs[i]
+				p.specialization = append(p.specialization /*"CompSpec_"+*/, specs[i])
+			}
+			p.specialization = specs
 		default:
 		}
 		//Import Hacking Skill
@@ -388,7 +416,17 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 		default:
 			//p.DEPTH = 0
 		}
-
+		/*	//Import Specialization
+			switch strings.Contains(lines[i], "Specialisations: ") {
+			case true:
+				specListS := strings.Split(lines[i], "Specialisations: ")
+				specList := specListS[1]
+				specList = strings.Trim(specList, SPACES)
+				specs := strings.Split(specList, ";")
+				p.specialization = specs
+			default:
+			}
+		*/
 	}
 
 	p.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети

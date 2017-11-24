@@ -1649,11 +1649,22 @@ func BruteForce(src IObj, trg IObj) {
 			markRound = 3
 		}
 	}
+
+	var validSpecs []string
+	//validSpecs = append(validSpecs, "Brute Force")
+	haveSpec, spec := persona.HaveValidSpec(validSpecs)
+	if haveSpec {
+		printLog("ValidSpec is "+spec, congo.ColorDefault)
+	}
 	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
-	targetList := pickTargets(comm)
+	targetList, targetSpec := pickTargets2(comm)
 	printLog("...Allocating resources:", congo.ColorGreen)
 	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
 	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	if haveSpec || targetSpec {
+		dp1 = dp1 + 2
+		printLog("...Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
+	}
 	attMod = calculateAttMods(comm, persona, targetList)
 	dp1 = dp1 + attMod
 	if dp1 < 0 {
@@ -2274,6 +2285,7 @@ func Edit(src IObj, trg IObj) {
 func EnterHost(src IObj, trg IObj) {
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
 	persona := SourceIcon.(IPersona)
+
 	if host, ok := TargetIcon.(*THost); ok {
 		printLog("Entering Host...", congo.ColorGreen)
 		printLog("..."+host.GetName(), congo.ColorGreen)
@@ -2452,13 +2464,24 @@ func HackOnTheFly(src IObj, trg IObj) {
 		}
 	}
 
+	var validSpecs []string
+	validSpecs = append(validSpecs, "Hack on the Fly")
+	haveSpec, spec := persona.HaveValidSpec(validSpecs)
+	if haveSpec {
+		printLog("ValidSpec is "+spec, congo.ColorDefault)
+	}
 	printLog("Initiating Hack on the Fly sequence...", congo.ColorGreen)
-	targetList := pickTargets(comm)
+	targetList, targetSpec := pickTargets2(comm)
 	printLog("...Allocating resources:", congo.ColorGreen)
 	dp1 := persona.GetHackingSkill() + persona.GetLogic()
 	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
 	attMod = calculateAttMods(comm, persona, targetList)
 	dp1 = dp1 + attMod
+	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
+	if haveSpec || targetSpec {
+		dp1 = dp1 + 2
+		printLog("...Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
+	}
 	if dp1 < 0 {
 		dp1 = 0
 	}
@@ -3385,6 +3408,77 @@ func pickTargets(comm []string) []IObj {
 		}
 	}
 	return targetList
+}
+
+func pickTargets2(comm []string) ([]IObj, bool) {
+
+	var targetList []IObj
+	persona := SourceIcon.(IPersona)
+	////////////////////////
+
+	totalSpec := true
+	if len(comm) < 3 {
+		return targetList, false
+	}
+	targetName := formatTargetName(comm[2])
+	if grid, ok := ObjByNames[targetName].(*TGrid); ok {
+		targetList = append(targetList, grid)
+		printLog("...Target 1: "+grid.GetGridName()+" has top priority", congo.ColorYellow)
+		var targetValidSpecs []string
+		targetValidSpecs = append(targetValidSpecs, "Hvs."+grid.GetType())
+		targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+grid.GetType())
+		haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
+		totalSpec = totalSpec && haveSpec
+		return targetList, totalSpec
+	}
+	if icon1, ok := ObjByNames[targetName]; ok {
+		newIcon := icon1.(IIcon) //не выводится за зону видимости((
+		targetList = append(targetList, newIcon)
+		printLog("...Target 1: "+newIcon.GetName(), congo.ColorGreen)
+		var targetValidSpecs []string
+		targetValidSpecs = append(targetValidSpecs, "Hvs."+icon1.GetType())
+		targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+icon1.GetType())
+		haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
+		totalSpec = totalSpec && haveSpec
+		//return targetList, totalSpec
+		//	persona := SourceIcon.(IIcon)
+		if persona.CheckRunningProgram("Fork") && len(comm) > 3 {
+			targetName2 := formatTargetName(comm[3])
+			if targetName != targetName2 {
+				if icon2, ok := ObjByNames[targetName2]; ok {
+					if grid, ok := ObjByNames[targetName].(*TGrid); ok {
+						targetList = nil
+						targetList = append(targetList, grid)
+						printLog("...Target 2: "+grid.GetGridName()+" has top priority", congo.ColorYellow)
+						printLog("...Target 1 replaced", congo.ColorGreen)
+						var targetValidSpecs []string
+						targetValidSpecs = append(targetValidSpecs, "Hvs."+grid.GetType())
+						targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+grid.GetType())
+						haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
+						totalSpec = totalSpec && haveSpec
+						printLog("--DEBUG--totalTargetSpec: "+strconv.FormatBool(totalSpec), congo.ColorYellow)
+						return targetList, totalSpec
+						//return targetList, false
+					}
+					newIcon2 := icon2.(IIcon)
+					targetList = append(targetList, newIcon2)
+					var targetValidSpecs []string
+					targetValidSpecs = append(targetValidSpecs, "Hvs."+icon2.GetType())
+					targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+icon2.GetType())
+					haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
+					totalSpec = totalSpec && haveSpec
+					printLog("--DEBUG--totalTargetSpec: "+strconv.FormatBool(totalSpec), congo.ColorYellow)
+
+					printLog("...Target 2: "+newIcon2.GetName(), congo.ColorGreen)
+
+				}
+			} else {
+				printLog("...Error: Target 1 = Target 2", congo.ColorYellow)
+			}
+		}
+	}
+	printLog("--DEBUG--totalTargetSpec: "+strconv.FormatBool(totalSpec), congo.ColorYellow) //TODO: доразделить проверку vs.Host на типы действий
+	return targetList, totalSpec
 }
 
 func placeMARK(source, target IIcon) {
