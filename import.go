@@ -261,9 +261,9 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			specs := strings.Split(specList, ";")
 			for i := range specs {
 				specs[i] = "CompSpec_" + specs[i]
-				p.specialization = append(p.specialization /*"CompSpec_"+*/, specs[i])
+				p.specialization = append(p.specialization, specs[i])
 			}
-			p.specialization = specs
+			//p.specialization = specs
 		default:
 		}
 		//Import Cybercombat Skill
@@ -272,7 +272,6 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			ratingS := strings.Split(lines[i], "Cybercombat: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.cybercombatSkill = rating
-			//printLog("CyberCobbat = "+strconv.Itoa(p.cybercombatSkill), congo.ColorYellow)
 		default:
 		}
 		//Import CyberCombat Specialization
@@ -284,9 +283,8 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			specs := strings.Split(specList, ";")
 			for i := range specs {
 				specs[i] = "CyberSpec_" + specs[i]
-				p.specialization = append(p.specialization /*"CompSpec_"+*/, specs[i])
+				p.specialization = append(p.specialization, specs[i])
 			}
-			p.specialization = specs
 		default:
 		}
 		//Import Hacking Skill
@@ -297,12 +295,38 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			p.hackingSkill = rating
 		default:
 		}
-		//Import HardWare Skill
-		switch strings.Contains(lines[i], "HardWare: ") {
+		//Import Hacking Specialization
+		switch strings.Contains(lines[i], "HackingSpec: ") {
 		case true:
-			ratingS := strings.Split(lines[i], "HardWare: ")
+			specListS := strings.Split(lines[i], "HackingSpec: ")
+			specList := specListS[1]
+			specList = strings.Trim(specList, SPACES)
+			specs := strings.Split(specList, ";")
+			for i := range specs {
+				specs[i] = "HackingSpec_" + specs[i]
+				p.specialization = append(p.specialization, specs[i])
+			}
+		default:
+		}
+		//Import HardWare Skill
+		switch strings.Contains(lines[i], "Hardware: ") {
+		case true:
+			ratingS := strings.Split(lines[i], "Hardware: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.hardwareSkill = rating
+		default:
+		}
+		//Import Hardware Specialization
+		switch strings.Contains(lines[i], "HardwareSpec: ") {
+		case true:
+			specListS := strings.Split(lines[i], "HardwareSpec: ")
+			specList := specListS[1]
+			specList = strings.Trim(specList, SPACES)
+			specs := strings.Split(specList, ";")
+			for i := range specs {
+				specs[i] = "HardwareSpec_" + specs[i]
+				p.specialization = append(p.specialization, specs[i])
+			}
 		default:
 		}
 		//Import Software Skill
@@ -313,12 +337,38 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			p.softwareSkill = rating
 		default:
 		}
+		//Import Software Specialization
+		switch strings.Contains(lines[i], "SoftwareSpec: ") {
+		case true:
+			specListS := strings.Split(lines[i], "SoftwareSpec: ")
+			specList := specListS[1]
+			specList = strings.Trim(specList, SPACES)
+			specs := strings.Split(specList, ";")
+			for i := range specs {
+				specs[i] = "SoftwareSpec_" + specs[i]
+				p.specialization = append(p.specialization, specs[i])
+			}
+		default:
+		}
 		//Import Electronic Warfare Skill
 		switch strings.Contains(lines[i], "Electronic Warfare: ") {
 		case true:
 			ratingS := strings.Split(lines[i], "Electronic Warfare: ")
 			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
 			p.electronicSkill = rating
+		default:
+		}
+		//Import Electronic Warfare Specialization
+		switch strings.Contains(lines[i], "Electronic WarfareSpec: ") {
+		case true:
+			specListS := strings.Split(lines[i], "Electronic WarfareSpec: ")
+			specList := specListS[1]
+			specList = strings.Trim(specList, SPACES)
+			specs := strings.Split(specList, ";")
+			for i := range specs {
+				specs[i] = "Electronic WarfareSpec_" + specs[i]
+				p.specialization = append(p.specialization, specs[i])
+			}
 		default:
 		}
 		//Import BODY Attribute

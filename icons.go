@@ -1482,11 +1482,12 @@ func NewPlayer(alias string, d string) *TPersona {
 	return &p
 }
 
-//GetSpecializationList()
+//GetSpecializationList - 
 func (p *TPersona) GetSpecializationList() []string {
 	return p.specialization
 }
 
+//HaveValidSpec - 
 func (p *TPersona) HaveValidSpec(spec []string) (bool, string) {
 	for i := range p.specialization {
 		for j := range spec {

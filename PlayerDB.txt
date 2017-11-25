@@ -82,11 +82,11 @@ DEPTH: 0 - not used now.
 
 Computer: 6
 
-ComputerSpec: Edit File
+ComputerSpec: NONE
 
 Cybercombat: 6
 
-CybercombatSpec: vs.Host
+CybercombatSpec: NONE
 
 Electronic Warfare: 6
 
@@ -94,16 +94,14 @@ Electronic WarfareSpec: NONE
 
 Hacking: 7
 
-HackingSpec: NONE
+HackingSpec: vs.Host
 
 Hardware: 6
 HardwareSpec: NONE
 
-
 Software: 6
 SoftwareSpec: NONE
 
-Specialisations: Cvs.Host;Hvs.IC;Edit File;vs.File
 ////Qualities:
 (NOT IMPLEMENTED)
 

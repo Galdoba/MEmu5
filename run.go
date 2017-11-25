@@ -340,7 +340,7 @@ func main() {
 	w1.WPrintLn("...Encryption keys generated", congo.ColorGreen)
 	time.Sleep(dur)
 	draw()
-	w1.WPrintLn("...connected to onion routers", congo.ColorGreen)
+	w1.WPrintLn("...Connected to onion routers", congo.ColorGreen)
 	time.Sleep(dur)
 	draw()
 	w1.WPrintLn("...Enter Login:", congo.ColorGreen)

@@ -1657,14 +1657,14 @@ func BruteForce(src IObj, trg IObj) {
 		printLog("ValidSpec is "+spec, congo.ColorDefault)
 	}
 	printLog("Initiating Brute Force sequence...", congo.ColorGreen)
-	targetList, targetSpec := pickTargets2(comm)
+	targetList := pickTargets(comm)
 	printLog("...Allocating resources:", congo.ColorGreen)
 	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
 	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-	if haveSpec || targetSpec {
+/*	if haveSpec || targetSpec {
 		dp1 = dp1 + 2
 		printLog("...Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
-	}
+	}*/
 	attMod = calculateAttMods(comm, persona, targetList)
 	dp1 = dp1 + attMod
 	if dp1 < 0 {
@@ -2270,8 +2270,8 @@ func Edit(src IObj, trg IObj) {
 							}
 							break
 						}
-						printLog("...File editing completed", congo.ColorGreen)
 					}
+					printLog("...File editing completed", congo.ColorGreen)
 				} else {
 					printLog("...Failed", congo.ColorYellow)
 				}
@@ -2463,25 +2463,13 @@ func HackOnTheFly(src IObj, trg IObj) {
 			attMod = attMod - 10
 		}
 	}
-
-	var validSpecs []string
-	validSpecs = append(validSpecs, "Hack on the Fly")
-	haveSpec, spec := persona.HaveValidSpec(validSpecs)
-	if haveSpec {
-		printLog("ValidSpec is "+spec, congo.ColorDefault)
-	}
 	printLog("Initiating Hack on the Fly sequence...", congo.ColorGreen)
-	targetList, targetSpec := pickTargets2(comm)
+	targetList := pickTargets(comm)
 	printLog("...Allocating resources:", congo.ColorGreen)
 	dp1 := persona.GetHackingSkill() + persona.GetLogic()
 	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
 	attMod = calculateAttMods(comm, persona, targetList)
 	dp1 = dp1 + attMod
-	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-	if haveSpec || targetSpec {
-		dp1 = dp1 + 2
-		printLog("...Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
-	}
 	if dp1 < 0 {
 		dp1 = 0
 	}
@@ -3314,28 +3302,51 @@ func isLocked(m map[int]bool, key int) bool {
 	return false
 }
 
-func calculateAttMods(comm []string, attacker IIcon, targetList []IObj) (attMod int) {
-	/*if len(comm) > 3 {
-		if comm[len(comm)-1] == "-2M" {
-			attMod = attMod - 4
-			printLog("...Additional operation cycles: "+strconv.Itoa(-4)+" op/p", congo.ColorGreen)
+
+
+func calculateAttMods(comm []string, attacker IPersona, targetList []IObj) (attMod int) {
+	//Action Specializations (Computer && Software)
+	haveSpec, _ := attacker.HaveValidSpec(getActionSpecs())
+	if haveSpec {
+		attMod = 2
+	}
+	//Target Specializations (Hacking && CyberCombat)
+	mustApplytargetSpec := true
+	for i := range targetList{
+		var targetValidSpecs []string
+		if actionIs("Brute Force") || actionIs("Data Spike") || actionIs("Crash Program") {
+			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+targetList[i].GetType())	
 		}
-		if comm[len(comm)-1] == "-3M" {
-			attMod = attMod - 10
-			printLog("...Additional operation cycles: "+strconv.Itoa(-10)+" op/p", congo.ColorGreen)
+		if actionIs("Crack File") || actionIs("Hack On The Fly") || actionIs("Spoof Command") {
+			targetValidSpecs = append(targetValidSpecs, "HackingSpec_vs."+targetList[i].GetType())	
 		}
-	}*/
+		haveTargetSpec, _ := attacker.HaveValidSpec(targetValidSpecs)
+		if haveTargetSpec{
+			mustApplytargetSpec = mustApplytargetSpec && haveTargetSpec
+		} else {
+			mustApplytargetSpec = false
+		}
+	}
+	if mustApplytargetSpec{
+		attMod = 2
+	}
+	if attMod == 2 {
+		printLog("...Active Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
+	}
+
 	var oppCyc bool
 	for i := range comm {
-		if comm[i] == "-2M" && oppCyc == false {
-			printLog("...Additional operation cycles: "+strconv.Itoa(-4)+" op/p", congo.ColorGreen)
-			attMod = attMod - 4
-			oppCyc = true
-		}
-		if comm[i] == "-3M" && oppCyc == false {
-			printLog("...Additional operation cycles: "+strconv.Itoa(-10)+" op/p", congo.ColorGreen)
-			attMod = attMod - 10
-			oppCyc = true
+		if actionIs("Brute Force") || actionIs("Hack On The Fly"){
+			if comm[i] == "-2M" && oppCyc == false {
+				printLog("...Additional operation cycles: "+strconv.Itoa(-4)+" op/p", congo.ColorGreen)
+				attMod = attMod - 4
+				oppCyc = true
+			}
+			if comm[i] == "-3M" && oppCyc == false {
+				printLog("...Additional operation cycles: "+strconv.Itoa(-10)+" op/p", congo.ColorGreen)
+				attMod = attMod - 10
+				oppCyc = true
+			}
 		}
 	}
 	if attacker.GetGrid().name == "Public Grid" {
@@ -3356,7 +3367,7 @@ func calculateAttMods(comm []string, attacker IIcon, targetList []IObj) (attMod 
 	}
 	if attacker.GetSimSence() == "HOT-SIM" {
 		attMod = attMod + 2
-		printLog("...HOT-SIM connection boost: "+strconv.Itoa(2)+" op/p", congo.ColorGreen)
+		printLog("...HOT-SIM connection boost: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
 	}
 	return attMod
 }
@@ -3410,23 +3421,80 @@ func pickTargets(comm []string) []IObj {
 	return targetList
 }
 
+func getActionSpecs() []string {
+	var validSpecs []string
+	action := getCurrentActionName()
+	switch action{
+		//ComputeSkillSpecs:
+	case "Edit File":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Erase Mark":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Erase Matrix Signature":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Format Device":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Matrix Perception":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Matrix Search":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Reboot Device":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+	case "Trace Icon":
+		validSpecs = append(validSpecs, "CompSpec_"+action)
+		//SoftwareSkill Specs:
+	case "Disarm Databomb":
+		validSpecs = append(validSpecs, "SoftwareSpec_"+action)
+	case "Set Databomb":
+		validSpecs = append(validSpecs, "SoftwareSpec_"+action)
+	default:
+	}
+	return validSpecs
+}
+
+func getCurrentActionName() string {
+	comm := GetComm()
+	if len(comm) < 2 {
+		return "--UNKNOWN--"
+	}
+	actionName := formatTargetName(comm[1])
+	return actionName
+}
+
+func actionIs(actionName string) bool {
+	comm := GetComm()
+	if len(comm) < 2 {
+		return false
+	}
+	actionName = formatTargetName(actionName)
+	formatedComm := formatTargetName(comm[1])
+	if formatedComm != actionName{
+		return false
+	}
+	return true
+}
+
+
 func pickTargets2(comm []string) ([]IObj, bool) {
 
 	var targetList []IObj
 	persona := SourceIcon.(IPersona)
 	////////////////////////
-
 	totalSpec := true
 	if len(comm) < 3 {
 		return targetList, false
 	}
+	printLog(comm[1], congo.ColorDefault)
 	targetName := formatTargetName(comm[2])
+	printLog("...Target Type: "+ObjByNames[targetName].GetType(), congo.ColorYellow)
+	printLog("...Target Name: "+ObjByNames[targetName].GetName(), congo.ColorYellow)
 	if grid, ok := ObjByNames[targetName].(*TGrid); ok {
 		targetList = append(targetList, grid)
 		printLog("...Target 1: "+grid.GetGridName()+" has top priority", congo.ColorYellow)
 		var targetValidSpecs []string
-		targetValidSpecs = append(targetValidSpecs, "Hvs."+grid.GetType())
-		targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+grid.GetType())
+		if actionIs("Brute Force") {
+			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+grid.GetType())	
+		}
 		haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
 		totalSpec = totalSpec && haveSpec
 		return targetList, totalSpec
@@ -3435,13 +3503,18 @@ func pickTargets2(comm []string) ([]IObj, bool) {
 		newIcon := icon1.(IIcon) //не выводится за зону видимости((
 		targetList = append(targetList, newIcon)
 		printLog("...Target 1: "+newIcon.GetName(), congo.ColorGreen)
+
+		
+
 		var targetValidSpecs []string
-		targetValidSpecs = append(targetValidSpecs, "Hvs."+icon1.GetType())
-		targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+icon1.GetType())
+		if actionIs("Brute Force") || actionIs("Data Spike") || actionIs("Crash Program") {
+			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+icon1.GetType())	
+		}
+		if actionIs("Crack File") || actionIs("Hack On The Fly") || actionIs("Spoof Command") {
+			targetValidSpecs = append(targetValidSpecs, "HackSpec_vs."+icon1.GetType())	
+		}
 		haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
 		totalSpec = totalSpec && haveSpec
-		//return targetList, totalSpec
-		//	persona := SourceIcon.(IIcon)
 		if persona.CheckRunningProgram("Fork") && len(comm) > 3 {
 			targetName2 := formatTargetName(comm[3])
 			if targetName != targetName2 {

@@ -150,8 +150,8 @@ func refreshPersonaWin() {
 	drawLineInWindow("Persona")
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Total Objects: "+strconv.Itoa(len(ObjByNames)), congo.ColorYellow)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--waitFlag: "+strconv.FormatBool(player.GetWaitFlag()), congo.ColorYellow)
-	for i := range player.specialization {
-		congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Available specs: "+player.specialization[i], congo.ColorYellow)
+	for i := range player.specialization{
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn(player.specialization[i], congo.ColorYellow)
 	}
 
 	totalMarks := player.CountMarks()
