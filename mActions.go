@@ -1661,7 +1661,7 @@ func BruteForce(src IObj, trg IObj) {
 	printLog("...Allocating resources:", congo.ColorGreen)
 	dp1 := persona.GetCyberCombatSkill() + persona.GetLogic()
 	printLog("...Base MPCP resources: "+strconv.Itoa(dp1)+" op/p", congo.ColorGreen)
-/*	if haveSpec || targetSpec {
+	/*	if haveSpec || targetSpec {
 		dp1 = dp1 + 2
 		printLog("...Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
 	}*/
@@ -3187,6 +3187,7 @@ func endAction() {
 	//	hold()
 	//	drawLineInWindow("Log")
 	//}
+	endActionPhase(SourceIcon.(IIcon))
 	SourceIcon = nil
 	TargetIcon = nil
 	TargetIcon2 = nil
@@ -3211,8 +3212,9 @@ func endAction() {
 
 func isComplexAction() {
 	if src, ok := SourceIcon.(IIcon); ok {
-		src.SetInitiative(src.GetInitiative() - 10)
+		src.SetInitiative(src.GetInitiative() - 0)
 	}
+
 }
 
 func isFreeAction() {
@@ -3302,8 +3304,6 @@ func isLocked(m map[int]bool, key int) bool {
 	return false
 }
 
-
-
 func calculateAttMods(comm []string, attacker IPersona, targetList []IObj) (attMod int) {
 	//Action Specializations (Computer && Software)
 	haveSpec, _ := attacker.HaveValidSpec(getActionSpecs())
@@ -3312,22 +3312,22 @@ func calculateAttMods(comm []string, attacker IPersona, targetList []IObj) (attM
 	}
 	//Target Specializations (Hacking && CyberCombat)
 	mustApplytargetSpec := true
-	for i := range targetList{
+	for i := range targetList {
 		var targetValidSpecs []string
 		if actionIs("Brute Force") || actionIs("Data Spike") || actionIs("Crash Program") {
-			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+targetList[i].GetType())	
+			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+targetList[i].GetType())
 		}
 		if actionIs("Crack File") || actionIs("Hack On The Fly") || actionIs("Spoof Command") {
-			targetValidSpecs = append(targetValidSpecs, "HackingSpec_vs."+targetList[i].GetType())	
+			targetValidSpecs = append(targetValidSpecs, "HackingSpec_vs."+targetList[i].GetType())
 		}
 		haveTargetSpec, _ := attacker.HaveValidSpec(targetValidSpecs)
-		if haveTargetSpec{
+		if haveTargetSpec {
 			mustApplytargetSpec = mustApplytargetSpec && haveTargetSpec
 		} else {
 			mustApplytargetSpec = false
 		}
 	}
-	if mustApplytargetSpec{
+	if mustApplytargetSpec {
 		attMod = 2
 	}
 	if attMod == 2 {
@@ -3336,7 +3336,7 @@ func calculateAttMods(comm []string, attacker IPersona, targetList []IObj) (attM
 
 	var oppCyc bool
 	for i := range comm {
-		if actionIs("Brute Force") || actionIs("Hack On The Fly"){
+		if actionIs("Brute Force") || actionIs("Hack On The Fly") {
 			if comm[i] == "-2M" && oppCyc == false {
 				printLog("...Additional operation cycles: "+strconv.Itoa(-4)+" op/p", congo.ColorGreen)
 				attMod = attMod - 4
@@ -3424,8 +3424,8 @@ func pickTargets(comm []string) []IObj {
 func getActionSpecs() []string {
 	var validSpecs []string
 	action := getCurrentActionName()
-	switch action{
-		//ComputeSkillSpecs:
+	switch action {
+	//ComputeSkillSpecs:
 	case "Edit File":
 		validSpecs = append(validSpecs, "CompSpec_"+action)
 	case "Erase Mark":
@@ -3468,12 +3468,11 @@ func actionIs(actionName string) bool {
 	}
 	actionName = formatTargetName(actionName)
 	formatedComm := formatTargetName(comm[1])
-	if formatedComm != actionName{
+	if formatedComm != actionName {
 		return false
 	}
 	return true
 }
-
 
 func pickTargets2(comm []string) ([]IObj, bool) {
 
@@ -3493,7 +3492,7 @@ func pickTargets2(comm []string) ([]IObj, bool) {
 		printLog("...Target 1: "+grid.GetGridName()+" has top priority", congo.ColorYellow)
 		var targetValidSpecs []string
 		if actionIs("Brute Force") {
-			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+grid.GetType())	
+			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+grid.GetType())
 		}
 		haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
 		totalSpec = totalSpec && haveSpec
@@ -3504,14 +3503,12 @@ func pickTargets2(comm []string) ([]IObj, bool) {
 		targetList = append(targetList, newIcon)
 		printLog("...Target 1: "+newIcon.GetName(), congo.ColorGreen)
 
-		
-
 		var targetValidSpecs []string
 		if actionIs("Brute Force") || actionIs("Data Spike") || actionIs("Crash Program") {
-			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+icon1.GetType())	
+			targetValidSpecs = append(targetValidSpecs, "CyberSpec_vs."+icon1.GetType())
 		}
 		if actionIs("Crack File") || actionIs("Hack On The Fly") || actionIs("Spoof Command") {
-			targetValidSpecs = append(targetValidSpecs, "HackSpec_vs."+icon1.GetType())	
+			targetValidSpecs = append(targetValidSpecs, "HackSpec_vs."+icon1.GetType())
 		}
 		haveSpec, _ := persona.HaveValidSpec(targetValidSpecs)
 		totalSpec = totalSpec && haveSpec

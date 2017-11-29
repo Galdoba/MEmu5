@@ -10,3 +10,23 @@ Host_IC:
  >Patrol IC
 
 #########################
+          
+Host: Some
+Grid: AzGrid
+Host_Atributes:
+  Rating: 8
+  Attack: 8
+  Sleaze: 11
+  Data Processing: 9
+  Firewall: 10
+Host_IC:
+ >Patrol IC
+ >Tar Baby IC
+ >Track IC
+ >Binder IC
+ >Black IC
+ >Bloodhound IC
+ >Jammer IC
+ >Killer IC
+
+#########################
