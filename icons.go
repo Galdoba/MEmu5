@@ -237,15 +237,17 @@ type TIcon struct {
 	host         *THost
 	device       *TDevice
 
-	simSence        string
-	silentMode      bool
-	initiative      int
-	id              int
-	owner           IIcon
-	isPlayer        bool
-	convergenceFlag bool
-	connected       bool
-	searchLen       int
+	simSence           string
+	silentMode         bool
+	initiative         int
+	id                 int
+	owner              IIcon
+	isPlayer           bool
+	convergenceFlag    bool
+	connected          bool
+	searchLen          int
+	freeActionsCount   int
+	simpleActionsCount int
 }
 
 //IIcon - в икону входят файлы, персоны, айсы и хосты
@@ -293,6 +295,32 @@ type IIconOnly interface {
 	CheckRunningProgram(string) bool
 	ResistMatrixDamage(int) int
 	RollInitiative()
+	GetFreeActionsCount() int
+	GetSimpleActionsCount() int
+	SpendFreeAction()
+	SpendSimpleAction()
+	SpendComplexAction()
+	ResetActionsCount()
+}
+
+//SpendFreeAction -
+func (i *TIcon) SpendFreeAction() {
+	if i.freeActionsCount > 0 {
+		i.freeActionsCount--
+	} else {
+		i.simpleActionsCount--
+	}
+}
+
+//SpendSimpleAction -
+func (i *TIcon) SpendSimpleAction() {
+	i.simpleActionsCount--
+}
+
+//SpendComplexAction -
+func (i *TIcon) SpendComplexAction() {
+	i.simpleActionsCount--
+	i.simpleActionsCount--
 }
 
 //RollInitiative -
@@ -719,6 +747,23 @@ func (i *TIcon) GetMatrixCM() {
 	printLog("...Error: "+i.GetName()+" is immune to Matrix Damage", congo.ColorYellow)
 }
 
+//GetFreeActionsCount -
+func (i *TIcon) GetFreeActionsCount() int {
+	return i.freeActionsCount
+}
+
+//GetSimpleActionsCount -
+func (i *TIcon) GetSimpleActionsCount() int {
+	return i.simpleActionsCount
+}
+
+//ResetActionsCount -
+func (i *TIcon) ResetActionsCount() {
+	i.freeActionsCount = 1
+	//
+	i.simpleActionsCount = 2
+}
+
 ////////////////////////////////////////////////////////
 //IC
 
@@ -738,6 +783,7 @@ type TIC struct {
 	matrixCM       int
 	actionReady    int
 	lastTargetName string
+
 	//host           *THost
 }
 
@@ -759,6 +805,7 @@ type IICOnly interface {
 	GetLastTargetName() string
 	SetLastTargetName(string)
 	TakeFOWfromHost()
+
 	//RollInitiative()
 }
 
@@ -1476,18 +1523,20 @@ func NewPlayer(alias string, d string) *TPersona {
 	//p.(IIcon)name = alias
 	p.connected = true
 	p.physLocation = false
+	p.freeActionsCount = 1
+	p.simpleActionsCount = 2
 	//p.specializations
 
 	id++
 	return &p
 }
 
-//GetSpecializationList - 
+//GetSpecializationList -
 func (p *TPersona) GetSpecializationList() []string {
 	return p.specialization
 }
 
-//HaveValidSpec - 
+//HaveValidSpec -
 func (p *TPersona) HaveValidSpec(spec []string) (bool, string) {
 	for i := range p.specialization {
 		for j := range spec {
@@ -1512,9 +1561,9 @@ func (p *TPersona) RollInitiative() {
 		p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(4))
 	default:
 	}
-	if p.waitFlag {
+	/*if p.waitFlag {
 		p.SetInitiative(0)
-	}
+	}*/
 	//p.SetInitiative(p.GetDataProcessing() + p.GetIntuition() + xd6Test(4))
 }
 
@@ -2017,6 +2066,9 @@ func (p *TPersona) Dumpshock() {
 	}
 	p.SetSimSence("Offline")
 	p.SetInitiative(999999)
+	if p.id == player.GetID() {
+		printLog("Session terminated...", congo.ColorDefault)
+	}
 }
 
 //IsConnected -

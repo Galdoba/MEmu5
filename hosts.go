@@ -31,9 +31,11 @@ type THost struct {
 	markSet        MarkSet
 	grid           *TGrid
 	//icOrder        []string
-	icState ICList
-	alert   string
-	owner   IIcon
+	icState            ICList
+	alert              string
+	owner              IIcon
+	freeActionsCount   int
+	simpleActionsCount int
 }
 
 //IHost - в икону входят файлы, персоны, айсы и хосты
@@ -58,6 +60,43 @@ var _ IHost = (*THost)(nil)
 //RollInitiative -
 func (h *THost) RollInitiative() {
 	h.SetInitiative(h.GetDataProcessing() + h.GetIntuition() + xd6Test(4))
+}
+
+//GetFreeActionsCount -
+func (h *THost) GetFreeActionsCount() int {
+	return h.freeActionsCount
+}
+
+//GetSimpleActionsCount -
+func (h *THost) GetSimpleActionsCount() int {
+	return h.simpleActionsCount
+}
+
+//ResetActionsCount -
+func (h *THost) ResetActionsCount() {
+	h.freeActionsCount = 1
+	//
+	h.simpleActionsCount = 2
+}
+
+//SpendFreeAction -
+func (h *THost) SpendFreeAction() {
+	if h.freeActionsCount > 0 {
+		h.freeActionsCount--
+	} else {
+		h.simpleActionsCount--
+	}
+}
+
+//SpendSimpleAction -
+func (h *THost) SpendSimpleAction() {
+	h.simpleActionsCount--
+}
+
+//SpendComplexAction -
+func (h *THost) SpendComplexAction() {
+	h.simpleActionsCount--
+	h.simpleActionsCount--
 }
 
 //GetIntuition -

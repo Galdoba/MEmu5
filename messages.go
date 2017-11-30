@@ -150,9 +150,10 @@ func refreshPersonaWin() {
 	drawLineInWindow("Persona")
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Total Objects: "+strconv.Itoa(len(ObjByNames)), congo.ColorYellow)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--waitFlag: "+strconv.FormatBool(player.GetWaitFlag()), congo.ColorYellow)
-	for i := range player.specialization{
-		congo.WindowsMap.ByTitle["Persona"].WPrintLn(player.specialization[i], congo.ColorYellow)
-	}
+	//for i := range player.specialization {
+	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(player.specialization[i], congo.ColorYellow)
+	//}
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Free/Simple Actions: "+strconv.Itoa(player.GetFreeActionsCount())+"/"+strconv.Itoa(player.GetSimpleActionsCount()), congo.ColorGreen)
 
 	totalMarks := player.CountMarks()
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Confirmed Marks on Persona: "+strconv.Itoa(totalMarks), congo.ColorYellow)
@@ -282,7 +283,8 @@ func refreshEnviromentWin() {
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("------------------------------", congo.ColorDefault)
 
 	//var row string
-	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Turn №: "+strconv.Itoa(Turn), congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Combat Turn №: "+strconv.Itoa(CombatTurn), congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Initiative Pass №: "+strconv.Itoa(CombatTurn), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(STime, congo.ColorDefault)
 
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(generateShadowrunTime(), congo.ColorDefault)

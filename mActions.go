@@ -1479,7 +1479,7 @@ func ICWait(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon
 	if ic, ok := SourceIcon.(*TIC); ok {
-		ic.SetInitiative(ic.GetInitiative() - 10)
+		ic.SetInitiative(ic.GetInitiative() - 0)
 	}
 	endAction()
 }
@@ -1613,25 +1613,83 @@ func checkAction(actionName string) (bool, string) {
 }
 
 //doAction - handler for matrix action for both player AND enemies
-func doAction(s string) bool {
+func doAction(mActionName string) bool {
 	if SourceIcon == nil {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("--DEBUG-- Error: SourceIcon = nil. Try again", congo.ColorRed)
 		return false
 	}
-	if val, ok := MActions.MActionMap[s]; ok { // if s string match any Matrix Action than execute action
-		if attacker, ok := SourceIcon.(IIcon); ok {
-			if defender, ok := TargetIcon.(IPersona); ok {
-				if defender.GetID() == player.GetID() && attacker.GetID() != player.GetID() {
-					printLog(attacker.GetName()+" attack detected...", congo.ColorYellow)
-					printLog("..."+defender.GetName()+": Evaiding", congo.ColorGreen)
+	if val, ok := MActions.MActionMap[mActionName]; ok { // if s string match any Matrix Action than execute action
+		if mActionName != "ICWAIT" {
+			if attacker, ok := SourceIcon.(IIcon); ok {
+				if defender, ok := TargetIcon.(IPersona); ok {
+					if defender.GetID() == player.GetID() && attacker.GetID() != player.GetID() {
+						printLog(attacker.GetName()+" attack detected...", congo.ColorYellow)
+						printLog("..."+defender.GetName()+": Evaiding", congo.ColorGreen)
+					}
 				}
 			}
 		}
-		val.(func(IObj, IObj))(SourceIcon, TargetIcon)
-		return true
+		if canIconCanDoAction(mActionName, SourceIcon.(IIcon)) {
+			val.(func(IObj, IObj))(SourceIcon, TargetIcon)
+			return true
+		}
+
 	}
 	draw()
 	return false
+}
+
+func canIconCanDoAction(mActionName string, icon IIcon) bool {
+	canDo := false
+	//Оцениваем действие
+	actionType := ""
+	switch mActionName {
+	case "LOAD_PROGRAM":
+		actionType = "free"
+	case "UNLOAD_PROGRAM":
+		actionType = "free"
+	case "SWAP_PROGRAMS":
+		actionType = "free"
+	case "SWAP_ATTRIBUTES":
+		actionType = "free"
+		//
+	case "WAIT":
+		actionType = "simple"
+	case "SWITCH_INTERFACE_MODE":
+		actionType = "simple"
+	default:
+		actionType = "complex"
+	}
+	//Оцениваем свободные действия у иконы
+	avFree, avSimple := getActions(icon)
+	//Сравниваем вес действия и свободные действия
+	if actionType == "free" {
+		if avFree > 0 {
+			canDo = true
+		} else if avSimple > 0 {
+			canDo = true
+		}
+	}
+	if actionType == "simple" {
+		if avSimple > 0 {
+			canDo = true
+		}
+	}
+	if actionType == "complex" {
+		if avSimple > 1 {
+			canDo = true
+		}
+	}
+	if !canDo {
+		printLog("Error: Impossible to comply on this Action Phase", congo.ColorYellow)
+	}
+	return canDo
+}
+
+func getActions(icon IIcon) (int, int) {
+	availFree := icon.GetFreeActionsCount()
+	availSimple := icon.GetSimpleActionsCount()
+	return availFree, availSimple
 }
 
 //BruteForce - ++
@@ -2987,8 +3045,9 @@ func Login(src IObj, trg IObj) {
 			printLog("Terminate session if you want to use another account", congo.ColorDefault)
 		}
 	}
-	endAction()
 	SourceIcon = player
+	endAction()
+	//SourceIcon = player
 }
 
 //UnloadProgram -
@@ -3141,7 +3200,7 @@ func Wait(src IObj, trg IObj) {
 				persona.SetWaitFlag(true)
 			}
 			//persona.SetWaitFlag(true)
-			persona.SetInitiative(0)
+			//persona.SetInitiative(0)
 
 		}
 	}
@@ -3150,7 +3209,7 @@ func Wait(src IObj, trg IObj) {
 		waitTimeInt, _ := strconv.Atoi(waitTime)
 		persona.SetInitiative(persona.GetInitiative() - waitTimeInt)
 	} else {
-		src.(IPersona).SetInitiative(0)
+		//src.(IPersona).SetInitiative(0)
 	}
 	endAction()
 
@@ -3187,7 +3246,10 @@ func endAction() {
 	//	hold()
 	//	drawLineInWindow("Log")
 	//}
-	endActionPhase(SourceIcon.(IIcon))
+	if SourceIcon.(IIcon).GetSimpleActionsCount() <= 0 {
+		endActionPhase(SourceIcon.(IIcon))
+	}
+	//endActionPhase(SourceIcon.(IIcon))
 	SourceIcon = nil
 	TargetIcon = nil
 	TargetIcon2 = nil
@@ -3212,20 +3274,23 @@ func endAction() {
 
 func isComplexAction() {
 	if src, ok := SourceIcon.(IIcon); ok {
-		src.SetInitiative(src.GetInitiative() - 0)
+		//src.SetInitiative(src.GetInitiative() - 0)
+		src.SpendComplexAction()
 	}
 
 }
 
 func isFreeAction() {
 	if src, ok := SourceIcon.(IIcon); ok {
-		src.SetInitiative(src.GetInitiative() - 2) //Free Action
+		//src.SetInitiative(src.GetInitiative() - 2) //Free Action
+		src.SpendFreeAction()
 	}
 }
 
 func isSimpleAction() {
 	if src, ok := SourceIcon.(IIcon); ok {
-		src.SetInitiative(src.GetInitiative() - 5) //Simple Action
+		//src.SetInitiative(src.GetInitiative() - 5) //Simple Action
+		src.SpendSimpleAction()
 	}
 }
 

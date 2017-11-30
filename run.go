@@ -367,6 +367,7 @@ func main() {
 	//doAction("WAIT")
 
 	for !canClose {
+		draw()
 		if congo.IsChanged() {
 			draw()
 			congo.ResetUpdate()
@@ -402,10 +403,10 @@ func main() {
 			time.Sleep(1)
 		}
 		checkTurn()
-		if player.GetWaitFlag() {
+		/*	if player.GetWaitFlag() {
 			SourceIcon = pickObjByID(player.GetID())
 			doAction("WAIT")
-		}
+		}*/
 
 	}
 
