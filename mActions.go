@@ -1481,6 +1481,7 @@ func ICWait(src IObj, trg IObj) {
 	if ic, ok := SourceIcon.(*TIC); ok {
 		ic.SetInitiative(ic.GetInitiative() - 0)
 	}
+	src.(IIC).SpendComplexAction()
 	endAction()
 }
 
@@ -1681,7 +1682,9 @@ func canIconCanDoAction(mActionName string, icon IIcon) bool {
 		}
 	}
 	if !canDo {
-		printLog("Error: Impossible to comply on this Action Phase", congo.ColorYellow)
+		if icon == player {
+			printLog("Error: Impossible to comply on this Action Phase", congo.ColorYellow)
+		}
 	}
 	return canDo
 }
@@ -3211,6 +3214,7 @@ func Wait(src IObj, trg IObj) {
 	} else {
 		//src.(IPersona).SetInitiative(0)
 	}
+	persona.SpendComplexAction()
 	endAction()
 
 }
@@ -3246,7 +3250,8 @@ func endAction() {
 	//	hold()
 	//	drawLineInWindow("Log")
 	//}
-	if SourceIcon.(IIcon).GetSimpleActionsCount() <= 0 {
+	if SourceIcon.(IIcon).GetSimpleActionsCount() < 1 {
+		printLog("Go endActionPhase()", congo.ColorDefault)
 		endActionPhase(SourceIcon.(IIcon))
 	}
 	//endActionPhase(SourceIcon.(IIcon))
@@ -3263,8 +3268,8 @@ func endAction() {
 			}
 		}
 	}
-
-	checkTurn()
+	printLog("Go checkTurn()", congo.ColorDefault)
+	//	checkTurn()
 	refreshEnviromentWin()
 	refreshPersonaWin()
 	refreshGridWin()

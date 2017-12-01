@@ -498,6 +498,8 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 	//p.(IIcon)name = alias
 	p.connected = true
 	p.physLocation = false
+	//p.freeActionsCount = 1
+	//p.simpleActionsCount = 2
 	ObjByNames[p.name] = &p
 	//ObjByNames[p.name] = ObjByNames["Unknown"]
 	//objectList = append(objectList, &p)

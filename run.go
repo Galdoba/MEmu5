@@ -402,12 +402,12 @@ func main() {
 		} else {
 			time.Sleep(1)
 		}
-		checkTurn()
+		//checkTurn()
 		/*	if player.GetWaitFlag() {
 			SourceIcon = pickObjByID(player.GetID())
 			doAction("WAIT")
 		}*/
-
+		checkTurn() // Рекурсия
 	}
 
 }

@@ -39,6 +39,22 @@ func endActionPhase(icon IIcon) {
 			break
 		}
 	}
+	if itIsEndPass() {
+		endInitiativePass()
+		InitiativePass++
+		if itIsEndCombatTurn() {
+			CombatTurn++
+			Turn++
+			InitiativePass = 1
+			hostAction()
+			rollInitiativeALL()
+			resetCombatRooster()
+			buildInitiativePassOrder()
+			STime = forwardShadowrunTime()
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
+		}
+	}
+	checkTurn() // - вызовет рекурсию?
 }
 
 func isActionExecutedBy(icon IIcon) bool {
@@ -246,6 +262,7 @@ func buildInitiativePassOrder() {
 }
 
 func checkTurn() bool {
+	printLog("Start checkTurn()", congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Process"].WClear()
 	if player.isOnline() == false {
 		refreshEnviromentWin()
@@ -261,13 +278,13 @@ func checkTurn() bool {
 		buildInitiativePassOrder()
 	}
 	//trackCombat()
-	maxInit := 0
+	//maxInit := 0
 	//var movemetOrder []IIcon
 	var icon IIcon
 	mActionName := "ICWAIT"
 	//outIndex := 0
 	clearICes()
-	_, maxInit = buildInitiativeOrder()
+	//	_, maxInit = buildInitiativeOrder()
 	refreshEnviromentWin()
 	for i := range CombatRooster.iconActed {
 		if CombatRooster.iconActed[i] {
@@ -302,15 +319,38 @@ func checkTurn() bool {
 				//			congo.WindowsMap.ByTitle["Log"].WPrintLn(ic.GetName()+" decided "+mActionName, congo.ColorDefault)
 				//выбираем цель
 				TargetIcon = player
+				printLog("--point DoAction", congo.ColorDefault)
+				printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
 				doAction(mActionName)
-				endActionPhase(ic)
-				//			printLog("1", congo.ColorDefault)
+				printLog("Go ednActionforIC()", congo.ColorDefault)
+				//endActionPhase(ic)
+				printLog("end checkTurn() 2", congo.ColorDefault)
 				return false
 			}
 
 		}
-
 	}
+	/*if itIsEndPass() {
+		//endInitiativePass()
+		//printLog("YES", congo.ColorYellow)
+		endInitiativePass()
+		InitiativePass++
+	}
+	if itIsEndCombatTurn() {
+		CombatTurn++
+		Turn++
+		InitiativePass = 1
+		hostAction()
+		rollInitiativeALL()
+		buildInitiativePassOrder()
+		STime = forwardShadowrunTime()
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
+	}*/
+	printLog("end checkTurn() 3", congo.ColorDefault)
+	return true
+}
+
+func itIsEndPass() bool {
 	//printLog("End Pass?", congo.ColorYellow)
 	end := true
 	for i := range CombatRooster.iconActed {
@@ -323,48 +363,21 @@ func checkTurn() bool {
 				end = false
 				break
 			}
-			//printLog(pickObjByID(CombatRooster.iconID[i]).GetName()+" NOT acted", congo.ColorYellow)
+			//		printLog(pickObjByID(CombatRooster.iconID[i]).GetName()+" NOT acted", congo.ColorYellow)
 			//end = false
 			//break
 		}
 		//end = end && CombatRooster.iconActed[i]
 	}
-	if end {
-		//endInitiativePass()
-		//	printLog("YES", congo.ColorYellow)
-		endInitiativePass()
-		InitiativePass++
-	} else {
-		//	printLog("No", congo.ColorYellow)
-	}
+	return end
+}
 
-	//printLog(icon.GetName()+"'s Turn", congo.ColorYellow)
-	//printLog("End Turn?", congo.ColorYellow)
-	_, maxInit = buildInitiativeOrder()
+func itIsEndCombatTurn() bool {
+	_, maxInit := buildInitiativeOrder()
 	if maxInit < 1 {
-		//	printLog("YUP", congo.ColorYellow)
-		CombatTurn++
-		Turn++
-		InitiativePass = 1
-		hostAction()
-		rollInitiativeALL()
-		buildInitiativePassOrder()
-		/*for _, o := range ObjByNames {
-			if icon, ok := o.(IIcon); ok {
-				if icon.GetInitiative() > 0 {
-					//	congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+" init: "+strconv.Itoa(icon.GetInitiative()), congo.ColorYellow)
-				}
-			}
-		}*/
-
-		STime = forwardShadowrunTime()
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
-
-	} else {
-		//	printLog("NOPE", congo.ColorYellow)
+		return true
 	}
-	//printLog("2", congo.ColorDefault)
-	return true
+	return false
 }
 
 func icDecide(ic IIC) string {
