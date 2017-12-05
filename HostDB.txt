@@ -30,3 +30,18 @@ Host_IC:
  >Killer IC
 
 #########################
+          
+Host: Bravo3
+Grid: AzGrid
+Host_Atributes:
+  Rating: 3
+  Attack: 3
+  Sleaze: 5
+  Data Processing: 4
+  Firewall: 6
+Host_IC:
+ >Patrol IC
+ >Tar Baby IC
+ >Black IC
+
+#########################

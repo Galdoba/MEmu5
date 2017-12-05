@@ -1480,8 +1480,10 @@ func ICWait(src IObj, trg IObj) {
 	trg = TargetIcon
 	if ic, ok := SourceIcon.(*TIC); ok {
 		ic.SetInitiative(ic.GetInitiative() - 0)
+		ic.SpendComplexAction()
+		printLog(ic.GetName()+" waiting", congo.ColorRed)
 	}
-	src.(IIC).SpendComplexAction()
+	//src.(IIC).SpendComplexAction()
 	endAction()
 }
 
@@ -1633,6 +1635,9 @@ func doAction(mActionName string) bool {
 		if canIconCanDoAction(mActionName, SourceIcon.(IIcon)) {
 			val.(func(IObj, IObj))(SourceIcon, TargetIcon)
 			return true
+		} else {
+			printLog(SourceIcon.GetName()+" cant do: "+mActionName, congo.ColorDefault)
+			//checkTurn()
 		}
 
 	}
@@ -2372,7 +2377,7 @@ func ExitHost(src IObj, trg IObj) {
 	persona := SourceIcon.(IPersona)
 	//host := persona.GetHost()
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
-	printLog("Switching silent running ... ", congo.ColorGreen)
+	printLog("Leaving host... ", congo.ColorGreen)
 	if checkLinkLock(persona) == true && src.(IObj).GetFaction() == player.GetFaction() {
 		printLog("...Error: "+src.(IPersona).GetName()+" is Locked", congo.ColorYellow)
 	} else {
@@ -3245,84 +3250,44 @@ func addOverwatchScoreToTarget(suc2 int) {
 }
 
 func endAction() {
-	//comm := GetComm()
-	//if SourceIcon.(IIcon).GetID() == player.GetID() && comm[1] != "WAIT" {
-	//	hold()
-	//	drawLineInWindow("Log")
-	//}
-	if SourceIcon.(IIcon).GetSimpleActionsCount() < 1 {
-		printLog("Go endActionPhase()", congo.ColorDefault)
+	if SourceIcon.(IIcon).GetSimpleActionsCount() < 1 { // if sourceIcon used all Simple Actions => calculate next sourceIcon
 		endActionPhase(SourceIcon.(IIcon))
-	}
-	//endActionPhase(SourceIcon.(IIcon))
-	SourceIcon = nil
-	TargetIcon = nil
-	TargetIcon2 = nil
-	command = ""
-	//outIndex := 0
-	for _, obj := range ObjByNames {
-		if ic, ok := obj.(IIC); ok {
-			if ic.GetMatrixCM() < 0 {
-				host := ic.GetHost()
-				host.DeleteIC(ic)
+		SourceIcon = nil
+		TargetIcon = nil
+		TargetIcon2 = nil
+		command = ""
+		for _, obj := range ObjByNames {
+			if ic, ok := obj.(IIC); ok {
+				if ic.GetMatrixCM() < 0 {
+					host := ic.GetHost()
+					host.DeleteIC(ic)
+				}
 			}
 		}
 	}
-	printLog("Go checkTurn()", congo.ColorDefault)
-	//	checkTurn()
 	refreshEnviromentWin()
 	refreshPersonaWin()
 	refreshGridWin()
 	refreshProcessWin()
-
 }
 
-func isComplexAction() {
+func isComplexAction() { //Evaluate IconType and spend 2 Simple actions if possible
 	if src, ok := SourceIcon.(IIcon); ok {
-		//src.SetInitiative(src.GetInitiative() - 0)
 		src.SpendComplexAction()
 	}
-
 }
 
-func isFreeAction() {
+func isFreeAction() { //Evaluate IconType and spend 1 Free action if possible
 	if src, ok := SourceIcon.(IIcon); ok {
-		//src.SetInitiative(src.GetInitiative() - 2) //Free Action
 		src.SpendFreeAction()
 	}
 }
 
-func isSimpleAction() {
+func isSimpleAction() { //Evaluate IconType and spend 1 Simple action if possible
 	if src, ok := SourceIcon.(IIcon); ok {
-		//src.SetInitiative(src.GetInitiative() - 5) //Simple Action
 		src.SpendSimpleAction()
 	}
 }
-
-/*func checkMarks(neededMarks int) bool {
-	src := SourceIcon.(*TPersona)
-	if trg, ok := TargetIcon.(*TIcon); ok {
-		markSet := trg.GetMarkSet()
-		if markSet.MarksFrom[src.GetID()] < neededMarks { //проверяем наличие марок
-			return false
-		}
-		return true
-	} else if trg, ok := TargetIcon.(*THost); ok {
-		markSet := trg.GetMarkSet()
-		if markSet.MarksFrom[src.GetID()] < neededMarks { //проверяем наличие марок
-			return false
-		}
-		return true
-	} else if trg, ok := TargetIcon.(*TFile); ok {
-		markSet := trg.GetMarkSet()
-		if markSet.MarksFrom[src.GetID()] < neededMarks { //проверяем наличие марок
-			return false
-		}
-		return true
-	}
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Ошибка! Неизвестный тип для checkMarks()!", congo.ColorRed)
-	return false
-}*/
 
 func checkExistingMarks(srcID, trgID, neededMarks int) bool {
 	for _, obj := range ObjByNames {
@@ -3337,7 +3302,7 @@ func checkExistingMarks(srcID, trgID, neededMarks int) bool {
 			return true
 		}
 	}
-	congo.WindowsMap.ByTitle["Log"].WPrintLn("Ошибка! Неизвестный тип для checkMarks()!", congo.ColorRed)
+	congo.WindowsMap.ByTitle["Log"].WPrintLn("--DEBUG--Error: Неизвестный тип для checkMarks()!", congo.ColorRed)
 	return false
 }
 
@@ -3356,7 +3321,6 @@ func checkLinkLock(icon IIcon) bool {
 	for i := range lockedBy {
 		i++
 		i--
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+" is Locked in "+icon.GetGridName()+" by "+pickObjByID(lockedBy[i]).(IObj).GetName(), congo.ColorGreen)
 		mustReturn = true
 	}
 	if mustReturn == true {
@@ -3545,7 +3509,6 @@ func actionIs(actionName string) bool {
 }
 
 func pickTargets2(comm []string) ([]IObj, bool) {
-
 	var targetList []IObj
 	persona := SourceIcon.(IPersona)
 	////////////////////////

@@ -286,7 +286,10 @@ func refreshEnviromentWin() {
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Combat Turn №: "+strconv.Itoa(CombatTurn), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Initiative Pass №: "+strconv.Itoa(InitiativePass), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(STime, congo.ColorDefault)
-
+	drawLineInWindow("Enviroment")
+	for i := range CombatRooster.iconID{
+		congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("id: "+strconv.Itoa(CombatRooster.iconID[i]) + "///" + strconv.FormatBool(CombatRooster.iconActed[i]) + "///" + strconv.Itoa(CombatRooster.iconInit[i]), congo.ColorDefault)
+	}
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(generateShadowrunTime(), congo.ColorDefault)
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("------------------------------", congo.ColorDefault)
 	keysForHost := getSortedKeysByType("Host")

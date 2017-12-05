@@ -32,29 +32,19 @@ func addIconToCombatRooster(icon IIcon) {
 	CombatRooster.iconActed = append(CombatRooster.iconActed, false)
 }
 
-func endActionPhase(icon IIcon) {
-	for i := range CombatRooster.iconID {
+func endActionPhase(icon IIcon) bool {
+	if CombatRooster.iconActed == nil {
+		printLog("Creating CR...", congo.ColorDefault)
+		buildInitiativePassOrder()
+	}
+	for i := range CombatRooster.iconID { //Check combat rooster. break if not acted icon found
 		if icon.GetID() == CombatRooster.iconID[i] {
 			CombatRooster.iconActed[i] = true
+			//return false
 			break
 		}
 	}
-	if itIsEndPass() {
-		endInitiativePass()
-		InitiativePass++
-		if itIsEndCombatTurn() {
-			CombatTurn++
-			Turn++
-			InitiativePass = 1
-			hostAction()
-			rollInitiativeALL()
-			resetCombatRooster()
-			buildInitiativePassOrder()
-			STime = forwardShadowrunTime()
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
-		}
-	}
-	checkTurn() // - вызовет рекурсию?
+	return true
 }
 
 func isActionExecutedBy(icon IIcon) bool {
@@ -67,12 +57,6 @@ func isActionExecutedBy(icon IIcon) bool {
 }
 
 func approveDeletion(icon interface{}) bool {
-	/*if persona, ok := icon.(IPersona); ok {
-		if persona.GetMatrixCM() < 1 {
-
-			return true
-		}
-	}*/
 	if ic, ok := icon.(IIC); ok {
 		if ic.GetMatrixCM() < 1 {
 
@@ -112,7 +96,6 @@ func rollInitiativeALL() {
 func sortMovementOrder(icons []IIcon, maxInit int) []IIcon {
 	var sortedOrder []IIcon
 	for i := maxInit; i > 0; i-- {
-		//printLog(strconv.Itoa(i), congo.ColorDefault)
 		for j := range icons {
 			if i == icons[j].GetInitiative() {
 				sortedOrder = append(sortedOrder, icons[j])
@@ -153,47 +136,6 @@ func buildInitiativeOrder() ([]IIcon, int) {
 	}
 	movemetOrder = sortMovementOrder(movemetOrder, maxInit)
 	return movemetOrder, maxInit
-}
-
-func declareAction(icon IIcon) {
-	printLog(icon.GetName()+" is acting", congo.ColorDefault)
-	if icon.IsPlayer() {
-		trackCombat()
-		waitEvent := false
-		i := 0
-		for !waitEvent {
-			draw()
-			printLog("command: "+command, congo.ColorRed)
-			printLog(strconv.Itoa(i), congo.ColorRed)
-			i++
-			if i == 10 {
-				waitEvent = true
-			}
-		}
-		waitEvent = true
-
-	}
-	//trackCombat()
-}
-
-func startCombatTurn() {
-	CombatTurn++
-	var maxInit int
-	var movemetOrder []IIcon
-	rollInitiativeALL()
-	movemetOrder, maxInit = buildInitiativeOrder()
-	for maxInit > 0 {
-		for i := range movemetOrder {
-			if movemetOrder[i].GetInitiative() > 0 {
-				checkTurn()
-				declareAction(movemetOrder[i])
-				endAction()
-			}
-			//declareAction(movemetOrder[i])
-		}
-		endInitiativePass()
-		movemetOrder, maxInit = buildInitiativeOrder()
-	}
 }
 
 func endInitiativePass() {
@@ -255,14 +197,34 @@ func buildInitiativePassOrder() {
 		for j := range iconPool {
 			if init == iconPool[j].GetInitiative() {
 				addIconToCombatRooster(iconPool[j])
-				//	printLog(iconPool[j].GetName()+" // "+strconv.Itoa(iconPool[j].GetInitiative()), congo.ColorDefault)
 			}
 		}
 	}
 }
 
 func checkTurn() bool {
-	printLog("Start checkTurn()", congo.ColorDefault)
+	//	printLog("Start checkTurn()", congo.ColorDefault)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn("/Check END PASS", congo.ColorDefault)
+	if itIsEndPass() {
+		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("/TRUE", congo.ColorDefault)
+		endInitiativePass()
+		InitiativePass++
+		if itIsEndCombatTurn() {
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn(" end Turn by " + icon.GetName(), congo.ColorDefault)
+			CombatTurn++
+			Turn++
+			InitiativePass = 1
+			hostAction()
+			rollInitiativeALL()
+			//	resetCombatRooster()
+			buildInitiativePassOrder()
+			STime = forwardShadowrunTime()
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
+			return true
+		}
+
+		return true
+	}
 	congo.WindowsMap.ByTitle["Process"].WClear()
 	if player.isOnline() == false {
 		refreshEnviromentWin()
@@ -300,6 +262,10 @@ func checkTurn() bool {
 		}
 		panic(1) //не заходит
 	}
+	if icon == nil {
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("CR is empty/all true = end pass", congo.ColorDefault)
+		endInitiativePass()
+	}
 	if icon != nil {
 		if icon.GetID() == player.GetID() {
 			if player.GetWaitFlag() {
@@ -312,41 +278,24 @@ func checkTurn() bool {
 			if ic.GetInitiative() > 0 {
 				//выбираем источник
 				SourceIcon = ic
-				//			congo.WindowsMap.ByTitle["Log"].WPrintLn(ic.GetName()+" Init: "+strconv.Itoa(ic.GetInitiative()), congo.ColorDefault)
-				//выбираем действие
-				mActionName = icDecide(ic) //нужен целеуказывающий механизм для айсов
-				//break                        //continue
-				//			congo.WindowsMap.ByTitle["Log"].WPrintLn(ic.GetName()+" decided "+mActionName, congo.ColorDefault)
 				//выбираем цель
 				TargetIcon = player
+				//выбираем действие
+				mActionName = icDecide(ic) //нужен целеуказывающий механизм для айсов
+
+				/////////////////////////////////////////////////////////////////////
 				printLog("--point DoAction", congo.ColorDefault)
 				printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
 				doAction(mActionName)
-				printLog("Go ednActionforIC()", congo.ColorDefault)
-				//endActionPhase(ic)
-				printLog("end checkTurn() 2", congo.ColorDefault)
+				//printLog("Go ednActionforIC()", congo.ColorDefault)
+				endActionPhase(ic)
+				//printLog("end checkTurn() 2", congo.ColorDefault)
 				return false
 			}
 
 		}
 	}
-	/*if itIsEndPass() {
-		//endInitiativePass()
-		//printLog("YES", congo.ColorYellow)
-		endInitiativePass()
-		InitiativePass++
-	}
-	if itIsEndCombatTurn() {
-		CombatTurn++
-		Turn++
-		InitiativePass = 1
-		hostAction()
-		rollInitiativeALL()
-		buildInitiativePassOrder()
-		STime = forwardShadowrunTime()
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
-	}*/
-	printLog("end checkTurn() 3", congo.ColorDefault)
+	//	printLog("end checkTurn() 3", congo.ColorDefault)
 	return true
 }
 
@@ -354,20 +303,17 @@ func itIsEndPass() bool {
 	//printLog("End Pass?", congo.ColorYellow)
 	end := true
 	for i := range CombatRooster.iconActed {
-		if CombatRooster.iconActed[i] && pickObjByID(CombatRooster.iconID[i]) != nil {
-			//		printLog(pickObjByID(CombatRooster.iconID[i]).GetName()+" acted", congo.ColorYellow)
+		if CombatRooster.iconActed[i] { //} && pickObjByID(CombatRooster.iconID[i]) != nil {
+			//icon acted
 			end = true
 		} else {
 			if pickObjByID(CombatRooster.iconID[i]) != nil {
-				//			printLog(pickObjByID(CombatRooster.iconID[i]).GetName()+" NOT acted", congo.ColorYellow)
+				//icon not acted
 				end = false
 				break
 			}
-			//		printLog(pickObjByID(CombatRooster.iconID[i]).GetName()+" NOT acted", congo.ColorYellow)
-			//end = false
-			//break
 		}
-		//end = end && CombatRooster.iconActed[i]
+		end = end && CombatRooster.iconActed[i] //if all icons acted end = true
 	}
 	return end
 }
@@ -475,235 +421,6 @@ func icDecide(ic IIC) string {
 		//doAction(mActionName)
 	}
 	return "ICWAIT"
-}
-
-func checkTurn1() {
-	//trackCombat()
-	maxInit := 0
-	turnGo := true
-	lap := 0
-	//outIndex := 0
-	for _, obj := range ObjByNames {
-		if icon, ok := obj.(IIcon); ok {
-			if approveDeletion(icon) {
-				if icon.GetType() == "IC" {
-					host := icon.GetHost()
-					host.DeleteIC(icon.(*TIC))
-				}
-			}
-		}
-	}
-
-	for turnGo == true && player.isOnline() == true {
-		maxInit = 0
-		var movemetOrder []IIcon
-		for _, obj := range ObjByNames {
-			if icon, ok := obj.(IIcon); ok {
-				if icon.GetType() == "File" {
-					icon.SetInitiative(-1)
-				}
-				maxInit = utils.Max(maxInit, icon.GetInitiative())
-				movemetOrder = append(movemetOrder, icon)
-				printLog("append"+icon.GetName(), congo.ColorGreen)
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn("*/*/*/*/*/**/*/*//*/**/", congo.ColorDefault)
-				/*congo.WindowsMap.ByTitle["Log"].WPrintLn("movementOrder:=", congo.ColorDefault)
-				for i := range movemetOrder {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn(strconv.Itoa(i)+" / "+movemetOrder[i].GetName()+" / Init = "+strconv.Itoa(movemetOrder[i].GetInitiative()), congo.ColorDefault)
-				}*/
-			}
-
-		}
-		sortMovementOrder(movemetOrder, maxInit)
-
-		refreshEnviromentWin()
-
-		/*	for j := range objectList {
-			//	for _, obj := range ObjByNames {
-			//	if icon, ok := obj.(IIcon); ok {
-			if obj, ok := objectList[j].(IIcon); ok {
-				if obj.GetType() == "File" {
-					objectList[j].(IIcon).SetInitiative(-1)
-					//	congo.WindowsMap.ByTitle["Log"].WPrintLn(obj.GetName()+" is file...", congo.ColorDefault)
-				} else {
-					//congo.WindowsMap.ByTitle["Log"].WPrintLn(obj.GetType()+" Check Initiative...", congo.ColorDefault)
-				}
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: "+obj.GetName()+" have "+strconv.Itoa(obj.GetInitiative())+" initiative", congo.ColorDefault)
-
-				maxInit = utils.Max(maxInit, obj.GetInitiative())
-				/*	if obj.GetName() != player.GetName() {
-					objectList[i].(IIcon).SetInitiative(-1)
-
-				}*/
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("object: " + obj.GetName() + " have " + strconv.Itoa(obj.GetInitiative()) + " initiative", congo.ColorDefault)
-		//	}
-
-		//}
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("MaxINit "+strconv.Itoa(maxInit), congo.ColorDefault)
-		//refreshEnviromentWin()
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Turn "+strconv.Itoa(Turn)+" order", congo.ColorDefault)
-		for i := range movemetOrder {
-			if icon, ok := movemetOrder[i].(IIcon); ok {
-				if icon.GetType() != "File" {
-					//	congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+": Initiative = "+strconv.Itoa(icon.GetInitiative()), congo.ColorDefault)
-				}
-
-			}
-		}
-
-		for i := range movemetOrder {
-			if icon, ok := movemetOrder[i].(IIC); ok {
-				//congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+": Initiative = "+strconv.Itoa(icon.GetInitiative()), congo.ColorDefault)
-				icon.SetInitiative(icon.GetInitiative() - 10)
-			}
-
-			if len(movemetOrder)-1 < i { //костыль от Index Out of Range
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Force brake", congo.ColorDefault)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("######################################", congo.ColorDefault)
-				break
-			}
-			if obj, ok := movemetOrder[i].(IIcon); ok {
-				if persona, ok := movemetOrder[i].(IPersona); ok {
-					persona.CheckConvergence()
-					//congo.WindowsMap.ByTitle["Log"].WPrintLn("persona turn", congo.ColorDefault)
-				}
-				if obj.GetInitiative() == maxInit && maxInit > 0 {
-					/*	congo.WindowsMap.ByTitle["Log"].WPrintLn("try: "+obj.GetName(), congo.ColorYellow)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Obj init: "+strconv.Itoa(obj.GetInitiative()), congo.ColorYellow)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Obj type: "+obj.GetType(), congo.ColorYellow)*/
-					if obj.IsPlayer() == true {
-						/*congo.WindowsMap.ByTitle["Log"].WPrintLn("Player's Turn: ", congo.ColorYellow)
-						congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("lap: "+strconv.Itoa(lap), congo.ColorYellow)*/
-
-						if lap > 10 {
-							turnGo = false
-						}
-						turnGo = false
-					}
-					if obj.GetType() == "IC" && player.isOnline() == true {
-
-						mActionName := "ICWAIT"
-						attackPotential := false
-						intruderPresence := false
-						ic := obj
-						SourceIcon = ic
-						host := obj.(IIC).GetHost()
-						data := ic.GetFieldOfView() //.KnownData[obj.GetID()]
-						if host.alert == "Passive Alert" || host.alert == "Active Alert" {
-							for _, obj := range ObjByNames {
-								if intruder, ok := obj.(IIcon); ok {
-									marks := intruder.GetMarkSet() //смотрим какие марки есть на вторженце
-									for id, qty := range marks.MarksFrom {
-										if id == host.GetID() && qty > 0 && qty != 4 && ic.GetFaction() != obj.GetFaction() {
-											if data.KnownData[intruder.GetID()][0] != "Spotted" {
-												ic.ChangeFOWParametr(obj.GetID(), 0, "Spotted") // to change 1 FOWParametr use : (int id, key, string newValue)
-											}
-											attackPotential = true
-										}
-									}
-									if intruder.GetFaction() != host.GetFaction() && intruder.GetHost() == host { // && ic.GetName() == "Patrol IC" {
-										intruderPresence = true
-									}
-									if intruderPresence == true {
-										data = ic.GetFieldOfView()
-										for id, value := range data.KnownData {
-											if id == intruder.GetID() && value[0] == "Spotted" {
-												attackPotential = true
-											}
-										}
-
-									}
-								}
-							}
-						}
-						if intruderPresence == true && ic.GetName() == "Patrol IC" {
-							mActionName = "EXECUTE_SCAN"
-						}
-						if attackPotential {
-							if ic.(*TIC).icChoseTarget() != nil {
-								switch ic.GetName() {
-								case "Patrol IC":
-									mActionName = "PATROL_IC_ACTION"
-								case "Acid IC":
-									mActionName = "ACID_IC_ACTION"
-								case "Binder IC":
-									mActionName = "BINDER_IC_ACTION"
-								case "Jammer IC":
-									mActionName = "JAMMER_IC_ACTION"
-								case "Marker IC":
-									mActionName = "MARKER_IC_ACTION"
-								case "Killer IC":
-									mActionName = "KILLER_IC_ACTION"
-								case "Sparky IC":
-									mActionName = "SPARKY_IC_ACTION"
-								case "Tar Baby IC":
-									mActionName = "TAR_BABY_IC_ACTION"
-								case "Black IC":
-									mActionName = "BLACK_IC_ACTION"
-								case "Blaster IC":
-									mActionName = "BLASTER_IC_ACTION"
-								case "Probe IC":
-									mActionName = "PROBE_IC_ACTION"
-								case "Scramble IC":
-									mActionName = "SCRAMBLE_IC_ACTION"
-								case "Catapult IC":
-									mActionName = "CATAPULT_IC_ACTION"
-								case "Shoker IC":
-									mActionName = "SHOKER_IC_ACTION"
-								case "Track IC":
-									mActionName = "TRACK_IC_ACTION"
-								case "Bloodhound IC":
-									if ic.(*TIC).GetLastTargetName() == "" {
-										mActionName = "BLOODHOUND_IC_SCAN"
-									} else {
-										mActionName = "BLOODHOUND_IC_ACTION"
-									}
-								case "Crash IC":
-									mActionName = "CRASH_IC_ACTION"
-								default:
-									if mActionName == "EXECUTE_SCAN" {
-										mActionName = "EXECUTE_SCAN"
-									} else {
-										mActionName = "ICWAIT"
-									}
-								}
-							}
-						} else {
-							ic.(*TIC).TakeFOWfromHost()
-						}
-						doAction(mActionName)
-					}
-				}
-			}
-			//persona in MOVORD
-			//	movemetOrder = movemetOrder[:i]
-			//panic(1)
-		}
-
-		refreshPersonaWin()
-		if maxInit <= 0 {
-			hostAction()
-			rollInitiative()
-			STime = forwardShadowrunTime()
-			printLog("System time: "+STime, congo.ColorGreen)
-			Turn++
-			turnGo = false
-		}
-		if lap > 10 {
-			turnGo = false
-		}
-		if player.isOnline() == false {
-			refreshEnviromentWin()
-			refreshPersonaWin()
-			refreshGridWin()
-			congo.Flush()
-			player.SetInitiative(999999)
-			//os.Exit(1)
-		}
-	}
-	refreshEnviromentWin()
-	refreshPersonaWin()
-	refreshGridWin()
 }
 
 func getICAttack() string {
@@ -833,233 +550,5 @@ func hostAction() {
 }
 
 func (host *THost) checkAlert() string {
-
 	return host.GetHostAlertStatus()
 }
-
-/*
-func checkTurn() bool {
-	//trackCombat()
-	maxInit := 0
-	var movemetOrder []IIcon
-	turnGo := true
-	lap := 0
-	autoWait := false
-	mActionName := "ICWAIT"
-	//outIndex := 0
-	clearICes()
-	for turnGo == true && player.isOnline() == true {
-
-		movemetOrder, maxInit = buildInitiativeOrder()
-		refreshEnviromentWin()
-
-		for i := range movemetOrder {
-			if persona, ok := movemetOrder[i].(IPersona); ok {
-				if persona.GetID() == player.GetID() {
-					return true
-				}
-			}
-			if icon, ok := movemetOrder[i].(IIC); ok {
-				if icon.GetInitiative() == maxInit && maxInit > 0 {
-					//выбираем источник
-					SourceIcon = icon
-					congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+" Init: "+strconv.Itoa(icon.GetInitiative()), congo.ColorDefault)
-					//выбираем действие
-					mActionName = icDecide(icon) //нужен целеуказывающий механизм для айсов
-					//break                        //continue
-					congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+" decided "+mActionName, congo.ColorDefault)
-					//выбираем цель
-					TargetIcon = player
-					doAction(mActionName)
-					return false
-				}
-				if maxInit < 1 {
-					rollInitiative()
-					for _, o := range ObjByNames {
-						if icon, ok := o.(IIcon); ok {
-							if icon.GetInitiative() > 0 {
-								//	congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+" init: "+strconv.Itoa(icon.GetInitiative()), congo.ColorYellow)
-							}
-						}
-					}
-
-					hostAction()
-					STime = forwardShadowrunTime()
-
-					//drawLineInWindow("Log")
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
-					//drawLineInWindow("Log")
-					Turn++
-
-					turnGo = false
-				}
-				break
-			}
-			if len(movemetOrder)-1 < i { //костыль от Index Out of Range
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("--DEBUG__ERROR:  Force brake", congo.ColorDefault)
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("######################################", congo.ColorDefault)
-				break
-			}
-			if obj, ok := movemetOrder[i].(IIcon); ok {
-				if persona, ok := movemetOrder[i].(IPersona); ok {
-					persona.CheckConvergence()
-				}
-				if obj.GetInitiative() == maxInit && maxInit > 0 {
-					if obj.IsPlayer() == true {
-
-						if lap > 10 {
-							turnGo = false
-						}
-						turnGo = false
-					}
-					if obj.GetType() == "IC" && player.isOnline() == true {
-						//mActionName := "ICWAIT"
-						attackPotential := false
-						intruderPresence := false
-						ic := obj
-						SourceIcon = ic
-						host := obj.(IIC).GetHost()
-						data := ic.GetFieldOfView() //.KnownData[obj.GetID()]
-						if host.alert == "Passive Alert" || host.alert == "Active Alert" {
-							for _, obj := range ObjByNames {
-								if intruder, ok := obj.(IPersona); ok {
-
-									//congo.WindowsMap.ByTitle["Log"].WPrintLn(ic.GetName()+" try "+intruder.GetName(), congo.ColorDefault)
-
-									marks := intruder.GetMarkSet() //смотрим какие марки есть на вторженце
-									for id, qty := range marks.MarksFrom {
-										if id == host.GetID() && qty > 0 && qty != 4 && ic.GetFaction() != intruder.GetFaction() {
-											if data.KnownData[intruder.GetID()][0] != "Spotted" {
-												ic.ChangeFOWParametr(obj.GetID(), 0, "Spotted") // to change 1 FOWParametr use : (int id, key, string newValue)
-											}
-											attackPotential = true
-										}
-									}
-									if intruder.GetFaction() != host.GetFaction() && intruder.GetHost() == host { // && ic.GetName() == "Patrol IC" {
-										intruderPresence = true
-									}
-									if intruderPresence == true {
-										data = ic.GetFieldOfView()
-										for id, value := range data.KnownData {
-											if id == intruder.GetID() && value[0] == "Spotted" {
-												attackPotential = true
-											}
-										}
-
-									}
-								}
-							}
-						}
-						if intruderPresence == true && ic.GetName() == "Patrol IC" {
-							mActionName = "EXECUTE_SCAN"
-						}
-						if attackPotential {
-							if ic.(*TIC).icChoseTarget() != nil {
-								switch ic.GetName() {
-								case "Patrol IC":
-									mActionName = "PATROL_IC_ACTION"
-								case "Acid IC":
-									mActionName = "ACID_IC_ACTION"
-								case "Binder IC":
-									mActionName = "BINDER_IC_ACTION"
-								case "Jammer IC":
-									mActionName = "JAMMER_IC_ACTION"
-								case "Marker IC":
-									mActionName = "MARKER_IC_ACTION"
-								case "Killer IC":
-									mActionName = "KILLER_IC_ACTION"
-								case "Sparky IC":
-									mActionName = "SPARKY_IC_ACTION"
-								case "Tar Baby IC":
-									mActionName = "TAR_BABY_IC_ACTION"
-								case "Black IC":
-									mActionName = "BLACK_IC_ACTION"
-								case "Blaster IC":
-									mActionName = "BLASTER_IC_ACTION"
-								case "Probe IC":
-									mActionName = "PROBE_IC_ACTION"
-								case "Scramble IC":
-									mActionName = "SCRAMBLE_IC_ACTION"
-								case "Catapult IC":
-									mActionName = "CATAPULT_IC_ACTION"
-								case "Shoker IC":
-									mActionName = "SHOKER_IC_ACTION"
-								case "Track IC":
-									mActionName = "TRACK_IC_ACTION"
-								case "Bloodhound IC":
-									if ic.(*TIC).GetLastTargetName() == "" {
-										mActionName = "BLOODHOUND_IC_SCAN"
-									} else {
-										mActionName = "BLOODHOUND_IC_ACTION"
-									}
-								case "Crash IC":
-									mActionName = "CRASH_IC_ACTION"
-								default:
-									if mActionName == "EXECUTE_SCAN" {
-										mActionName = "EXECUTE_SCAN"
-									} else {
-										mActionName = "ICWAIT"
-									}
-								}
-							}
-						} else {
-							ic.(*TIC).TakeFOWfromHost()
-						}
-						if mActionName != "ICWAIT" && ic.GetHost() == player.GetHost() {
-							//printLog("Attack of "+ic.GetName()+" detected...", congo.ColorYellow)
-							//printLog("Action: "+mActionName, congo.ColorYellow)
-						}
-						doAction(mActionName)
-					}
-				}
-			}
-			//	movemetOrder = movemetOrder[:i]
-		}
-		refreshPersonaWin()
-		if maxInit < 1 {
-			rollInitiative()
-			for _, o := range ObjByNames {
-				if icon, ok := o.(IIcon); ok {
-					if icon.GetInitiative() > 0 {
-						//	congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+" init: "+strconv.Itoa(icon.GetInitiative()), congo.ColorYellow)
-					}
-				}
-			}
-
-			hostAction()
-			STime = forwardShadowrunTime()
-
-			//drawLineInWindow("Log")
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("SYSTEM TIME: "+STime, congo.ColorDefault)
-			//drawLineInWindow("Log")
-			Turn++
-
-			turnGo = false
-		}
-		if lap > 1000 {
-			turnGo = false
-		}
-		if player.isOnline() == false {
-			refreshEnviromentWin()
-			refreshPersonaWin()
-			refreshGridWin()
-			congo.Flush()
-			player.SetInitiative(999999)
-		} else {
-			//SourceIcon = pickObjByID(player.GetID())
-			//doAction("WAIT")
-		}
-		lap++
-	}
-	if autoWait {
-		if player.GetWaitFlag() {
-			autoWait = false
-			SourceIcon = pickObjByID(player.GetID())
-			//doAction("WAIT")
-		}
-	}
-	refreshEnviromentWin()
-	refreshPersonaWin()
-	refreshGridWin()
-	return true
-}*/

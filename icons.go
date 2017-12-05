@@ -858,6 +858,8 @@ func (h *THost) NewIC(name string) *TIC {
 	} else {
 		i.actionReady = -1
 	}
+	i.freeActionsCount = 0
+	i.simpleActionsCount = 2
 	//objectList = append(objectList, &i)
 	id++
 	ObjByNames[i.name] = &i
