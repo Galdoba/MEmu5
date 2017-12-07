@@ -34,7 +34,7 @@ var (
 	SourceIcon  IObj
 	TargetIcon  IObj
 	TargetIcon2 IObj
-	player      *TPersona
+	player      IPersona
 	Matrix      *THost
 	STime       string
 	SrTime      time.Time
@@ -323,10 +323,10 @@ func main() {
 	createDefaultGrids()
 	//congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
 
-	player = NewPlayer("Unknown", "<UNREGISTRATED>")
+	player = NewPersona("Unknown", "<UNREGISTRATED>")
 	//player, _ = ImportPlayerFromDB("Unknown") //.(*TPersona)
-	Matrix = player.grid.NewHost("Matrix", 0)
-	ObjByNames[player.name] = player
+	Matrix = player.GetGrid().NewHost("Matrix", 0)
+	ObjByNames[player.GetName()] = player
 	if o, ok := ObjByNames["player"]; ok {
 		w1.WPrintLn("Player Exist: "+o.GetName(), congo.ColorGreen)
 	}

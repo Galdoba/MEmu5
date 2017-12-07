@@ -1621,6 +1621,7 @@ func doAction(mActionName string) bool {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("--DEBUG-- Error: SourceIcon = nil. Try again", congo.ColorRed)
 		return false
 	}
+	//	player.RevealDataTo(player.GetID(), 7)
 	if val, ok := MActions.MActionMap[mActionName]; ok { // if s string match any Matrix Action than execute action
 		if mActionName != "ICWAIT" {
 			if attacker, ok := SourceIcon.(IIcon); ok {
@@ -1662,6 +1663,8 @@ func canIconCanDoAction(mActionName string, icon IIcon) bool {
 	case "WAIT":
 		actionType = "simple"
 	case "SWITCH_INTERFACE_MODE":
+		actionType = "simple"
+	case "SILENT_MODE":
 		actionType = "simple"
 	default:
 		actionType = "complex"
@@ -2658,12 +2661,6 @@ func MatrixPerception(src IObj, trg IObj) {
 			} else {
 				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
 			}
-			/*if netHits > 0 {
-				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
-			} else {
-				printLog("...Matrix Perception failed", congo.ColorYellow)
-			}*/
-
 		}
 	}
 
@@ -3041,11 +3038,11 @@ func Login(src IObj, trg IObj) {
 			} else {
 				var valid bool
 				player, valid = ImportPlayerFromDB(target)
-				delete(ObjByNames, "Unknown")
 				if valid {
 					printLog("...Passcode accepted", congo.ColorGreen)
 					printLog("...Biometric data generated", congo.ColorGreen)
 					printLog("...Start session:", congo.ColorGreen)
+					delete(ObjByNames, "Unknown")
 				}
 			}
 		} else {
@@ -3605,15 +3602,17 @@ func placeMARK(source, target IIcon) {
 func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 	canSee := persona.GetFieldOfView().KnownData[icon.GetID()]
 	mem := make([]int, 0, 30)
+
 	for i := range canSee {
 		if canSee[i] == "Unknown" { //|| canSee[0] != "Spotted" {
 			mem = append(mem, i)
 		}
 	}
-	for i := rand.Intn(33); i > 0; i-- { //perception has a chance to reveal some data. TOPIC TO DISSCUSS: on what chance exactly is
+	for i := rand.Intn(33); i > 0; i-- { //perception has a chance to reveal some data. TOPIC TO DISSCUSS: on what chance exactly is. Note: 33 stands for chance to reaveal 30 positions from X (33 here) picks
 		shuffleInt(mem)
 	}
 	for i := needToReveal; i > 0; i-- {
+		needToReveal--
 		if i < len(mem) {
 			choosen := mem[i]
 			if canSee[0] != "Spotted" {
@@ -3629,7 +3628,7 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 				//printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
 			}*/
 			case 1:
-				if target, ok := icon.(IFile); ok {
+				if target, ok := icon.(IFile); ok && target.GetHost() == persona.GetHost() {
 					canSee[choosen] = target.GetLastEditDate()
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
@@ -3652,16 +3651,18 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					}
 				}
 			case 4:
-				if target, ok := icon.(IHost); ok {
-					canSee[choosen] = "IC List Revealed"
-					printLog("...Data revealed: ", congo.ColorGreen)
-					icLIST := target.GetICState()
-					for j := range icLIST.icName {
-						congo.WindowsMap.ByTitle["Log"].WPrint("..."+target.GetName()+": "+icLIST.icName[j]+" Detected ", congo.ColorGreen)
-						if icLIST.icStatus[j] {
-							printLog("(Status: Active)", congo.ColorYellow)
-						} else {
-							printLog("(Status: Passive)", congo.ColorGreen)
+				if target, ok := icon.(IHost); ok && target.GetHost() == persona.GetHost() {
+					if target == persona.GetHost() {
+						canSee[choosen] = "IC List Revealed"
+						printLog("...Data revealed: ", congo.ColorGreen)
+						icLIST := target.GetICState()
+						for j := range icLIST.icName {
+							congo.WindowsMap.ByTitle["Log"].WPrint("..."+target.GetName()+": "+icLIST.icName[j]+" Detected ", congo.ColorGreen)
+							if icLIST.icStatus[j] {
+								printLog("(Status: Active)", congo.ColorYellow)
+							} else {
+								printLog("(Status: Passive)", congo.ColorGreen)
+							}
 						}
 					}
 				}
@@ -3673,24 +3674,44 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 				}
 			case 7:
 				if target, ok := icon.(IIcon); ok {
+					if host, ok := target.(IHost); ok {
+						if persona.GetHost() != host {
+							continue
+						}
+					}
 					canSee[choosen] = strconv.Itoa(target.GetAttack())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Attack = "+strconv.Itoa(target.GetAttack()), congo.ColorGreen)
 				}
 			case 8:
 				if target, ok := icon.(IIcon); ok {
+					if host, ok := target.(IHost); ok {
+						if persona.GetHost() != host {
+							continue
+						}
+					}
 					canSee[choosen] = strconv.Itoa(target.GetSleaze())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Sleaze = "+strconv.Itoa(target.GetSleaze()), congo.ColorGreen)
 				}
 			case 9:
 				if target, ok := icon.(IIcon); ok {
+					if host, ok := target.(IHost); ok {
+						if persona.GetHost() != host {
+							continue
+						}
+					}
 					canSee[choosen] = strconv.Itoa(target.GetDataProcessing())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Data Processing = "+strconv.Itoa(target.GetDataProcessing()), congo.ColorGreen)
 				}
 			case 10:
 				if target, ok := icon.(IIcon); ok {
+					if host, ok := target.(IHost); ok {
+						if persona.GetHost() != host {
+							continue
+						}
+					}
 					canSee[choosen] = strconv.Itoa(target.GetFirewall())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Firewall = "+strconv.Itoa(target.GetFirewall()), congo.ColorGreen)
@@ -3731,7 +3752,7 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 			if len(mem) > i+1 {
 				mem = append(mem[:i], mem[i+1:]...)
 			}
-			needToReveal--
+			//needToReveal--
 			persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
 		}
 	}

@@ -219,7 +219,10 @@ func checkTurn() bool {
 			//	resetCombatRooster()
 			buildInitiativePassOrder()
 			STime = forwardShadowrunTime()
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
+			if player.GetName() != "Unknown" {
+				congo.WindowsMap.ByTitle["Log"].WPrintLn("SYSTEM TIME: "+STime, congo.ColorDefault)
+			}
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
 			return true
 		}
 
@@ -260,7 +263,7 @@ func checkTurn() bool {
 			//icon = pickObjByID(CombatRooster.iconID[i]).(IIcon)
 			//break
 		}
-		panic(1) //не заходит
+		//panic(1) //не заходит
 	}
 	if icon == nil {
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("CR is empty/all true = end pass", congo.ColorDefault)
@@ -300,6 +303,7 @@ func checkTurn() bool {
 }
 
 func itIsEndPass() bool {
+
 	//printLog("End Pass?", congo.ColorYellow)
 	end := true
 	for i := range CombatRooster.iconActed {

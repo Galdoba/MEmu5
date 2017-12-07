@@ -22,15 +22,14 @@ type ICList struct {
 //THost -
 type THost struct {
 	TGrid
-	attack         int
-	sleaze         int
-	dataProcessing int
-	firewall       int
-	id             int
-	matrixCM       int
-	markSet        MarkSet
-	grid           *TGrid
-	//icOrder        []string
+	attack             int
+	sleaze             int
+	dataProcessing     int
+	firewall           int
+	id                 int
+	matrixCM           int
+	markSet            MarkSet
+	grid               *TGrid
 	icState            ICList
 	alert              string
 	owner              IIcon
@@ -44,10 +43,8 @@ type IHost interface {
 	IGridOnly
 	IIconOnly
 	LoadNextIC() bool
-	//SetID()
 	GetHostAlertStatus() string
 	GatherMarks()
-	//GiveMarks()
 	SetAlert(string)
 	DeleteIC(IIC) bool
 	DeleteFile(IFile) bool
@@ -403,12 +400,12 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 				h.dataProcessing = h.grid.deviceRating
 			}
 		}*/
-		h.grid = player.grid
-		h.deviceRating = player.grid.deviceRating
-		h.attack = player.grid.deviceRating
-		h.sleaze = player.grid.deviceRating
-		h.dataProcessing = player.grid.deviceRating
-		h.firewall = player.grid.deviceRating
+		h.grid = player.GetGrid()
+		h.deviceRating = player.GetGrid().deviceRating
+		h.attack = player.GetGrid().deviceRating
+		h.sleaze = player.GetGrid().deviceRating
+		h.dataProcessing = player.GetGrid().deviceRating
+		h.firewall = player.GetGrid().deviceRating
 		return &h
 	}
 	h := THost{}
@@ -448,7 +445,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	h.alert = "No Alert"
 	h.FillHostWithFiles()
 
-	data := player.canSee.KnownData[h.id]
+	data := player.GetFieldOfView().KnownData[h.id]
 	data[0] = "Spotted"
 	data[4] = "Unknown"
 	data[5] = "Unknown"
@@ -459,7 +456,7 @@ func (g *TGrid) NewHost(name string, rating int) *THost {
 	data[11] = "Unknown"
 	data[13] = "Unknown"
 	data[18] = "Unknown"
-	player.canSee.KnownData[h.id] = data
+	player.GetFieldOfView().KnownData[h.id] = data
 
 	allIC := make([]string, 0, 30)
 	allIC = append(allIC, "Acid IC")
@@ -753,5 +750,5 @@ func applyGrid(name string) *TGrid {
 			}
 		}
 	}
-	return player.grid
+	return player.GetGrid()
 }

@@ -18,11 +18,11 @@ func refreshPersonaWin() {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("User Name: "+player.GetName(), congo.ColorGreen)
 	}
 	if player.GetName() != "Unknown" {
-		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Device type: "+player.device.deviceType, congo.ColorGreen)
-		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Device model: "+player.device.model, congo.ColorGreen)
-		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona User Mode: "+player.simSence, congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Device type: "+player.GetDevice().deviceType, congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Device model: "+player.GetDevice().model, congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona User Mode: "+player.GetSimSence(), congo.ColorGreen)
 	}
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Grid: "+player.grid.GetGridName(), congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Grid: "+player.GetGrid().GetGridName(), congo.ColorGreen)
 	if checkLinkLock(player) == true {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("WARNING: LINK-LOCK DETECTED!", congo.ColorRed)
 	}
@@ -37,18 +37,19 @@ func refreshPersonaWin() {
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Running Programs: ", congo.ColorGreen)
 	var rPrgLst []string
 	loadedPrgsQty := 0
-	for j := range player.GetDeviceSoft().programStatus {
+	for j := range player.GetDevice().GetSoftwareList().programStatus {
+		//for j := range player.GetDeviceSoft().programStatus {
 		//congo.WindowsMap.ByTitle["Persona"].WPrintLn("Program: "+player.GetDeviceSoft().programName[j]+" | Status: "+player.GetDeviceSoft().programStatus[j], congo.ColorGreen)
-		if player.GetDeviceSoft().programStatus[j] == "Running" {
+		if player.GetDevice().GetSoftwareList().programStatus[j] == "Running" {
 			rPrgLst = append(rPrgLst, player.GetDeviceSoft().programName[j])
 			loadedPrgsQty++
 		}
 	}
-	if loadedPrgsQty > player.GetMaxRunningPrograms() {
+	if loadedPrgsQty > player.GetDevice().GetMaxRunningPrograms() {
 		player.CrashRandomProgram()
 	}
-	for i := 0; i < player.GetMaxRunningPrograms(); i++ {
-		if len(rPrgLst) < player.GetMaxRunningPrograms() {
+	for i := 0; i < player.GetDevice().GetMaxRunningPrograms(); i++ {
+		if len(rPrgLst) < player.GetDevice().GetMaxRunningPrograms() {
 			rPrgLst = append(rPrgLst, "--EMPTY--")
 		}
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slot "+strconv.Itoa(i+1)+": "+rPrgLst[i], congo.ColorGreen)
@@ -159,13 +160,13 @@ func refreshPersonaWin() {
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Confirmed Marks on Persona: "+strconv.Itoa(totalMarks), congo.ColorYellow)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Matrix Search in: "+strconv.Itoa(player.GetSearchResultIn()), congo.ColorYellow)
 	for i := range player.GetSearchProcess().SearchIconName {
-		name := player.searchProcessStatus.SearchIconName[i]
-		objType := player.searchProcessStatus.SearchIconType[i]
-		timeTotal := player.searchProcessStatus.SearchTime[i]
+		name := player.GetSearchProcess().SearchIconName[i]
+		objType := player.GetSearchProcess().SearchIconType[i]
+		timeTotal := player.GetSearchProcess().SearchTime[i]
 		if timeTotal == 0 {
 			//player.UpdateSearchProcess()
 		}
-		timeSpent := player.searchProcessStatus.SpentTurns[i]
+		timeSpent := player.GetSearchProcess().SpentTurns[i]
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Search: "+objType+" "+name, congo.ColorGreen)
 		currentPer := 0
 		//turnsPart := 0
@@ -177,9 +178,9 @@ func refreshPersonaWin() {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Progress: "+strconv.Itoa(currentPer)+"%", congo.ColorGreen)
 	}
 	for i := range player.GetDownloadProcess().DownloadIconName {
-		name := player.downloadProcessStatus.DownloadIconName[i]
-		downloaded := player.downloadProcessStatus.DownloadedData[i]
-		size := player.downloadProcessStatus.FileSize[i]
+		name := player.GetDownloadProcess().DownloadIconName[i]
+		downloaded := player.GetDownloadProcess().DownloadedData[i]
+		size := player.GetDownloadProcess().FileSize[i]
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Downloading file: "+name, congo.ColorGreen)
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Progress: "+strconv.Itoa(downloaded)+" of "+strconv.Itoa(size)+" Mp", congo.ColorGreen)
 	}
@@ -197,19 +198,19 @@ func refreshGridWin() {
 	}
 	windowList[2].(*congo.TWindow).WClear()
 	congo.WindowsMap.ByTitle["Grid"].WPrintLn("Grid:", congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Grid"].WPrintLn(player.grid.GetGridName(), congo.ColorGreen)
+	congo.WindowsMap.ByTitle["Grid"].WPrintLn(player.GetGrid().GetGridName(), congo.ColorGreen)
 	if player.CheckRunningProgram("Baby Monitor") {
 		warningColor := congo.ColorGreen
-		if player.grid.GetOverwatchScore() < 20 {
+		if player.GetGrid().GetOverwatchScore() < 20 {
 			warningColor = congo.ColorGreen
-		} else if player.grid.GetOverwatchScore() < 31 {
+		} else if player.GetGrid().GetOverwatchScore() < 31 {
 			warningColor = congo.ColorYellow
 		} else {
 			warningColor = congo.ColorRed
 		}
-		congo.WindowsMap.ByTitle["Grid"].WPrintLn("Overwatch Score: "+strconv.Itoa(player.grid.GetOverwatchScore()), warningColor)
+		congo.WindowsMap.ByTitle["Grid"].WPrintLn("Overwatch Score: "+strconv.Itoa(player.GetGrid().GetOverwatchScore()), warningColor)
 	} else {
-		congo.WindowsMap.ByTitle["Grid"].WPrintLn("Overwatch Score: "+strconv.Itoa(player.grid.GetLastSureOS())+" or more", congo.ColorYellow)
+		congo.WindowsMap.ByTitle["Grid"].WPrintLn("Overwatch Score: "+strconv.Itoa(player.GetGrid().GetLastSureOS())+" or more", congo.ColorYellow)
 	}
 
 	congo.WindowsMap.ByTitle["Grid"].WPrintLn("Host:", congo.ColorGreen)
@@ -286,10 +287,10 @@ func refreshEnviromentWin() {
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Combat Turn №: "+strconv.Itoa(CombatTurn), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Initiative Pass №: "+strconv.Itoa(InitiativePass), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(STime, congo.ColorDefault)
-	drawLineInWindow("Enviroment")
-	for i := range CombatRooster.iconID{
-		congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("id: "+strconv.Itoa(CombatRooster.iconID[i]) + "///" + strconv.FormatBool(CombatRooster.iconActed[i]) + "///" + strconv.Itoa(CombatRooster.iconInit[i]), congo.ColorDefault)
-	}
+	//drawLineInWindow("Enviroment")
+	//for i := range CombatRooster.iconID {
+	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("id: "+strconv.Itoa(CombatRooster.iconID[i])+"///"+strconv.FormatBool(CombatRooster.iconActed[i])+"///"+strconv.Itoa(CombatRooster.iconInit[i]), congo.ColorDefault)
+	//}
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(generateShadowrunTime(), congo.ColorDefault)
 	//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("------------------------------", congo.ColorDefault)
 	keysForHost := getSortedKeysByType("Host")
@@ -304,7 +305,7 @@ func refreshEnviromentWin() {
 		//marks := host.GetMarkSet()
 		playerMarks := host.GetMarkSet().MarksFrom[player.GetID()]
 		checkFoW = sampleCode
-		whatCanSee := player.canSee.KnownData[host.GetID()]
+		whatCanSee := player.GetFieldOfView().KnownData[host.GetID()]
 		if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
 			congo.WindowsMap.ByTitle["Enviroment"].WPrint("Icon: "+host.GetName(), congo.ColorGreen)
 			for i := 0; i < playerMarks; i++ {
@@ -317,7 +318,7 @@ func refreshEnviromentWin() {
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: "+whatCanSee[5], congo.ColorGreen)
 		}
 		if whatCanSee[5] != "Unknown" {
-			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: "+strconv.Itoa(host.GetDeviceRating()), congo.ColorRed)
+			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: "+strconv.Itoa(host.GetDeviceRating()), congo.ColorGreen)
 		} else {
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: Unknown", congo.ColorYellow)
 		}
@@ -408,8 +409,8 @@ func refreshEnviromentWin() {
 		sampleCode[1] = "Unknown" //[1]
 		var checkFoW [30]string
 		checkFoW = sampleCode
-		whatCanSee := player.canSee.KnownData[ic.GetID()]
-		whatKnowAboutHost := player.canSee.KnownData[ic.GetHost().GetID()]
+		whatCanSee := player.GetFieldOfView().KnownData[ic.GetID()]
+		whatKnowAboutHost := player.GetFieldOfView().KnownData[ic.GetHost().GetID()]
 		playerMarks := ic.GetMarkSet().MarksFrom[player.GetID()]
 		if ic.GetHost().name == player.GetHost().name && whatCanSee[0] == "Spotted" {
 			drawLine = true
@@ -510,7 +511,7 @@ func refreshEnviromentWin() {
 		sampleCode[1] = "Unknown" //[1]
 		var checkFoW [30]string
 		checkFoW = sampleCode
-		whatCanSee := player.canSee.KnownData[file.GetID()]
+		whatCanSee := player.GetFieldOfView().KnownData[file.GetID()]
 		playerMarks := file.GetMarkSet().MarksFrom[player.GetID()]
 		if file.GetHost() == player.GetHost() {
 			drawLine = true

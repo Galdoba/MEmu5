@@ -151,11 +151,25 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Fairlight Excalibur"].matrixCM = 11
 	DB.DeviceDB["Fairlight Excalibur"].canSwapAtt = true
 	DB.DeviceDB["Fairlight Excalibur"].software = preaparePrograms()
-	
+
 	//////////////
 	DB.DeviceDB["noDevice"] = &TDevice{}
 	DB.DeviceDB["noDevice"].deviceType = "noDevice"
 	DB.DeviceDB["noDevice"].software = preaparePrograms()
+
+	/////////////
+	DB.DeviceDB["Living Persona"] = &TDevice{}
+	DB.DeviceDB["Living Persona"].deviceType = "Living Persona"
+	DB.DeviceDB["Living Persona"].model = "Living Persona"
+	DB.DeviceDB["Living Persona"].deviceRating = 1
+	DB.DeviceDB["Living Persona"].attack = 1
+	DB.DeviceDB["Living Persona"].sleaze = 1
+	DB.DeviceDB["Living Persona"].dataProcessing = 1
+	DB.DeviceDB["Living Persona"].firewall = 1
+	DB.DeviceDB["Living Persona"].maxMatrixCM = 8
+	DB.DeviceDB["Living Persona"].matrixCM = 8
+	DB.DeviceDB["Living Persona"].canSwapAtt = false
+	DB.DeviceDB["Living Persona"].software = preaparePrograms()
 
 	/*	DB.DeviceDB["noDevice"].software.programName = append(DB.DeviceDB["noDevice"].software.programName, "Browse")
 		DB.DeviceDB["noDevice"].software.programStatus = append(DB.DeviceDB["noDevice"].software.programStatus, "inStore")

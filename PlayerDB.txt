@@ -111,3 +111,63 @@ SoftwareSpec: NONE
 
 #########################
 
+Alias: Technomancer
+Device: Living Persona
+
+////Attributes:
+
+BODY: 3
+
+AGILITY: 3 - not used now. Might be needed for Foundation.
+
+REACTION: 3
+
+STRENGTH: 3 - not used now. Might be needed for Foundation.
+
+WILLPOWER: 5
+
+LOGIC: 5
+
+INTUITION: 6
+
+CHARISMA: 4
+
+EDGE: 3
+
+RESONANCE: 5
+
+DEPTH: 0 - not used now.
+
+////Skills:
+
+Computer: 6
+
+ComputerSpec: NONE
+
+Cybercombat: 6
+
+CybercombatSpec: NONE
+
+Electronic Warfare: 6
+
+Electronic WarfareSpec: NONE
+
+Hacking: 7
+
+HackingSpec: vs.Host
+
+Hardware: 6
+HardwareSpec: NONE
+
+Software: 6
+SoftwareSpec: NONE
+
+////Qualities:
+(NOT IMPLEMENTED)
+
+////SIN:
+(NOT IMPLEMENTED)
+
+
+#########################
+

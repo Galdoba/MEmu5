@@ -167,7 +167,7 @@ func ImportHostFromDB(hostName string) *THost {
 	//	h.dataProcessing = dtp
 	//	h.firewall = frw
 
-	data := player.canSee.KnownData[h.id]
+	data := player.GetFieldOfView().KnownData[h.id]
 	data[0] = "Spotted"
 	data[4] = "Unknown"
 	data[5] = "Unknown"
@@ -177,7 +177,7 @@ func ImportHostFromDB(hostName string) *THost {
 	data[10] = "Unknown"
 	data[11] = "Unknown"
 	data[13] = "Unknown"
-	player.canSee.KnownData[h.id] = data
+	player.GetFieldOfView().KnownData[h.id] = data
 	h.FillHostWithFiles()
 	h.LoadNextIC()
 	//printLog("Importing host: "+h.GetName(), congo.ColorDefault)
@@ -187,7 +187,7 @@ func ImportHostFromDB(hostName string) *THost {
 }
 
 //ImportPlayerFromDB -
-func ImportPlayerFromDB(alias string) (*TPersona, bool) {
+func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	if !fileDBExists("PlayerDB.txt") {
 		//panic("'PlayerDB.txt' is not exists. Please create file in the same directory as 'MEmu.exe'")
 		os.Create("PlayerDB.txt")
@@ -225,6 +225,21 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 	lines := strings.Split(playerToImport, "\r\n")
 
 	for i := range lines {
+		//Import Device
+		switch strings.Contains(lines[i], "Device: ") {
+		case true:
+			deviceNameS := strings.Split(lines[i], "Device: ")
+			devName := deviceNameS[1]
+			if devName == "Living Persona" {
+				printLog("Create TEchnomancer", congo.ColorDefault)
+			} else {
+				printLog("Create Decker", congo.ColorDefault)
+			}
+		default:
+		}
+	}
+
+	for i := range lines {
 		//Import Name
 		switch strings.Contains(lines[i], "Alias: ") {
 		case true:
@@ -241,7 +256,7 @@ func ImportPlayerFromDB(alias string) (*TPersona, bool) {
 			devName := deviceNameS[1]
 			devName = strings.Trim(devName, SPACES)
 			p.device = addDevice(devName)
-			p.maxMatrixCM = p.device.GetMatrixCM()
+			p.maxMatrixCM = p.GetDevice().GetMatrixCM()
 		default:
 		}
 		//Import Computer Skill

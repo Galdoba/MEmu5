@@ -841,7 +841,8 @@ func (h *THost) NewIC(name string) *TIC {
 	i.matrixCM = i.deviceRating/2 + 8
 	setSeed()
 	i.initiative = i.deviceRating + i.dataProcessing + xd6Test(4)
-	data := player.canSee.KnownData[i.id]
+	data := player.GetFieldOfView().KnownData[i.id]
+	//
 	data[0] = "Spotted"
 	data[2] = "Unknown"
 	data[5] = "Unknown"
@@ -852,7 +853,7 @@ func (h *THost) NewIC(name string) *TIC {
 	data[11] = "Unknown"
 	data[13] = "Unknown"
 	data[18] = "Unknown"
-	player.canSee.KnownData[i.id] = data
+	player.GetFieldOfView().KnownData[i.id] = data
 	if i.name == "Patrol IC" {
 		i.actionReady = calculatePartolScan(i.deviceRating)
 	} else {
@@ -1450,6 +1451,10 @@ type IPersonaOnly interface {
 	GetWillpower() int
 	GetLogic() int
 	GetIntuition() int
+	GetEdge() int
+	GetMaxEdge() int
+	SetEdge(int)
+	//SetMaxEdge(int)
 	SetMatrixCM(int)
 	GetAlias() string
 	GetStunCM() int
@@ -1480,12 +1485,15 @@ type IPersonaOnly interface {
 	GetWaitFlag() bool
 	SetWaitFlag(bool)
 	HaveValidSpec([]string) (bool, string)
+	GetDeviceSoft() *TProgram
+	CrashRandomProgram() bool
+	isOnline() bool
 }
 
 var _ IPersona = (*TPersona)(nil)
 
-//NewPlayer -
-func NewPlayer(alias string, d string) *TPersona {
+//NewPersona -
+func NewPersona(alias string, d string) IPersona {
 	p := TPersona{}
 	p.isPlayer = true
 	p.name = alias
@@ -2545,7 +2553,7 @@ func (p *TPersona) UpdateSearchProcess() {
 					if HostExist(hostName) {
 						ImportHostFromDB(hostName)
 					} else {
-						player.grid.NewHost(hostName, 0) // -DEBUG: тут можно указать какой хост создавать (1-12: рейтинг/0: рандом)
+						player.GetGrid().NewHost(hostName, 0) // -DEBUG: тут можно указать какой хост создавать (1-12: рейтинг/0: рандом)
 					}
 				case "File":
 					if host != Matrix {
@@ -2643,7 +2651,7 @@ var _ IFile = (*TFile)(nil)
 //NewFile -
 func (h *THost) NewFile(name string) *TFile {
 	f := TFile{}
-	data := player.canSee.KnownData[f.id]
+	data := player.GetFieldOfView().KnownData[f.id]
 	data[0] = "Unknown"
 	data[1] = "Unknown"
 	data[3] = "Unknown"
@@ -2656,7 +2664,7 @@ func (h *THost) NewFile(name string) *TFile {
 	hRatMod := 1
 	congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
 	if f.host == Matrix {
-		f.grid = player.grid
+		f.grid = player.GetGrid()
 		//f.host = Matrix
 		f.device = addDevice("noDevice")
 		f.silentMode = false
@@ -2715,7 +2723,7 @@ func (h *THost) NewFile(name string) *TFile {
 		data[0] = "Spotted"
 		f.name = generateFileName()
 	}*/
-	player.canSee.KnownData[f.id] = data
+	player.GetFieldOfView().KnownData[f.id] = data
 	//f.grid = "ARES GRID"
 	//f.name = f.GetType() + " " + strconv.Itoa(id)
 	ObjByNames[f.name] = &f
