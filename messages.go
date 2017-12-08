@@ -62,6 +62,11 @@ func refreshPersonaWin() {
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slz  : "+strconv.Itoa(player.GetSleaze()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" DtPr : "+strconv.Itoa(player.GetDataProcessing()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Fwll : "+strconv.Itoa(player.GetFirewall()), congo.ColorGreen)
+	if pl, ok := player.(ITechnom); ok {
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" RESONANCE : "+strconv.Itoa(pl.GetResonance()), congo.ColorYellow)
+	} else {
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" DevRating : "+strconv.Itoa(player.GetDeviceRating()), congo.ColorYellow)
+	}
 	for i := 0; i < congo.WindowsMap.ByTitle["Persona"].GetPrintableWidth(); i++ {
 		congo.WindowsMap.ByTitle["Persona"].WPrint("-", congo.ColorDefault)
 	}
@@ -135,6 +140,7 @@ func refreshPersonaWin() {
 
 	if player.GetInitiative() > 9000 {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona Initiative: null", congo.ColorRed)
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona Initiative: "+strconv.Itoa(player.GetInitiative()), congo.ColorGreen)
 	} else {
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona Initiative: "+strconv.Itoa(player.GetInitiative()), congo.ColorGreen)
 	}
@@ -151,9 +157,9 @@ func refreshPersonaWin() {
 	drawLineInWindow("Persona")
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Total Objects: "+strconv.Itoa(len(ObjByNames)), congo.ColorYellow)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--waitFlag: "+strconv.FormatBool(player.GetWaitFlag()), congo.ColorYellow)
-	//for i := range player.specialization {
-	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(player.specialization[i], congo.ColorYellow)
-	//}
+	/*for i := range player.GetSpecializationList() {
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn(player.GetSpecializationList()[i], congo.ColorYellow)
+	}*/
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("--DEBUG--Free/Simple Actions: "+strconv.Itoa(player.GetFreeActionsCount())+"/"+strconv.Itoa(player.GetSimpleActionsCount()), congo.ColorGreen)
 
 	totalMarks := player.CountMarks()

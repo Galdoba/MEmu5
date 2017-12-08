@@ -61,6 +61,7 @@ type IObj interface {
 	GetType() string
 	GetFaction() string
 	GetName() string
+
 	GetMarkSet() MarkSet
 	GetFieldOfView() FieldOfView
 	GetLinkLockStatus() Locked
@@ -70,6 +71,12 @@ type IObj interface {
 	ClearMarks()
 	GetDeviceRating() int
 	SetDeviceRating(int)
+	GetPing() string
+}
+
+//GetPing -
+func (o *TObj) GetPing() string {
+	return "Ping"
 }
 
 //SetID -
@@ -301,6 +308,12 @@ type IIconOnly interface {
 	SpendSimpleAction()
 	SpendComplexAction()
 	ResetActionsCount()
+	SetName(string)
+}
+
+//SetName -
+func (i *TIcon) SetName(name string) {
+	i.name = name
 }
 
 //SpendFreeAction -
@@ -1410,7 +1423,9 @@ type TPersona struct {
 	cybercombatSkill      int
 	initiative            int
 	body                  int
+	agility               int
 	reaction              int
+	strenght              int
 	logic                 int
 	intuition             int
 	willpower             int
@@ -1447,14 +1462,24 @@ type IPersonaOnly interface {
 	GetComputerSkill() int
 	GetElectronicSkill() int
 	GetSoftwareSkill() int
+	SetAttribute(string, int)
+	GetAttribute(string) int
 	GetBody() int
 	GetWillpower() int
 	GetLogic() int
 	GetIntuition() int
 	GetEdge() int
 	GetMaxEdge() int
+	SetBody(int)
+	//SetAgility(int)
+	SetReaction(int)
+	//SetBody(int)
+	//SetWillpower(int)
+	//SetLogic(int)
+	//SetIntuition(int)
+	//SetCharisma(int)
 	SetEdge(int)
-	//SetMaxEdge(int)
+	SetMaxEdge(int)
 	SetMatrixCM(int)
 	GetAlias() string
 	GetStunCM() int
@@ -1488,6 +1513,17 @@ type IPersonaOnly interface {
 	GetDeviceSoft() *TProgram
 	CrashRandomProgram() bool
 	isOnline() bool
+	SetDeviceFirewallMod(int)
+	SetSkill(string, int)
+	AddSpecialization(string, string)
+	GetSpecializationList() []string
+	GetAttackMod() int
+	GetSleazeMod() int
+	GetDataProcessingMod() int
+	GetFirewallMod() int
+	SetDeviceAttackMod(int)
+	SetDeviceSleazeMod(int)
+	SetDeviceDataProcessingMod(int)
 }
 
 var _ IPersona = (*TPersona)(nil)
@@ -1541,9 +1577,92 @@ func NewPersona(alias string, d string) IPersona {
 	return &p
 }
 
+//GetAttribute -
+func (p *TPersona) GetAttribute(name string) int {
+	switch name {
+	default:
+	case "B":
+		return p.body
+	case "A":
+		return p.agility
+	case "R":
+		return p.reaction
+	case "S":
+		return p.strenght
+	case "W":
+		return p.willpower
+	case "L":
+		return p.logic
+	case "I":
+		return p.intuition
+	case "C":
+		return p.charisma
+	case "E":
+		return p.edge
+	}
+	return 0
+}
+
+//SetAttribute -
+func (p *TPersona) SetAttribute(name string, rating int) {
+	switch name {
+	default:
+	case "B":
+		p.body = rating
+	case "A":
+		p.agility = rating
+	case "R":
+		p.reaction = rating
+	case "S":
+		p.strenght = rating
+	case "W":
+		p.willpower = rating
+	case "L":
+		p.logic = rating
+	case "I":
+		p.intuition = rating
+	case "C":
+		p.charisma = rating
+	case "E":
+		p.edge = rating
+	}
+}
+
+//SetSkill -
+func (p *TPersona) SetSkill(name string, rating int) {
+	if rating == 0 {
+		rating = -1
+	}
+	switch name {
+	default:
+	case "Cybercombat":
+		p.cybercombatSkill = rating
+	case "Electronic":
+		p.electronicSkill = rating
+	case "Hacking":
+		p.hackingSkill = rating
+	case "Computer":
+		p.computerSkill = rating
+	case "Hardware":
+		p.hardwareSkill = rating
+	case "Software":
+		p.softwareSkill = rating
+	}
+}
+
+//SetName -
+func (p *TPersona) SetName(name string) {
+	p.name = name
+}
+
 //GetSpecializationList -
 func (p *TPersona) GetSpecializationList() []string {
 	return p.specialization
+}
+
+//AddSpecialization -
+func (p *TPersona) AddSpecialization(skill string, spec string) {
+	p.specialization = append(p.specialization, skill+"_"+spec)
 }
 
 //HaveValidSpec -
@@ -1672,9 +1791,19 @@ func (p *TPersona) GetBody() int {
 	return p.body
 }
 
+//SetBody -
+func (p *TPersona) SetBody(newRating int) {
+	p.body = newRating
+}
+
 //GetReaction -
 func (p *TPersona) GetReaction() int {
 	return p.reaction
+}
+
+//SetReaction -
+func (p *TPersona) SetReaction(newRating int) {
+	p.reaction = newRating
 }
 
 //GetWillpower -
@@ -1710,6 +1839,11 @@ func (p *TPersona) GetMaxEdge() int {
 //SetEdge -
 func (p *TPersona) SetEdge(newEdge int) {
 	p.edge = newEdge
+}
+
+//SetMaxEdge -
+func (p *TPersona) SetMaxEdge(newEdge int) {
+	p.maxEdge = newEdge
 }
 
 //GetDeviceRating -
@@ -1893,6 +2027,23 @@ func (p *TPersona) GetStunCM() int {
 func (p *TPersona) SetStunCM(cmValue int) {
 	p.stunCM = cmValue
 }
+
+/*//ReceiveStunDamage -
+func (p *TPersona) ReceiveStunDamage(cmValue int) {
+	sDamage := p.stunCM - cmValue
+	if p.GetFaction() == player.GetFaction() {
+		printLog(strconv.Itoa(sDamage)+" Stun Damage inflicted to "+p.name, congo.ColorYellow)
+	}
+	if cmValue < 0 {
+		pDamage := cmValue / 2
+		printLog(strconv.Itoa(sDamage), congo.ColorDefault)
+		p.SetPhysCM(p.GetPhysCM() + pDamage)
+		if p.GetFaction() == player.GetFaction() {
+			printLog(strconv.Itoa(sDamage)+" Physical Damage converted from Stun Damage", congo.ColorRed)
+		}
+	}
+	p.stunCM = cmValue
+}*/
 
 //GetPhysCM -
 func (p *TPersona) GetPhysCM() int {
@@ -2266,6 +2417,7 @@ func (p *TPersona) ReceiveBiofeedbackDamage(damage int) {
 		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Physical damage", congo.ColorYellow)
 	} else if p.GetSimSence() == "COLD-SIM" {
 		p.SetStunCM(p.GetStunCM() - damage)
+		//p.ReceiveStunDamage(damage)
 		printLog(p.GetName()+" takes "+strconv.Itoa(damage)+" Stun damage", congo.ColorYellow)
 	} else if p.GetSimSence() == "AR" {
 		printLog("Biofeedback code detected", congo.ColorYellow)
@@ -2632,7 +2784,7 @@ type IFile interface {
 //IFileOnly -
 type IFileOnly interface {
 	SetOwner(IIcon)
-	SetName(string)
+	//SetName(string)
 	SetFileName(string)
 	GetFileName() string
 	GetEncryptionRating() int

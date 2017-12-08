@@ -318,12 +318,13 @@ func main() {
 	windowList = append(windowList, w4)
 	windowList = append(windowList, w5)
 	windowList = append(windowList, w6)
-	w1.SetAutoScroll(true)
+	w1.SetAutoScroll(true) //
 
 	createDefaultGrids()
 	//congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
 
 	player = NewPersona("Unknown", "<UNREGISTRATED>")
+	//player.SetName("sdfjkh")
 	//player, _ = ImportPlayerFromDB("Unknown") //.(*TPersona)
 	Matrix = player.GetGrid().NewHost("Matrix", 0)
 	ObjByNames[player.GetName()] = player

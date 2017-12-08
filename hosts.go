@@ -54,6 +54,11 @@ type IHost interface {
 
 var _ IHost = (*THost)(nil)
 
+//SetName -
+func (h *THost) SetName(name string) {
+	h.name = name
+}
+
 //RollInitiative -
 func (h *THost) RollInitiative() {
 	h.SetInitiative(h.GetDataProcessing() + h.GetIntuition() + xd6Test(4))

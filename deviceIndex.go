@@ -161,13 +161,13 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Living Persona"] = &TDevice{}
 	DB.DeviceDB["Living Persona"].deviceType = "Living Persona"
 	DB.DeviceDB["Living Persona"].model = "Living Persona"
-	DB.DeviceDB["Living Persona"].deviceRating = 1
-	DB.DeviceDB["Living Persona"].attack = 1
-	DB.DeviceDB["Living Persona"].sleaze = 1
-	DB.DeviceDB["Living Persona"].dataProcessing = 1
-	DB.DeviceDB["Living Persona"].firewall = 1
-	DB.DeviceDB["Living Persona"].maxMatrixCM = 8
-	DB.DeviceDB["Living Persona"].matrixCM = 8
+	DB.DeviceDB["Living Persona"].deviceRating = 0
+	DB.DeviceDB["Living Persona"].attack = 0
+	DB.DeviceDB["Living Persona"].sleaze = 0
+	DB.DeviceDB["Living Persona"].dataProcessing = 0
+	DB.DeviceDB["Living Persona"].firewall = 0
+	DB.DeviceDB["Living Persona"].maxMatrixCM = 0
+	DB.DeviceDB["Living Persona"].matrixCM = 0
 	DB.DeviceDB["Living Persona"].canSwapAtt = false
 	DB.DeviceDB["Living Persona"].software = preaparePrograms()
 

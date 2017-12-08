@@ -251,7 +251,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 			printLog("......Warning: Error critical!", congo.ColorRed)
 		}
 		printLog("......Interrupt protocol ready", congo.ColorGreen)
-		for i := 20; i > 0; i-- {
+		for i := 40; i > 0; i-- {
 			congo.WindowsMap.ByTitle["Process"].WClear()
 			interruptProcess(i)
 			hold()

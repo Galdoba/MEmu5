@@ -204,7 +204,7 @@ func PatrolICActionTarget(src IObj, trg IObj) {
 //AcidICActionTarget -
 func AcidICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -220,7 +220,7 @@ func AcidICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -276,7 +276,7 @@ func AcidICActionTarget(src IObj, trg IObj) {
 //BinderICActionTarget -
 func BinderICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -292,7 +292,7 @@ func BinderICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetDataProcessing()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -349,7 +349,7 @@ func BinderICActionTarget(src IObj, trg IObj) {
 //JammerICActionTarget -
 func JammerICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -365,7 +365,7 @@ func JammerICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetAttack()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -423,7 +423,7 @@ func JammerICActionTarget(src IObj, trg IObj) {
 //MarkerICActionTarget -
 func MarkerICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -439,7 +439,7 @@ func MarkerICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetSleaze()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -497,7 +497,7 @@ func MarkerICActionTarget(src IObj, trg IObj) {
 //KillerICActionTarget -
 func KillerICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -514,7 +514,7 @@ func KillerICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -565,7 +565,7 @@ func KillerICActionTarget(src IObj, trg IObj) {
 //SparkyICActionTarget -
 func SparkyICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -582,7 +582,7 @@ func SparkyICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -648,7 +648,7 @@ func SparkyICActionTarget(src IObj, trg IObj) {
 //TarBabyICActionTarget -
 func TarBabyICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -665,7 +665,7 @@ func TarBabyICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetLogic() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -698,9 +698,9 @@ func TarBabyICActionTarget(src IObj, trg IObj) {
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...affected", congo.ColorRed)
 					}
 					if focusIcon.GetLinkLockStatus().LockedByID[src.(*TIC).GetID()] == true {
-						focusIcon.markSet.MarksFrom[src.(*TIC).GetID()] = focusIcon.markSet.MarksFrom[src.(*TIC).GetID()] + 1
-						if focusIcon.markSet.MarksFrom[src.(*TIC).GetID()] > 3 {
-							focusIcon.markSet.MarksFrom[src.(*TIC).GetID()] = 3
+						focusIcon.GetMarkSet().MarksFrom[src.(*TIC).GetID()] = focusIcon.GetMarkSet().MarksFrom[src.(*TIC).GetID()] + 1
+						if focusIcon.GetMarkSet().MarksFrom[src.(*TIC).GetID()] > 3 {
+							focusIcon.GetMarkSet().MarksFrom[src.(*TIC).GetID()] = 3
 						}
 					} else {
 						src.(*TIC).LockIcon(focusIcon)
@@ -720,9 +720,9 @@ func TarBabyICActionTarget(src IObj, trg IObj) {
 
 //BlackICActionTarget -
 func BlackICActionTarget(src IObj, trg IObj) {
-	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
-	host := src.(*TIC).GetHost()
+	src = SourceIcon.(IIC)
+	trg = TargetIcon.(IPersona)
+	host := src.(IIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
 	limit := host.GetAttack()
@@ -738,7 +738,7 @@ func BlackICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -807,7 +807,7 @@ func BlackICActionTarget(src IObj, trg IObj) {
 //BlasterICActionTarget -
 func BlasterICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -824,7 +824,7 @@ func BlasterICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -893,7 +893,7 @@ func BlasterICActionTarget(src IObj, trg IObj) {
 //ProbeICActionTarget -
 func ProbeICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -910,7 +910,7 @@ func ProbeICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -939,9 +939,9 @@ func ProbeICActionTarget(src IObj, trg IObj) {
 						hold()
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...affected", congo.ColorRed)
 					}
-					focusIcon.markSet.MarksFrom[host.GetID()] = focusIcon.markSet.MarksFrom[host.GetID()] + 1
-					if focusIcon.markSet.MarksFrom[host.GetID()] > 3 {
-						focusIcon.markSet.MarksFrom[host.GetID()] = 3
+					focusIcon.GetMarkSet().MarksFrom[host.GetID()] = focusIcon.GetMarkSet().MarksFrom[host.GetID()] + 1
+					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 3 {
+						focusIcon.GetMarkSet().MarksFrom[host.GetID()] = 3
 					}
 					congo.WindowsMap.ByTitle["Log"].WPrintLn("DEBUG -"+focusIcon.GetName()+" marked by "+host.GetName(), congo.ColorDefault)
 				} else {
@@ -959,7 +959,7 @@ func ProbeICActionTarget(src IObj, trg IObj) {
 //ScrambleICActionTarget -
 func ScrambleICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -976,7 +976,7 @@ func ScrambleICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -1005,10 +1005,10 @@ func ScrambleICActionTarget(src IObj, trg IObj) {
 						hold()
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...affected", congo.ColorRed)
 					}
-					if focusIcon.markSet.MarksFrom[host.GetID()] > 3 {
-						focusIcon.markSet.MarksFrom[host.GetID()] = 3
+					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 3 {
+						focusIcon.GetMarkSet().MarksFrom[host.GetID()] = 3
 					}
-					if focusIcon.markSet.MarksFrom[host.GetID()] > 2 {
+					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 2 {
 						focusIcon.Dumpshock()
 						focusIcon.SetInitiative(999999)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("Connection terminated", congo.ColorGreen)
@@ -1028,7 +1028,7 @@ func ScrambleICActionTarget(src IObj, trg IObj) {
 //CatapultICActionTarget -
 func CatapultICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -1044,7 +1044,7 @@ func CatapultICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				altDp := focusIcon.GetLogic() + focusIcon.GetFirewall()
@@ -1090,7 +1090,7 @@ func CatapultICActionTarget(src IObj, trg IObj) {
 					//////////BIOFEEDBACK DAMAGE//////////////
 					biofeedbackDamage := 0
 					if focusIcon.GetSimSence() == "HOT-SIM" || focusIcon.GetSimSence() == "COLD-SIM" {
-						biofeedbackDamage = netHits + focusIcon.markSet.MarksFrom[host.GetID()]
+						biofeedbackDamage = netHits + focusIcon.GetMarkSet().MarksFrom[host.GetID()]
 					} else {
 						biofeedbackDamage = 0
 					}
@@ -1118,7 +1118,7 @@ func CatapultICActionTarget(src IObj, trg IObj) {
 //ShokerICActionTarget -
 func ShokerICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -1134,7 +1134,7 @@ func ShokerICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -1183,7 +1183,7 @@ func ShokerICActionTarget(src IObj, trg IObj) {
 //TrackICActionTarget -
 func TrackICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -1200,7 +1200,7 @@ func TrackICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			//locks := focusIcon.GetLinkLockStatus()
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetSleaze()
@@ -1230,7 +1230,7 @@ func TrackICActionTarget(src IObj, trg IObj) {
 						hold()
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...affected", congo.ColorRed)
 					}
-					if focusIcon.markSet.MarksFrom[host.GetID()] > 1 {
+					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 1 {
 						focusIcon.SetPhysicalLocation(true)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							hold()
@@ -1270,7 +1270,7 @@ func BloodhoundICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetWillpower() + focusIcon.GetSleaze()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -1299,7 +1299,7 @@ func BloodhoundICActionTarget(src IObj, trg IObj) {
 						hold()
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...affected", congo.ColorRed)
 					}
-					if focusIcon.markSet.MarksFrom[host.GetID()] > 1 {
+					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 1 {
 						focusIcon.SetPhysicalLocation(true)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							hold()
@@ -1413,7 +1413,7 @@ func BloodhoundICActionArea(src IObj, trg IObj) {
 //CrashICActionTarget -
 func CrashICActionTarget(src IObj, trg IObj) {
 	src = SourceIcon.(*TIC)
-	trg = TargetIcon.(*TPersona)
+	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
 
 	dp1 := host.GetDeviceRating() * 2
@@ -1430,7 +1430,7 @@ func CrashICActionTarget(src IObj, trg IObj) {
 	/////////////////////////////////////////////////////////////////////////
 	if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 		isComplexAction()
-		if focusIcon, ok := trg.(*TPersona); ok {
+		if focusIcon, ok := trg.(IPersona); ok {
 			if focusIcon.GetHost().name == src.(*TIC).GetHost().name {
 				dp2 := focusIcon.GetIntuition() + focusIcon.GetFirewall()
 				suc2, dgl, dcgl := simpleTest(focusIcon.GetID(), dp2, 1000, 0)
@@ -1459,7 +1459,7 @@ func CrashICActionTarget(src IObj, trg IObj) {
 						hold()
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...affected", congo.ColorRed)
 					}
-					if focusIcon.markSet.MarksFrom[host.GetID()] > 0 {
+					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 0 {
 						focusIcon.CrashRandomProgram()
 					}
 				} else {
@@ -1636,10 +1636,9 @@ func doAction(mActionName string) bool {
 		if canIconCanDoAction(mActionName, SourceIcon.(IIcon)) {
 			val.(func(IObj, IObj))(SourceIcon, TargetIcon)
 			return true
-		} else {
-			printLog(SourceIcon.GetName()+" cant do: "+mActionName, congo.ColorDefault)
-			//checkTurn()
 		}
+		printLog(SourceIcon.GetName()+" cant do: "+mActionName, congo.ColorDefault)
+		//checkTurn()
 
 	}
 	draw()
@@ -2844,8 +2843,8 @@ func ScanEnviroment(src IObj, trg IObj) {
 	endAction()
 }
 
-//SwapAttributes - ++
-func SwapAttributes(src IObj, trg IObj) {
+//SwapAttributes -
+func SwapAttributes(src IObj, trg IObj) { //need to rewrite to use IPersona
 	src = SourceIcon
 	if persona, ok := src.(*TPersona); ok {
 		printLog("Initiate attributes swapping...", congo.ColorGreen)
@@ -3216,6 +3215,7 @@ func Wait(src IObj, trg IObj) {
 	} else {
 		//src.(IPersona).SetInitiative(0)
 	}
+	//printLog(persona.GetPing(), congo.ColorDefault)
 	persona.SpendComplexAction()
 	endAction()
 

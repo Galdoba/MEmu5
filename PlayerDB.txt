@@ -1,173 +1,114 @@
 
-Alias: Template
-Device: Sony CIY-720
+Alias: <CHARACTER NAME>
+Class: Decker / Technomancer
+Device: <Device model>
 ////Attributes:
-
 BODY: 1
-
 AGILITY: 1 - not used now. Might be needed for Foundation.
-
 REACTION: 1
-
 STRENGTH: 1 - not used now. Might be needed for Foundation.
-
 WILLPOWER: 1
-
 LOGIC: 1
-
 INTUITION: 1
-
 CHARISMA: 1
-
 EDGE: 1
-
-RESONANCE: 0 - not used now.
-
+RESONANCE: 1 - used ONLY by Technomancers
 DEPTH: 0 - not used now.
-
 ////Skills:
-
 Computer: 1
-
 Cybercombat: 1
-
 Electronic Warfare: 1
-
 Hacking: 1
-
 Hardware: 1
-
 Software: 1
-
+Compiling: 1 - used ONLY by Technomancers
+CompilingSpec: NONE
+Decompiling: 1
+DecompilingSpec: NONE
+Registering: 1
+RegisteringSpec: NONE
 ////Specialisations:
 (NOT IMPLEMENTED)
-
 ////Qualities:
 (NOT IMPLEMENTED)
-
 ////SIN:
 (NOT IMPLEMENTED)
-
 
 #########################
 
 Alias: Decker
+Class: Decker
 Device: Hermes Chariot
-
 ////Attributes:
-
 BODY: 3
-
 AGILITY: 2 - not used now. Might be needed for Foundation.
-
 REACTION: 3
-
 STRENGTH: 3 - not used now. Might be needed for Foundation.
-
 WILLPOWER: 5
-
 LOGIC: 6
-
 INTUITION: 4
-
 CHARISMA: 2
-
 EDGE: 2
-
-RESONANCE: 0 - not used now.
-
+RESONANCE: 0
 DEPTH: 0 - not used now.
-
 ////Skills:
-
 Computer: 6
-
-ComputerSpec: NONE
-
+ComputerSpec: Edit File, Spec2, Spec3
 Cybercombat: 6
-
 CybercombatSpec: NONE
-
 Electronic Warfare: 6
-
 Electronic WarfareSpec: NONE
-
 Hacking: 7
-
 HackingSpec: vs.Host
-
 Hardware: 6
 HardwareSpec: NONE
-
 Software: 6
 SoftwareSpec: NONE
-
 ////Qualities:
 (NOT IMPLEMENTED)
-
 ////SIN:
 (NOT IMPLEMENTED)
-
 
 #########################
 
 Alias: Technomancer
+Class: Technomancer
 Device: Living Persona
-
 ////Attributes:
-
 BODY: 3
-
 AGILITY: 3 - not used now. Might be needed for Foundation.
-
 REACTION: 3
-
 STRENGTH: 3 - not used now. Might be needed for Foundation.
-
 WILLPOWER: 5
-
 LOGIC: 5
-
 INTUITION: 6
-
 CHARISMA: 4
-
 EDGE: 3
-
 RESONANCE: 5
-
 DEPTH: 0 - not used now.
-
-////Skills:
-
-Computer: 6
-
-ComputerSpec: NONE
-
-Cybercombat: 6
-
+////Skills
+Computer: 4
+ComputerSpec: Edit File, Spec2, Spec3
+Cybercombat: 4
 CybercombatSpec: NONE
-
 Electronic Warfare: 6
-
 Electronic WarfareSpec: NONE
-
-Hacking: 7
-
+Hacking: 4
 HackingSpec: vs.Host
-
-Hardware: 6
+Hardware: 2
 HardwareSpec: NONE
-
-Software: 6
+Software: 4
 SoftwareSpec: NONE
-
+Compiling: 3
+CompilingSpec: NONE
+Decompiling: 2
+DecompilingSpec: NONE
+Registering: 0
+RegisteringSpec: NONE
 ////Qualities:
 (NOT IMPLEMENTED)
-
 ////SIN:
 (NOT IMPLEMENTED)
-
 
 #########################
 

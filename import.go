@@ -186,16 +186,13 @@ func ImportHostFromDB(hostName string) *THost {
 	return &h
 }
 
-//ImportPlayerFromDB -
-func ImportPlayerFromDB(alias string) (IPersona, bool) {
+//ImportPlayerFromDB0 -
+func ImportPlayerFromDB0(alias string) (IPersona, bool) {
 	if !fileDBExists("PlayerDB.txt") {
 		//panic("'PlayerDB.txt' is not exists. Please create file in the same directory as 'MEmu.exe'")
 		os.Create("PlayerDB.txt")
 
 	}
-	p := TPersona{}
-	p.isPlayer = true
-	//deviceName := "d"
 	file, err := os.OpenFile("PlayerDB.txt", os.O_APPEND|os.O_WRONLY|os.O_RDWR, 0600) // открываем файл: Имя, ключи, что-то еще
 	if err != nil {
 		log.Fatal(err)
@@ -221,30 +218,37 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		return player, false
 	}
 	////////////////////////////////////////////
-
+	p := TPersona{}
+	p.isPlayer = true
 	lines := strings.Split(playerToImport, "\r\n")
-
+	class := "Decker"
 	for i := range lines {
 		//Import Device
-		switch strings.Contains(lines[i], "Device: ") {
+		switch strings.Contains(lines[i], "Class: ") {
 		case true:
-			deviceNameS := strings.Split(lines[i], "Device: ")
+			deviceNameS := strings.Split(lines[i], "Class: ")
 			devName := deviceNameS[1]
-			if devName == "Living Persona" {
-				printLog("Create TEchnomancer", congo.ColorDefault)
-			} else {
-				printLog("Create Decker", congo.ColorDefault)
+			if devName == "Technomancer" {
+				class = "Technomancer"
 			}
 		default:
 		}
 	}
+
+	if class == "Decker" {
+		printLog("Create Decker", congo.ColorDefault)
+	}
+	var name string
+	var devName string
+	var specs []string
+	var cyberCombRating int
 
 	for i := range lines {
 		//Import Name
 		switch strings.Contains(lines[i], "Alias: ") {
 		case true:
 			nameS := strings.Split(lines[i], "Alias: ")
-			name := strings.Trim(nameS[1], SPACES)
+			name = strings.Trim(nameS[1], SPACES)
 			p.name = name
 			p.faction = name
 		default:
@@ -253,7 +257,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		switch strings.Contains(lines[i], "Device: ") {
 		case true:
 			deviceNameS := strings.Split(lines[i], "Device: ")
-			devName := deviceNameS[1]
+			devName = deviceNameS[1]
 			devName = strings.Trim(devName, SPACES)
 			p.device = addDevice(devName)
 			p.maxMatrixCM = p.GetDevice().GetMatrixCM()
@@ -273,7 +277,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 			specListS := strings.Split(lines[i], "ComputerSpec: ")
 			specList := specListS[1]
 			specList = strings.Trim(specList, SPACES)
-			specs := strings.Split(specList, ";")
+			specs = strings.Split(specList, ";")
 			for i := range specs {
 				specs[i] = "CompSpec_" + specs[i]
 				p.specialization = append(p.specialization, specs[i])
@@ -285,8 +289,8 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		switch strings.Contains(lines[i], "Cybercombat: ") {
 		case true:
 			ratingS := strings.Split(lines[i], "Cybercombat: ")
-			rating, _ := strconv.Atoi(strings.Trim(ratingS[1], SPACES))
-			p.cybercombatSkill = rating
+			cyberCombRating, _ = strconv.Atoi(strings.Trim(ratingS[1], SPACES))
+			p.cybercombatSkill = cyberCombRating
 		default:
 		}
 		//Import CyberCombat Specialization
@@ -520,4 +524,172 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	//objectList = append(objectList, &p)
 	//id++
 	return &p, true
+}
+
+//ImportPlayerFromDB -
+func ImportPlayerFromDB(alias string) (IPersona, bool) {
+	if alias == "Pupa" {
+		return player, true
+	}
+	//////////////////////////////////////////////////
+	if !fileDBExists("PlayerDB.txt") {
+		os.Create("PlayerDB.txt")
+
+	}
+	file, err := os.OpenFile("PlayerDB.txt", os.O_APPEND|os.O_WRONLY|os.O_RDWR, 0600) // открываем файл: Имя, ключи, что-то еще
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()                             //закрываем файл когда он уже не нужен
+	dataDB, err := ioutil.ReadFile("PlayerDB.txt") //читаем файл
+	if err != nil {
+		log.Fatal(err)
+	}
+	allData := string(dataDB)
+	playerToImport := ""
+	playerData := strings.Split(allData, "####################")
+	found := false
+	for i := range playerData {
+		if strings.Contains(playerData[i], alias) {
+			playerToImport = playerData[i]
+			found = true
+		}
+
+	}
+	if !found {
+		printLog("...Incorrect username or passcode", congo.ColorRed)
+		return player, false
+	}
+	lines := strings.Split(playerToImport, "\r\n")
+	charMAP := make(map[string]string)
+	for i := range lines {
+		parts := strings.Split(lines[i], ":")
+		if len(parts) < 2 {
+			continue
+		}
+		parts[0] = strings.Trim(parts[0], SPACES)
+		key := parts[0]
+		parts[1] = strings.Join(parts[1:], ":")
+		parts[1] = strings.Trim(parts[1], SPACES)
+		val := parts[1]
+		charMAP[key] = val
+		congo.WindowsMap.ByTitle["Log"].WPrintLn(key+":"+val, congo.ColorDefault)
+	}
+	var p IPersona
+	switch charMAP["Class"] {
+	case "Decker":
+		printLog("is Decker", congo.ColorDefault)
+		p = NewPersona(charMAP["Alias"], charMAP["Device"])
+	case "Technomancer":
+		printLog("is TECH", congo.ColorDefault)
+		t := NewTechnom(charMAP["Alias"], charMAP["Device"])
+		p = t
+
+	default:
+		return player, false
+	}
+	body, _ := strconv.Atoi(charMAP["BODY"])
+	agi, _ := strconv.Atoi(charMAP["AGILITY"])
+	rea, _ := strconv.Atoi(charMAP["REACTION"])
+	str, _ := strconv.Atoi(charMAP["STRENGHT"])
+	will, _ := strconv.Atoi(charMAP["WILLPOWER"])
+	log, _ := strconv.Atoi(charMAP["LOGIC"])
+	intu, _ := strconv.Atoi(charMAP["INTUITION"])
+	cha, _ := strconv.Atoi(charMAP["CHARISMA"])
+	edge, _ := strconv.Atoi(charMAP["EDGE"])
+	computSkill, _ := strconv.Atoi(charMAP["Computer"])
+	cyberSkill, _ := strconv.Atoi(charMAP["Cybercombat"])
+	electronicSkill, _ := strconv.Atoi(charMAP["Electronic Warfare"])
+	hackSkill, _ := strconv.Atoi(charMAP["Hacking"])
+	hardwareSkill, _ := strconv.Atoi(charMAP["Hardware"])
+	softwareSkill, _ := strconv.Atoi(charMAP["Software"])
+	p.SetAttribute("B", body)
+	p.SetAttribute("A", agi)
+	p.SetAttribute("R", rea)
+	p.SetAttribute("S", str)
+	p.SetAttribute("W", will)
+	p.SetAttribute("L", log)
+	p.SetAttribute("I", intu)
+	p.SetAttribute("C", cha)
+	p.SetAttribute("E", edge)
+	p.SetMaxEdge(edge)
+	p.SetSkill("Computer", computSkill)
+	p.SetSkill("Cybercombat", cyberSkill)
+	p.SetSkill("Electronic", electronicSkill)
+	p.SetSkill("Hacking", hackSkill)
+	p.SetSkill("Hardware", hardwareSkill)
+	p.SetSkill("Software", softwareSkill)
+	/////////////SPECS
+	compSpecSTR := charMAP["ComputerSpec"]
+	compSpec := strings.Split(compSpecSTR, ",")
+	for i := range compSpec {
+		compSpec[i] = strings.Trim(compSpec[i], SPACES)
+		p.AddSpecialization("CompSpec", compSpec[i])
+	}
+	cyberSpecSTR := charMAP["CybercombatSpec"]
+	cyberSpec := strings.Split(cyberSpecSTR, ",")
+	for i := range cyberSpec {
+		cyberSpec[i] = strings.Trim(cyberSpec[i], SPACES)
+		p.AddSpecialization("CyberSpec", cyberSpec[i])
+	}
+	electronicSpecSTR := charMAP["Electronic WarfareSpec"]
+	electronicSpec := strings.Split(electronicSpecSTR, ",")
+	for i := range electronicSpec {
+		electronicSpec[i] = strings.Trim(electronicSpec[i], SPACES)
+		p.AddSpecialization("electronicSpec", electronicSpec[i])
+	}
+	hackingSpecSTR := charMAP["HackingSpec"]
+	hackingSpec := strings.Split(hackingSpecSTR, ",")
+	for i := range hackingSpec {
+		hackingSpec[i] = strings.Trim(hackingSpec[i], SPACES)
+		p.AddSpecialization("HackingSpec", hackingSpec[i])
+	}
+	hardwareSpecSTR := charMAP["HardwareSpec"]
+	hardwareSpec := strings.Split(hardwareSpecSTR, ",")
+	for i := range hardwareSpec {
+		hardwareSpec[i] = strings.Trim(hardwareSpec[i], SPACES)
+		p.AddSpecialization("HardwareSpec", hardwareSpec[i])
+	}
+	softwareSpecSTR := charMAP["SoftwareSpec"]
+	softwareSpec := strings.Split(softwareSpecSTR, ",")
+	for i := range softwareSpec {
+		softwareSpec[i] = strings.Trim(softwareSpec[i], SPACES)
+		p.AddSpecialization("SoftwareSpec", softwareSpec[i])
+	}
+
+	if lp, ok := p.(ITechnom); ok {
+		res, _ := strconv.Atoi(charMAP["RESONANCE"])
+		lp.SetResonance(res)
+		lp.SetMatrixCM(lp.GetStunCM())
+		compile, _ := strconv.Atoi(charMAP["Compiling"])
+		decompile, _ := strconv.Atoi(charMAP["Decompiling"])
+		register, _ := strconv.Atoi(charMAP["Registering"])
+		lp.SetSkill("Compiling", compile)
+		lp.SetSkill("Decompiling", decompile)
+		lp.SetSkill("Registering", register)
+
+		compilingSpecSTR := charMAP["CompilingSpec"]
+		compilingSpec := strings.Split(compilingSpecSTR, ",")
+		for i := range compilingSpec {
+			compilingSpec[i] = strings.Trim(compilingSpec[i], SPACES)
+			p.AddSpecialization("CompilingSpec", compilingSpec[i])
+		}
+		decompilingSpecSTR := charMAP["DecompilingSpec"]
+		decompilingSpec := strings.Split(decompilingSpecSTR, ",")
+		for i := range decompilingSpec {
+			decompilingSpec[i] = strings.Trim(decompilingSpec[i], SPACES)
+			p.AddSpecialization("DecompilingSpec", decompilingSpec[i])
+		}
+		registeringSpecSTR := charMAP["RegisteringSpec"]
+		registeringSpec := strings.Split(registeringSpecSTR, ",")
+		for i := range registeringSpec {
+			registeringSpec[i] = strings.Trim(registeringSpec[i], SPACES)
+			p.AddSpecialization("RegisteringSpec", registeringSpec[i])
+		}
+
+	}
+
+	ObjByNames[p.GetName()] = p
+
+	return p, true
 }

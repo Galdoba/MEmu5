@@ -25,7 +25,7 @@ type IGridOnly interface {
 	//GetDeviceRating() int
 	//GetOverwatchScore() int
 	GetLastSureOS() int
-	SetName(string)
+	SetGridName(string)
 	//SetDeviceRating(int)
 	//SetOverwatchScore(int)
 	SetLastSureOS(int)
@@ -64,8 +64,8 @@ func (g *TGrid) GetLastSureOS() int {
 	return g.lastSureOS
 }
 
-//SetName -
-func (g *TGrid) SetName(nam string) {
+//SetGridName -
+func (g *TGrid) SetGridName(nam string) {
 	g.name = nam
 }
 
