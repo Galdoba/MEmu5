@@ -37,7 +37,7 @@ func endActionPhase(icon IIcon) bool {
 		printLog("Creating CR...", congo.ColorDefault)
 		buildInitiativePassOrder()
 	}
-	for i := range CombatRooster.iconID { //Check combat rooster. break if not acted icon found
+	for i := range CombatRooster.iconID { //Check combat rooster. mark Icon as Acted and break
 		if icon.GetID() == CombatRooster.iconID[i] {
 			CombatRooster.iconActed[i] = true
 			//return false

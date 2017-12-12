@@ -30,6 +30,7 @@ var (
 	gridList  []IGrid
 	hostList  []IObj
 	DeviseMap interface{}
+	//CFDBMap   interface{}
 	//MActionsMap      interface{}
 	SourceIcon  IObj
 	TargetIcon  IObj
@@ -44,6 +45,10 @@ var (
 //ObjByNames -
 var ObjByNames = map[string]IObj{
 //"null": nil,
+}
+
+var CFDBMap = map[int]ComplexForm{
+//null
 }
 
 func init() {
@@ -69,6 +74,7 @@ func initialize() {
 	if DeviseMap.DeviceDB == nil {
 		panic("INITIATE ERROR: Device map must not be NIL...")
 	}
+
 	InitMatrixActionMap()
 	//MActions.MActionMap["xxx"] = 1354
 	/*MActions.MActionMap =*/ //AddMAction()
@@ -321,6 +327,7 @@ func main() {
 	w1.SetAutoScroll(true) //
 
 	createDefaultGrids()
+
 	//congo.WindowsMap.ByTitle["Grid"].SetPosition(0, height-height*2/10)
 
 	player = NewPersona("Unknown", "<UNREGISTRATED>")

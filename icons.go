@@ -44,6 +44,7 @@ type DownloadProcess struct {
 
 //TObj -
 type TObj struct {
+	uDevice      string
 	uType        string
 	name         string
 	id           int
@@ -61,7 +62,7 @@ type IObj interface {
 	GetType() string
 	GetFaction() string
 	GetName() string
-
+	GetUDevice() string
 	GetMarkSet() MarkSet
 	GetFieldOfView() FieldOfView
 	GetLinkLockStatus() Locked
@@ -118,6 +119,11 @@ func (o *TObj) GetType() string {
 		panic("Abs Func Call")
 	}
 	return ""
+}
+
+//GetType -
+func (o *TObj) GetUDevice() string {
+	return o.uDevice
 }
 
 //GetFaction -
@@ -294,11 +300,6 @@ type IIconOnly interface {
 	//SetLastSureOS(int)
 	GetLongAct() int
 	GetDevice() *TDevice
-	//GetDeviceRating() int
-	GetAttack() int
-	GetSleaze() int
-	GetDataProcessing() int
-	GetFirewall() int
 	CheckRunningProgram(string) bool
 	ResistMatrixDamage(int) int
 	RollInitiative()
@@ -309,6 +310,26 @@ type IIconOnly interface {
 	SpendComplexAction()
 	ResetActionsCount()
 	SetName(string)
+	GetAttackMod() int
+	GetSleazeMod() int
+	GetDataProcessingMod() int
+	GetFirewallMod() int
+	GetAttackRaw() int
+	GetSleazeRaw() int
+	GetDataProcessingRaw() int
+	GetFirewallRaw() int
+	GetAttack() int
+	GetSleaze() int
+	GetDataProcessing() int
+	GetFirewall() int
+	SetAttackMod(int)
+	SetSleazeMod(int)
+	SetDataProcessingMod(int)
+	SetFirewallMod(int)
+	SetAttackRaw(int)
+	SetSleazeRaw(int)
+	SetDataProcessingRaw(int)
+	SetFirewallRaw(int)
 }
 
 //SetName -
@@ -348,14 +369,9 @@ func (i *TIcon) GetIntuition() int {
 
 //CheckRunningProgram -
 func (i *TIcon) CheckRunningProgram(name string) bool {
-	//return false
-	noDevice := i.GetDevice() //.GetSoftwareList()
-	if noDevice == nil {
-		i.device = addDevice("noDevice")
-	}
 	for j := range i.GetDevice().GetSoftwareList().programName {
 		if i.GetDevice().software.programName[j] == name {
-			if i.device.software.programStatus[j] == "Running" {
+			if i.GetDevice().software.programStatus[j] == "Running" {
 				return true
 				//test.programName[0] = test.programName[0] + "__"
 			}
@@ -371,21 +387,61 @@ func (i *TIcon) GetOverwatchScore() int {
 
 //GetDevice -
 func (i *TIcon) GetDevice() *TDevice {
+	if i.device == nil {
+		return addDevice(i.GetUDevice())
+	}
 	return i.device
 }
 
 //GetDeviceRating -
 func (i *TIcon) GetDeviceRating() int {
-	return i.device.deviceRating
+	return i.GetDevice().deviceRating
+}
+
+func (i *TIcon) CheckThreadedForm(cFormName string) bool {
+	for j := range CFDBMap {
+		if getComplexForm(j).madeOnID != i.GetID() {
+			continue
+		}
+		if getComplexForm(j).cfName != cFormName {
+			continue
+		}
+		return true
+	}
+	return false
+}
+
+func (i *TIcon) GetComplexFormEffect(cFormName string) (int, int) {
+	cFormIndex := 0
+	cFormEffect := 0
+	for j := range CFDBMap {
+		if getComplexForm(j).madeOnID != i.GetID() {
+			continue
+		}
+		if getComplexForm(j).cfName != cFormName {
+			continue
+		}
+		if cFormEffect < getComplexForm(j).succ {
+			cFormEffect = getComplexForm(j).succ
+			cFormIndex = getComplexForm(j).formNum
+		}
+	}
+	return cFormEffect, cFormIndex
 }
 
 //GetAttack -
 func (i *TIcon) GetAttack() int {
-	boost := 0
+	programBoost := 0
 	if i.CheckRunningProgram("Decryption") {
-		boost = 1
+		programBoost = 1
 	}
-	att := i.device.attack + i.device.attackMod + boost
+	cFormsBoost := 0
+	if i.CheckThreadedForm("Infusion of Attack") {
+		boost, _ := i.GetComplexFormEffect("Infusion of Attack")
+		cFormsBoost = boost
+	}
+
+	att := i.GetDevice().attack + i.GetDevice().attackMod + programBoost + cFormsBoost
 	if att < 0 {
 		return 0
 	}
@@ -394,141 +450,175 @@ func (i *TIcon) GetAttack() int {
 
 //GetAttackMod -
 func (i *TIcon) GetAttackMod() int {
-	return i.device.attackMod
+	return i.GetDevice().attackMod //+ get effect of complex forms
 }
 
 //GetAttackRaw -
 func (i *TIcon) GetAttackRaw() int {
-	return i.device.attack
+	return i.GetDevice().attack
 }
 
 //SetAttack -
 func (i *TIcon) SetAttack(newAttack int) {
-	i.device.attack = newAttack
+	i.GetDevice().attack = newAttack
 } //Возможно не нужен
 
 //SetAttackMod -
 func (i *TIcon) SetAttackMod(newAttack int) {
-	i.device.attackMod = newAttack
+	if i.GetDevice() != nil {
+		i.GetDevice().attackMod = i.GetDevice().attackMod + newAttack
+	}
 }
 
 //SetAttackRaw -
 func (i *TIcon) SetAttackRaw(newAttack int) {
-	i.device.attack = newAttack
+	if i.GetDevice() != nil {
+		i.GetDevice().attack = newAttack
+	}
 }
 
 //GetSleaze -
 func (i *TIcon) GetSleaze() int {
-	boost := 0
+	programBoost := 0
 	if i.CheckRunningProgram("Stealth") {
-		boost = 1
+		programBoost = 1
 	}
-	slz := i.device.sleaze + i.device.sleazeMod + boost
-	if slz < 0 {
+	cFormsBoost := 0
+	if i.CheckThreadedForm("Infusion of Sleaze") {
+		boost, _ := i.GetComplexFormEffect("Infusion of Sleaze")
+		cFormsBoost = boost
+	}
+
+	att := i.GetDevice().sleaze + i.GetDevice().sleazeMod + programBoost + cFormsBoost
+	if att < 0 {
 		return 0
 	}
-	return slz
+	return att
 }
 
 //GetSleazeMod -
 func (i *TIcon) GetSleazeMod() int {
-	return i.device.sleazeMod
+	return i.GetDevice().sleazeMod
 }
 
 //GetSleazeRaw -
 func (i *TIcon) GetSleazeRaw() int {
-	return i.device.sleaze
+	return i.GetDevice().sleaze
 }
 
 //SetSleaze -
 func (i *TIcon) SetSleaze(newSleaze int) {
-	i.device.sleaze = newSleaze
+	i.GetDevice().sleaze = newSleaze
 }
 
 //SetSleazeMod -
 func (i *TIcon) SetSleazeMod(newSleaze int) {
-	i.device.sleazeMod = newSleaze
+	if i.GetDevice() != nil {
+		i.GetDevice().sleaze = i.GetDevice().sleaze + newSleaze
+	}
 }
 
 //SetSleazeRaw -
 func (i *TIcon) SetSleazeRaw(newSleaze int) {
-	i.device.sleaze = newSleaze
+	if i.GetDevice() != nil {
+		i.GetDevice().sleaze = newSleaze
+	}
 }
 
 //GetDataProcessing -
 func (i *TIcon) GetDataProcessing() int {
-	boost := 0
+	programBoost := 0
 	if i.CheckRunningProgram("Toolbox") {
-		boost = 1
+		programBoost = 1
 	}
-	dtp := i.device.dataProcessing + i.device.dataProcessingMod + boost
-	if dtp < 0 {
+	cFormsBoost := 0
+	if i.CheckThreadedForm("Infusion of Data Processing") {
+		boost, _ := i.GetComplexFormEffect("Infusion of Data Processing")
+		cFormsBoost = boost
+	}
+
+	att := i.GetDevice().dataProcessing + i.GetDevice().dataProcessingMod + programBoost + cFormsBoost
+	if att < 0 {
 		return 0
 	}
-	return dtp
+	return att
 }
 
 //GetDataProcessingMod -
 func (i *TIcon) GetDataProcessingMod() int {
-	return i.device.dataProcessingMod
+	return i.GetDevice().dataProcessingMod
 }
 
 //GetDataProcessingRaw -
 func (i *TIcon) GetDataProcessingRaw() int {
-	return i.device.dataProcessing
+	return i.GetDevice().dataProcessing
 }
 
 //SetDataProcessing -
 func (i *TIcon) SetDataProcessing(newDataProcessing int) {
-	i.device.dataProcessing = newDataProcessing
+	i.GetDevice().dataProcessing = newDataProcessing
 }
 
 //SetDataProcessingMod -
 func (i *TIcon) SetDataProcessingMod(newDataProcessing int) {
-	i.device.dataProcessingMod = newDataProcessing
+	if i.GetDevice() != nil {
+		i.GetDevice().dataProcessing = i.GetDevice().dataProcessing + newDataProcessing
+	}
 }
 
 //SetDataProcessingRaw -
 func (i *TIcon) SetDataProcessingRaw(newDataProcessing int) {
-	i.device.dataProcessing = newDataProcessing
+	if i.GetDevice() != nil {
+		i.GetDevice().dataProcessing = newDataProcessing
+	}
 }
 
 //GetFirewall -
 func (i *TIcon) GetFirewall() int {
-	boost := 0
+	programBoost := 0
 	if i.CheckRunningProgram("Encryption") {
-		boost = 1
+		programBoost = 1
 	}
-	fwl := i.device.firewall + i.device.firewallMod + boost
-	if fwl < 0 {
+	cFormsBoost := 0
+	if i.CheckThreadedForm("Infusion of Firewall") {
+		boost, _ := i.GetComplexFormEffect("Infusion of Firewall")
+		cFormsBoost = boost
+	}
+
+	att := i.GetDevice().firewall + i.GetDevice().firewallMod + programBoost + cFormsBoost
+	if att < 0 {
 		return 0
 	}
-	return fwl
+	return att
 }
 
 //GetFirewallMod -
 func (i *TIcon) GetFirewallMod() int {
-	return i.device.firewallMod
+	return i.GetDevice().firewallMod
 }
 
 //GetFirewallRaw -
 func (i *TIcon) GetFirewallRaw() int {
-	return i.device.firewall
+	return i.GetDevice().firewall
 }
 
 //SetFirewall -
 func (i *TIcon) SetFirewall(newFirewall int) {
-	i.device.firewall = newFirewall
+	i.GetDevice().firewall = newFirewall
 }
 
 //SetFirewallMod -
 func (i *TIcon) SetFirewallMod(newFirewallMod int) {
-	i.device.firewallMod = i.device.firewallMod + newFirewallMod
+	if i.GetDevice() != nil {
+		i.GetDevice().firewall = i.GetDevice().firewall + newFirewallMod
+	}
 }
 
 //SetFirewallRaw -
 func (i *TIcon) SetFirewallRaw(newFirewall int) {
-	i.device.firewall = newFirewall
+	if i.GetDevice() != nil {
+		i.GetDevice().firewall = newFirewall
+	}
 }
 
 //ResistMatrixDamage -
@@ -1164,6 +1254,7 @@ func NewDevice(model string, rating int) *TDevice {
 		//d.grid = "Public Grid"
 		//d.id = id
 	}
+	d.uDevice = model
 	d.SetID()
 	d.maxRunningPrograms = d.deviceRating
 	//d.software = make([]TProgram, 20)
@@ -1468,6 +1559,7 @@ type IPersonaOnly interface {
 	GetWillpower() int
 	GetLogic() int
 	GetIntuition() int
+	GetCharisma() int
 	GetEdge() int
 	GetMaxEdge() int
 	SetBody(int)
@@ -1513,17 +1605,15 @@ type IPersonaOnly interface {
 	GetDeviceSoft() *TProgram
 	CrashRandomProgram() bool
 	isOnline() bool
-	SetDeviceFirewallMod(int)
+
 	SetSkill(string, int)
 	AddSpecialization(string, string)
 	GetSpecializationList() []string
-	GetAttackMod() int
-	GetSleazeMod() int
-	GetDataProcessingMod() int
-	GetFirewallMod() int
-	SetDeviceAttackMod(int)
+
+	/*SetDeviceAttackMod(int)
 	SetDeviceSleazeMod(int)
 	SetDeviceDataProcessingMod(int)
+	SetDeviceFirewallMod(int)*/
 }
 
 var _ IPersona = (*TPersona)(nil)
@@ -1532,11 +1622,12 @@ var _ IPersona = (*TPersona)(nil)
 func NewPersona(alias string, d string) IPersona {
 	p := TPersona{}
 	p.isPlayer = true
+	p.uType = "Persona"
 	p.name = alias
 	p.faction = alias
 	p.alias = alias
 	p.device = addDevice(d)
-	//r := rand.Intn(len(gridList))
+	p.uDevice = p.device.model
 	p.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
 	p.maxMatrixCM = p.device.GetMatrixCM()
 	p.matrixCM = p.maxMatrixCM
@@ -1856,158 +1947,7 @@ func (p *TPersona) GetDeviceSoft() *TProgram {
 	return p.device.software
 }
 
-//GetAttack -
-func (p *TPersona) GetAttack() int {
-	boost := 0
-	if p.CheckRunningProgram("Decryption") {
-		boost = 1
-	}
-	att := p.device.attack + p.device.attackMod + boost
-	if att < 0 {
-		return 0
-	}
-	return att
-}
-
-//GetAttackMod -
-func (p *TPersona) GetAttackMod() int {
-	return p.device.attackMod
-}
-
-//GetAttackRaw -
-func (p *TPersona) GetAttackRaw() int {
-	return p.device.attack
-}
-
-//SetDeviceAttack -
-func (p *TPersona) SetDeviceAttack(newAttack int) {
-	p.device.attack = newAttack
-} //Возможно не нужен
-
-//SetDeviceAttackMod -
-func (p *TPersona) SetDeviceAttackMod(newAttack int) {
-	p.device.attackMod = newAttack
-}
-
-//SetDeviceAttackRaw -
-func (p *TPersona) SetDeviceAttackRaw(newAttack int) {
-	p.device.attack = newAttack
-}
-
-//GetSleaze -
-func (p *TPersona) GetSleaze() int {
-	boost := 0
-	if p.CheckRunningProgram("Stealth") {
-		boost = 1
-	}
-	slz := p.device.sleaze + p.device.sleazeMod + boost
-	if slz < 0 {
-		return 0
-	}
-	return slz
-}
-
-//GetSleazeMod -
-func (p *TPersona) GetSleazeMod() int {
-	return p.device.sleazeMod
-}
-
-//GetSleazeRaw -
-func (p *TPersona) GetSleazeRaw() int {
-	return p.device.sleaze
-}
-
-//SetDeviceSleaze -
-func (p *TPersona) SetDeviceSleaze(newSleaze int) {
-	p.device.sleaze = newSleaze
-}
-
-//SetDeviceSleazeMod -
-func (p *TPersona) SetDeviceSleazeMod(newSleaze int) {
-	p.device.sleazeMod = newSleaze
-}
-
-//SetDeviceSleazeRaw -
-func (p *TPersona) SetDeviceSleazeRaw(newSleaze int) {
-	p.device.sleaze = newSleaze
-}
-
-//GetDataProcessing -
-func (p *TPersona) GetDataProcessing() int {
-	boost := 0
-	if p.CheckRunningProgram("Toolbox") {
-		boost = 1
-	}
-	dtp := p.device.dataProcessing + p.GetDataProcessingMod() + boost
-	if dtp < 0 {
-		return 0
-	}
-	return dtp
-}
-
-//GetDataProcessingMod -
-func (p *TPersona) GetDataProcessingMod() int {
-	return p.device.dataProcessingMod
-}
-
-//GetDataProcessingRaw -
-func (p *TPersona) GetDataProcessingRaw() int {
-	return p.device.dataProcessing
-}
-
-//SetDeviceDataProcessing -
-func (p *TPersona) SetDeviceDataProcessing(newDataProcessing int) {
-	p.device.dataProcessing = newDataProcessing
-}
-
-//SetDeviceDataProcessingMod -
-func (p *TPersona) SetDeviceDataProcessingMod(newDataProcessing int) {
-	p.device.dataProcessingMod = newDataProcessing
-}
-
-//SetDeviceDataProcessingRaw -
-func (p *TPersona) SetDeviceDataProcessingRaw(newDataProcessing int) {
-	p.device.dataProcessing = newDataProcessing
-}
-
-//GetFirewall -
-func (p *TPersona) GetFirewall() int {
-	boost := 0
-	if p.CheckRunningProgram("Encryption") {
-		boost = 1
-	}
-	fwl := p.device.firewall + p.device.firewallMod + boost
-	if fwl < 0 {
-		return 0
-	}
-	return fwl
-}
-
-//GetFirewallMod -
-func (p *TPersona) GetFirewallMod() int {
-	return p.device.firewallMod
-}
-
-//GetFirewallRaw -
-func (p *TPersona) GetFirewallRaw() int {
-	return p.device.firewall
-}
-
-//SetDeviceFirewall -
-func (p *TPersona) SetDeviceFirewall(newFirewall int) {
-	p.device.firewall = newFirewall
-}
-
-//SetDeviceFirewallMod -
-func (p *TPersona) SetDeviceFirewallMod(newFirewallMod int) {
-	p.device.firewallMod = p.device.firewallMod + newFirewallMod
-}
-
-//SetDeviceFirewallRaw -
-func (p *TPersona) SetDeviceFirewallRaw(newFirewall int) {
-	p.device.firewall = newFirewall
-}
-
+///////////////
 //GetMatrixCM -
 func (p *TPersona) GetMatrixCM() int {
 	return p.device.matrixCM
@@ -2190,18 +2130,18 @@ func (p *TPersona) UnlockIcon(icon IIcon) {
 //Dumpshock -
 func (p *TPersona) Dumpshock() {
 	if p.GetMatrixCM() < 1 {
-		p.SetDeviceAttackRaw(0)
-		p.SetDeviceSleazeRaw(0)
-		p.SetDeviceDataProcessingRaw(0)
-		p.SetDeviceFirewall(0)
+		p.SetAttackRaw(0)
+		p.SetSleazeRaw(0)
+		p.SetDataProcessingRaw(0)
+		p.SetFirewall(0)
 		prgs := p.GetRunningPrograms()
 		for i := 0; i < len(prgs); i++ {
 			p.CrashProgram(prgs[i])
 		}
 	}
+	printLog("Warning!! Dumpshock imminent!!", congo.ColorRed)
 	dp1 := p.GetWillpower() + p.GetFirewall()
 	suc1, gl, cgl := simpleTest(p.GetID(), dp1, 1000, 0)
-	printLog("Warning!! Dumpshock imminent!!", congo.ColorRed)
 	biofeedbackDamage := 6 - suc1
 	if gl {
 		biofeedbackDamage = biofeedbackDamage + 2
@@ -2225,7 +2165,7 @@ func (p *TPersona) Dumpshock() {
 		printLog(strconv.Itoa(biofeedbackDamage)+" Physical Damage inflicted by Dumpshock...", congo.ColorRed)
 
 	}
-	p.SetSimSence("Offline")
+	//p.SetSimSence("OFFLINE")
 	p.SetInitiative(999999)
 	if p.id == player.GetID() {
 		printLog("Session terminated...", congo.ColorDefault)
@@ -2406,7 +2346,8 @@ func (p *TPersona) ReceiveMatrixDamage(damage int) {
 		hold()
 	}
 	if p.GetMatrixCM() < 1 {
-		p.Dumpshock()
+		//p.Dumpshock()
+		p.SetSimSence("OFFLINE")
 	}
 }
 
@@ -2754,6 +2695,26 @@ func (p *TPersona) UpdateDownloadProcess() {
 //GetDownloadProcess -
 func (p *TPersona) GetDownloadProcess() DownloadProcess {
 	return p.downloadProcessStatus
+}
+
+//SetSimSence -
+func (p *TPersona) SetSimSence(smsence string) {
+	smsence = formatString(smsence)
+	smsence = cleanText(smsence)
+	switch smsence {
+	case "AR":
+		p.simSence = "AR"
+	case "COLD-SIM":
+		p.simSence = "COLD-SIM"
+	case "HOT-SIM":
+		p.simSence = "HOT-SIM"
+	case "OFFLINE":
+		if p.GetSimSence() != "AR" {
+			p.Dumpshock()
+		}
+		p.simSence = "OFFLINE"
+	default:
+	}
 }
 
 ///////////////////////////////////////////////////////

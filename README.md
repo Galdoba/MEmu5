@@ -44,7 +44,7 @@ you can spend Edge using "Push the Limit", "Negate Glitch" and "Reroll" interrup
 ## What I plan to do:
 
 * implementations of all devices from Shadowrun5 universe
-* implementations of all Technomancer stuff
+* implementations of all Technomancer stuff 
 * implementations of all AI stuff
 * A LOT of bugs fixes
 * updating as new books and features come to SR Universe

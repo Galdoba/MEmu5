@@ -562,14 +562,34 @@ func (h *THost) GetAttack() int {
 	return h.attack
 }
 
+//GetAttackRaw -
+func (h *THost) GetAttackRaw() int {
+	return h.attack
+}
+
 //GetSleaze -
 func (h *THost) GetSleaze() int {
+	return h.sleaze
+}
+
+//GetSleazeRaw -
+func (h *THost) GetSleazeRaw() int {
 	return h.sleaze
 }
 
 //GetDataProcessing -
 func (h *THost) GetDataProcessing() int {
 	return h.dataProcessing
+}
+
+//GetDataProcessingRaw -
+func (h *THost) GetDataProcessingRaw() int {
+	return h.dataProcessing
+}
+
+//GetFirewallRaw -
+func (h *THost) GetFirewallRaw() int {
+	return h.firewall
 }
 
 //GetFirewall -
@@ -756,4 +776,64 @@ func applyGrid(name string) *TGrid {
 		}
 	}
 	return player.GetGrid()
+}
+
+//GetAttackMod -
+func (h *THost) GetAttackMod() int {
+	return h.attack
+}
+
+//GetSleazeMod -
+func (h *THost) GetSleazeMod() int {
+	return h.sleaze
+}
+
+//GetDataProcessingMod -
+func (h *THost) GetDataProcessingMod() int {
+	return h.dataProcessing
+}
+
+//GetFirewallMod -
+func (h *THost) GetFirewallMod() int {
+	return h.firewall
+}
+
+//SetAttackRaw -
+func (h *THost) SetAttackRaw(val int) {
+	h.attack = val
+}
+
+//SetSleazeRaw -
+func (h *THost) SetSleazeRaw(val int) {
+	h.sleaze = val
+}
+
+//SetDataProcessingRaw -
+func (h *THost) SetDataProcessingRaw(val int) {
+	h.dataProcessing = val
+}
+
+//SetFirewallRaw -
+func (h *THost) SetFirewallRaw(val int) {
+	h.firewall = val
+}
+
+//SetAttackMod -
+func (h *THost) SetAttackMod(val int) {
+	h.attack = val
+}
+
+//SetSleazeMod -
+func (h *THost) SetSleazeMod(val int) {
+	h.sleaze = val
+}
+
+//SetDataProcessingMod -
+func (h *THost) SetDataProcessingMod(val int) {
+	h.dataProcessing = val
+}
+
+//SetFirewallMod -
+func (h *THost) SetFirewallMod(val int) {
+	h.firewall = val
 }

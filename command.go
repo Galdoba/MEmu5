@@ -16,7 +16,6 @@ func UserInput(input string) bool {
 	var mActionName string
 	var actionIsGood bool
 	var comm []string
-
 	command = input
 	command = formatString(command)
 	comm = strings.SplitN(command, ">", 6)
@@ -43,8 +42,9 @@ func UserInput(input string) bool {
 	mActionName = mAction
 	//printLog(mActionName, congo.ColorRed)
 	actionIsGood, mActionName = checkAction(mAction)
-	if actionIsGood == true {
+	if actionIsGood == false {
 		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: "+mActionName+" is correct", congo.ColorYellow)
+		return false
 	}
 	checkSource(comm[0])
 	if mActionName == "EXIT_HOST" || mActionName == "ERASE_MARK" || mActionName == "CHECK_OVERWATCH_SCORE" || mActionName == "LONGACT" || mActionName == "SWITCH_INTERFACE_MODE" || mActionName == "SILENT_MODE" {
@@ -58,7 +58,6 @@ func UserInput(input string) bool {
 		doAction(mActionName)
 		return true
 	}
-
 	if mActionName == "SWAP_ATTRIBUTES" || mActionName == "SWAP_PROGRAMS" {
 		TargetIcon = SourceIcon
 		if len(comm) < 4 {
@@ -72,7 +71,6 @@ func UserInput(input string) bool {
 		}
 		return false
 	}
-
 	if mActionName == "LOAD_PROGRAM" || mActionName == "UNLOAD_PROGRAM" || mActionName == "LOGIN" {
 		TargetIcon = SourceIcon
 		if len(comm) < 3 {
@@ -86,7 +84,6 @@ func UserInput(input string) bool {
 		}
 		return false
 	}
-
 	if mActionName == "MATRIX_PERCEPTION" {
 		if len(comm) > 2 {
 			target := comm[2]
@@ -99,7 +96,6 @@ func UserInput(input string) bool {
 			}
 		}
 	}
-
 	if mActionName == "MATRIX_SEARCH" {
 		//TargetIcon = text
 		TargetIcon = SourceIcon
@@ -115,9 +111,11 @@ func UserInput(input string) bool {
 	if len(comm) < 3 {
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
 		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format", congo.ColorDefault)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Target not designated", congo.ColorYellow)
 		congo.WindowsMap.ByTitle["Log"].WDraw()
 		return false
 	}
+	//printLog(comm[2], congo.ColorYellow)
 
 	if checkTarget(comm[2], mActionName) == true {
 		doAction(mActionName)
@@ -125,9 +123,7 @@ func UserInput(input string) bool {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Unknown target", congo.ColorGreen)
 
 	}
-
 	congo.WindowsMap.ByTitle["Log"].WDraw()
-
 	return true
 }
 
@@ -167,6 +163,12 @@ func checkSource(source string) bool {
 }
 
 func checkTarget(target, mActionName string) bool {
+	self := formatString(target)
+	self = cleanText(self)
+	if self == "SELF" {
+		TargetIcon = player
+		return true
+	}
 	if pickTarget(target, mActionName) {
 		return true
 	}

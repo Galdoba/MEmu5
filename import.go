@@ -619,6 +619,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	p.SetSkill("Hacking", hackSkill)
 	p.SetSkill("Hardware", hardwareSkill)
 	p.SetSkill("Software", softwareSkill)
+	
 	/////////////SPECS
 	compSpecSTR := charMAP["ComputerSpec"]
 	compSpec := strings.Split(compSpecSTR, ",")
@@ -658,6 +659,11 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	}
 
 	if lp, ok := p.(ITechnom); ok {
+		if lp.GetDevice().GetModel() == "Living Persona" {
+			//lp.GetDevice().SetAttack(cha)
+			//livPer.SetAttackRaw(cha)
+		}
+
 		res, _ := strconv.Atoi(charMAP["RESONANCE"])
 		lp.SetResonance(res)
 		lp.SetMatrixCM(lp.GetStunCM())
@@ -667,6 +673,10 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		lp.SetSkill("Compiling", compile)
 		lp.SetSkill("Decompiling", decompile)
 		lp.SetSkill("Registering", register)
+		lp.SetAttackRaw(cha)
+		lp.SetSleazeRaw(intu)
+		lp.SetDataProcessingRaw(log)
+		lp.SetFirewallRaw(will)
 
 		compilingSpecSTR := charMAP["CompilingSpec"]
 		compilingSpec := strings.Split(compilingSpecSTR, ",")

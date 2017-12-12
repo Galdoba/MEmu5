@@ -27,6 +27,7 @@ type ITechnomOnly interface {
 	GetResonance() int
 	SetResonance(int)
 	GetSubmersion() int
+	GetSustainedForms() []ComplexForm
 }
 
 //NewTechnom -
@@ -37,6 +38,7 @@ func NewTechnom(alias string, d string) ITechnom {
 	t.faction = alias
 	t.alias = alias
 	t.device = addDevice(d)
+
 	//t.SetDeviceAttackRaw(t.GetCharisma())
 	//r := rand.Intn(len(gridList))
 	t.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
@@ -58,6 +60,11 @@ func NewTechnom(alias string, d string) ITechnom {
 	t.edge = 0
 	t.maxEdge = 0
 	t.id = id
+	if t.GetDevice().model == "Living Persona" {
+		t.uDevice = "Living Persona"
+	} else {
+		t.uDevice = t.GetDevice().model
+	}
 	//t.silentMode = false
 	t.simSence = "HOT-SIM"
 	t.maxStunCM = (t.willpower+1)/2 + 8
@@ -94,34 +101,34 @@ func (t *TTechnom) GetDeviceRating() int {
 }
 
 //GetAttack -
-func (t *TTechnom) GetAttack() int {
-	if t.device.model == "Living Persona" {
-		return t.charisma + t.device.attackMod
-	}
+/*func (t *TTechnom) GetAttack() int {
+	//	if t.device.model == "Living Persona" {
+	//	return t.charisma + t.device.attackMod
+	///
 	return t.device.attack + t.device.attackMod
-}
+}*/
 
 //GetSleaze -
 func (t *TTechnom) GetSleaze() int {
-	if t.device.model == "Living Persona" {
+	/*if t.device.model == "Living Persona" {
 		return t.intuition + t.device.sleazeMod
-	}
+	}*/
 	return t.device.sleaze + t.device.sleazeMod
 }
 
 //GetDataProcessing -
 func (t *TTechnom) GetDataProcessing() int {
-	if t.device.model == "Living Persona" {
+	/*if t.device.model == "Living Persona" {
 		return t.logic + t.device.dataProcessingMod
-	}
+	}*/
 	return t.device.dataProcessing + t.device.dataProcessingMod
 }
 
 //GetFirewall -
 func (t *TTechnom) GetFirewall() int {
-	if t.device.model == "Living Persona" {
+	/*if t.device.model == "Living Persona" {
 		return t.willpower + t.device.firewallMod
-	}
+	}*/
 	return t.device.firewall + t.device.firewallMod
 }
 
@@ -244,4 +251,20 @@ func (t *TTechnom) ResistMatrixDamage(damage int) int {
 		hold()
 	}
 	return realDamage
+}
+
+//GetDevice -
+func (t *TTechnom) GetDevice() *TDevice {
+	return t.device
+}
+
+//GetDevice -
+func (t *TTechnom) GetSustainedForms() []ComplexForm {
+	var formsList []ComplexForm
+	for i := range CFDBMap {
+		if getComplexForm(i).madeByID == t.id {
+			formsList = append(formsList, getComplexForm(i))
+		}
+	}
+	return formsList
 }

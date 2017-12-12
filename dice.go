@@ -44,21 +44,14 @@ func setSeed() {
 func (dp *DicePool) roll() {
 	assert(dp.isOk, "DicePool not initialized")
 	setSeed()
-	//windowList[5].(*congo.TWindow).WPrint("& ", congo.ColorGreen)
-	//windowList[0].(*congo.TWindow).WPrint("...", congo.ColorGreen)
 	for i := range dp.pool {
 		dp.pool[i] = rand.Intn(6) + 1
-		//	windowList[5].(*congo.TWindow).WPrint(".", congo.ColorGreen)
 		draw()
 		if src, ok := SourceIcon.(IPersona); ok {
-			//				windowList[0].(*congo.TWindow).WPrint(strconv.Itoa(dp.pool[i])+" ", congo.ColorGreen)
 			draw()
-			//				hold()
 			src.(IObj).GetID()
 		}
 	}
-	//windowList[0].(*congo.TWindow).WPrintLn("...", congo.ColorGreen)
-	//windowList[5].(*congo.TWindow).WPrint(".", congo.ColorGreen)
 	dp.isRolled = true
 }
 
@@ -126,12 +119,20 @@ func (dp *DicePool) summ() int {
 	return total
 }
 
-func reRoll(rerollDp int) (int, bool, bool) {
+func reRoll(rerollDp, rollerID int) (int, bool, bool) {
 	if rerollDp < 0 {
 		return 0, false, false
 	}
 	sourceIcon := makeDicePool(rerollDp)
 	sourceIcon.roll()
+	if rollerID == player.GetID() {
+		congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array:", congo.ColorGreen)
+		for i := range sourceIcon.pool {
+			congo.WindowsMap.ByTitle["Log"].WPrint(" "+strconv.Itoa(sourceIcon.pool[i]), congo.ColorGreen)
+		}
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
+
+	}
 	suc := sourceIcon.successes()
 	glitch := sourceIcon.glitch()
 	critGlitch := sourceIcon.critGlitch()
@@ -266,7 +267,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 							player.SetEdge(player.GetEdge() - 1)
 							rerollDp := dicePool1 - suc
 							printLog("......Rerolling "+strconv.Itoa(rerollDp)+" dices...", congo.ColorGreen)
-							suc2, sgl, scgl := reRoll(rerollDp)
+							suc2, sgl, scgl := reRoll(rerollDp, rollerID)
 							if sgl {
 								glitch = sgl
 							}
@@ -275,7 +276,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 							}
 							suc = suc + suc2
 							printLog("......Reroll result: "+strconv.Itoa(suc2)+" successes", congo.ColorGreen)
-							printLog("...Final result: "+strconv.Itoa(suc2+suc), congo.ColorGreen)
+							printLog("...Final result: "+strconv.Itoa(suc), congo.ColorGreen)
 							break
 						}
 						if char == "n" {

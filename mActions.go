@@ -47,6 +47,8 @@ func InitMatrixActionMap() {
 	MActions.MActionMap["WAIT"] = Wait
 	MActions.MActionMap["FULL_DEFENCE"] = FullDefence
 	/////////////////////////////////////
+	MActions.MActionMap["INFUSE_ATTACK"] = InfuseAttack
+	/////////////////////////////////////
 	MActions.MActionMap["EXECUTE_SCAN"] = PatrolICActionArea
 	MActions.MActionMap["PATROL_IC_ACTION"] = PatrolICActionTarget
 	MActions.MActionMap["ACID_IC_ACTION"] = AcidICActionTarget
@@ -70,15 +72,16 @@ func InitMatrixActionMap() {
 }
 
 //LongAct - test function, no meaning
-func LongAct(src IObj, trg IObj) {
+func LongAct(src IObj, trg IObj) bool {
 	icon := src.(IPersona)
 	congo.WindowsMap.ByTitle["Log"].WPrintLn("Start LongAct by "+icon.GetName(), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Log"].WPrintLn(icon.GetName()+"`s searchLen = "+strconv.Itoa(icon.GetLongAct()), congo.ColorDefault)
-	endAction()
+
+	return true
 }
 
 //PatrolICActionArea - patrol scans EVERY icon in the host acording to rules in Data Trails
-func PatrolICActionArea(src IObj, trg IObj) {
+func PatrolICActionArea(src IObj, trg IObj) bool {
 	patrolIC := src.(IIC)
 	host := patrolIC.GetHost()
 	dp1 := host.GetDeviceRating() * 2
@@ -141,11 +144,12 @@ func PatrolICActionArea(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //PatrolICActionTarget - Patrol scanning 1 target
-func PatrolICActionTarget(src IObj, trg IObj) {
+func PatrolICActionTarget(src IObj, trg IObj) bool {
 	patrolIC := src.(IIC)
 	host := patrolIC.GetHost()
 	dp1 := host.GetDeviceRating() * 2
@@ -198,11 +202,12 @@ func PatrolICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //AcidICActionTarget -
-func AcidICActionTarget(src IObj, trg IObj) {
+func AcidICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -256,7 +261,7 @@ func AcidICActionTarget(src IObj, trg IObj) {
 						focusIcon.ReceiveMatrixDamage(realDamage)
 
 					} else {
-						focusIcon.SetDeviceFirewallMod(focusIcon.GetFirewallMod() - 1)
+						focusIcon.SetFirewallMod(focusIcon.GetFirewallMod() - 1)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							congo.WindowsMap.ByTitle["Log"].WPrintLn(focusIcon.GetName()+": Firewall Rating reduced to "+strconv.Itoa(focusIcon.GetFirewall()), congo.ColorYellow)
 						}
@@ -270,11 +275,12 @@ func AcidICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //BinderICActionTarget -
-func BinderICActionTarget(src IObj, trg IObj) {
+func BinderICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -327,7 +333,7 @@ func BinderICActionTarget(src IObj, trg IObj) {
 						focusIcon.ReceiveMatrixDamage(realDamage)
 
 					} else {
-						focusIcon.SetDeviceDataProcessingMod(focusIcon.GetDataProcessingMod() - 1)
+						focusIcon.SetDataProcessingMod(focusIcon.GetDataProcessingMod() - 1)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							congo.WindowsMap.ByTitle["Log"].WPrintLn(focusIcon.GetName()+": Data Processing Rating reduced to "+strconv.Itoa(focusIcon.GetDataProcessing()), congo.ColorYellow)
 						}
@@ -343,11 +349,12 @@ func BinderICActionTarget(src IObj, trg IObj) {
 		}
 
 	}
-	endAction()
+
+	return true
 }
 
 //JammerICActionTarget -
-func JammerICActionTarget(src IObj, trg IObj) {
+func JammerICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -401,7 +408,7 @@ func JammerICActionTarget(src IObj, trg IObj) {
 						focusIcon.ReceiveMatrixDamage(realDamage)
 
 					} else {
-						focusIcon.SetDeviceAttackMod(focusIcon.GetAttackMod() - 1)
+						focusIcon.SetAttackMod(focusIcon.GetAttackMod() - 1)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							congo.WindowsMap.ByTitle["Log"].WPrintLn(focusIcon.GetName()+": Attack Rating reduced to "+strconv.Itoa(focusIcon.GetAttack()), congo.ColorYellow)
 						}
@@ -417,11 +424,12 @@ func JammerICActionTarget(src IObj, trg IObj) {
 		}
 
 	}
-	endAction()
+
+	return true
 }
 
 //MarkerICActionTarget -
-func MarkerICActionTarget(src IObj, trg IObj) {
+func MarkerICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -475,7 +483,7 @@ func MarkerICActionTarget(src IObj, trg IObj) {
 						focusIcon.ReceiveMatrixDamage(realDamage)
 
 					} else {
-						focusIcon.SetDeviceSleazeMod(focusIcon.GetSleazeMod() - 1)
+						focusIcon.SetSleazeMod(focusIcon.GetSleazeMod() - 1)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							congo.WindowsMap.ByTitle["Log"].WPrintLn(focusIcon.GetName()+": Sleaze Rating reduced to "+strconv.Itoa(focusIcon.GetSleaze()), congo.ColorYellow)
 						}
@@ -491,11 +499,12 @@ func MarkerICActionTarget(src IObj, trg IObj) {
 		}
 
 	}
-	endAction()
+
+	return true
 }
 
 //KillerICActionTarget -
-func KillerICActionTarget(src IObj, trg IObj) {
+func KillerICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -559,11 +568,12 @@ func KillerICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //SparkyICActionTarget -
-func SparkyICActionTarget(src IObj, trg IObj) {
+func SparkyICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -642,11 +652,12 @@ func SparkyICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //TarBabyICActionTarget -
-func TarBabyICActionTarget(src IObj, trg IObj) {
+func TarBabyICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -715,11 +726,12 @@ func TarBabyICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //BlackICActionTarget -
-func BlackICActionTarget(src IObj, trg IObj) {
+func BlackICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(IIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(IIC).GetHost()
@@ -801,11 +813,12 @@ func BlackICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //BlasterICActionTarget -
-func BlasterICActionTarget(src IObj, trg IObj) {
+func BlasterICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -887,11 +900,12 @@ func BlasterICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //ProbeICActionTarget -
-func ProbeICActionTarget(src IObj, trg IObj) {
+func ProbeICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -953,11 +967,12 @@ func ProbeICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //ScrambleICActionTarget -
-func ScrambleICActionTarget(src IObj, trg IObj) {
+func ScrambleICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -1009,9 +1024,10 @@ func ScrambleICActionTarget(src IObj, trg IObj) {
 						focusIcon.GetMarkSet().MarksFrom[host.GetID()] = 3
 					}
 					if focusIcon.GetMarkSet().MarksFrom[host.GetID()] > 2 {
-						focusIcon.Dumpshock()
+						//focusIcon.Dumpshock()
+						focusIcon.SetSimSence("OFFLINE")
 						focusIcon.SetInitiative(999999)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Connection terminated", congo.ColorGreen)
+						//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Connection terminated", congo.ColorGreen)
 					}
 				} else {
 					if focusIcon.GetFaction() == player.GetFaction() {
@@ -1022,11 +1038,12 @@ func ScrambleICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //CatapultICActionTarget -
-func CatapultICActionTarget(src IObj, trg IObj) {
+func CatapultICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -1082,7 +1099,7 @@ func CatapultICActionTarget(src IObj, trg IObj) {
 							congo.WindowsMap.ByTitle["Log"].WPrintLn("DEBUG - Firewall reduced to 0 ", congo.ColorYellow)
 						}
 					} else {
-						focusIcon.SetDeviceFirewallMod(focusIcon.GetFirewallMod() - 1)
+						focusIcon.SetFirewallMod(focusIcon.GetFirewallMod() - 1)
 						if focusIcon.GetFaction() == player.GetFaction() {
 							congo.WindowsMap.ByTitle["Log"].WPrintLn("...firewall rating reduced to "+strconv.Itoa(focusIcon.GetFirewall()), congo.ColorYellow)
 						}
@@ -1112,11 +1129,12 @@ func CatapultICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //ShokerICActionTarget -
-func ShokerICActionTarget(src IObj, trg IObj) {
+func ShokerICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -1177,11 +1195,12 @@ func ShokerICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //TrackICActionTarget -
-func TrackICActionTarget(src IObj, trg IObj) {
+func TrackICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -1248,11 +1267,12 @@ func TrackICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //BloodhoundICActionTarget -
-func BloodhoundICActionTarget(src IObj, trg IObj) {
+func BloodhoundICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = pickIconByName(src.(*TIC).GetLastTargetName())
 	host := src.(*TIC).GetHost()
@@ -1317,11 +1337,12 @@ func BloodhoundICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //BloodhoundICActionArea -
-func BloodhoundICActionArea(src IObj, trg IObj) {
+func BloodhoundICActionArea(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon
 	bloodhoundIC := src.(*TIC)
@@ -1407,11 +1428,12 @@ func BloodhoundICActionArea(src IObj, trg IObj) {
 		}
 	}
 	isComplexAction()
-	endAction()
+
+	return true
 }
 
 //CrashICActionTarget -
-func CrashICActionTarget(src IObj, trg IObj) {
+func CrashICActionTarget(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon.(IPersona)
 	host := src.(*TIC).GetHost()
@@ -1471,11 +1493,12 @@ func CrashICActionTarget(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //ICWait - action for all ICes: do nothing
-func ICWait(src IObj, trg IObj) {
+func ICWait(src IObj, trg IObj) bool {
 	src = SourceIcon.(*TIC)
 	trg = TargetIcon
 	if ic, ok := SourceIcon.(*TIC); ok {
@@ -1484,7 +1507,8 @@ func ICWait(src IObj, trg IObj) {
 		printLog(ic.GetName()+" waiting", congo.ColorRed)
 	}
 	//src.(IIC).SpendComplexAction()
-	endAction()
+
+	return true
 }
 
 /////////////////////////////////////////////////////////////
@@ -1595,6 +1619,11 @@ func checkAction(actionName string) (bool, string) {
 		mActionName = "FULL_DEFENCE"
 		return actionIsGood, mActionName
 	//////////////////////////////////////////
+	case "INFUSE_ATTACK":
+		actionIsGood = true
+		mActionName = "INFUSE_ATTACK"
+		return actionIsGood, mActionName
+	//////////////////////////////////////////
 	case "EXECUTE_SCAN":
 		actionIsGood = true
 		mActionName = "EXECUTE_SCAN"
@@ -1610,6 +1639,7 @@ func checkAction(actionName string) (bool, string) {
 	default:
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Unknown command", congo.ColorGreen)
 		//panic("fi")
+		return false, mActionName
 
 	}
 	return actionIsGood, mActionName
@@ -1634,7 +1664,10 @@ func doAction(mActionName string) bool {
 			}
 		}
 		if canIconCanDoAction(mActionName, SourceIcon.(IIcon)) {
-			val.(func(IObj, IObj))(SourceIcon, TargetIcon)
+			actionSuccsesful := val.(func(IObj, IObj) (actionSuccsesful bool))(SourceIcon, TargetIcon)
+			if actionSuccsesful {
+				endAction()
+			}
 			return true
 		}
 		printLog(SourceIcon.GetName()+" cant do: "+mActionName, congo.ColorDefault)
@@ -1703,7 +1736,7 @@ func getActions(icon IIcon) (int, int) {
 }
 
 //BruteForce - ++
-func BruteForce(src IObj, trg IObj) {
+func BruteForce(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	isComplexAction()
 	comm := GetComm()
@@ -1795,13 +1828,14 @@ func BruteForce(src IObj, trg IObj) {
 			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //SwitchInterfaceMode - ++
-func SwitchInterfaceMode(src IObj, trg IObj) {
+func SwitchInterfaceMode(src IObj, trg IObj) bool {
 	src = SourceIcon
-	if persona, ok := src.(*TPersona); ok {
+	if persona, ok := src.(IPersona); ok {
 		printLog("Initiate Interface Mode switching...", congo.ColorGreen)
 		//text := TargetIcon.(string)
 		text := command
@@ -1837,11 +1871,12 @@ func SwitchInterfaceMode(src IObj, trg IObj) {
 		//printLog("--DEBUG--: Changes will be applied on next turn. Canonic Initiative System planed on later date", congo.ColorDefault)
 
 	}
-	endAction()
+
+	return true
 }
 
 //CheckOverwatchScore - ++
-func CheckOverwatchScore(src IObj, trg IObj) {
+func CheckOverwatchScore(src IObj, trg IObj) bool {
 	persona := SourceIcon.(IPersona)
 	grid := src.(IPersona).GetGrid()
 	dp1 := persona.GetElectronicSkill() + persona.GetLogic() //+ attMod
@@ -1877,11 +1912,12 @@ func CheckOverwatchScore(src IObj, trg IObj) {
 		hold()
 	}
 	addOverwatchScore(suc2)
-	endAction()
+
+	return true
 }
 
 //CrackFile - ++
-func CrackFile(src IObj, trg IObj) {
+func CrackFile(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	isComplexAction()
 	comm := GetComm()
@@ -1941,11 +1977,12 @@ func CrackFile(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //DataSpike - ++
-func DataSpike(src IObj, trg IObj) {
+func DataSpike(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	isComplexAction()
 	comm := GetComm()
@@ -2019,12 +2056,12 @@ func DataSpike(src IObj, trg IObj) {
 			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
 	}
-	endAction()
 
+	return true
 }
 
 //DisarmDataBomb -
-func DisarmDataBomb(src IObj, trg IObj) {
+func DisarmDataBomb(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	isComplexAction()
 	comm := GetComm()
@@ -2078,12 +2115,13 @@ func DisarmDataBomb(src IObj, trg IObj) {
 			printLog("...Error: Target "+strconv.Itoa(i+1)+" is not a valid type", congo.ColorDefault)
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //SetDatabomb -
-func SetDatabomb(src IObj, trg IObj) {
-	src = SourceIcon.(*TPersona)
+func SetDatabomb(src IObj, trg IObj) bool {
+	src = SourceIcon.(IPersona)
 	trg = TargetIcon
 	icon := SourceIcon.(IPersona)
 	host := trg.(IFile).GetHost()
@@ -2129,11 +2167,12 @@ func SetDatabomb(src IObj, trg IObj) {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("...Databomb installation failed", congo.ColorGreen)
 		}
 	}
-	endAction()
+
+	return true
 }
 
 /*//Edit0 - old function. Delete if Edit will receive no bugs
-func Edit0(src IObj, trg IObj) {
+func Edit0(src IObj, trg IObj) bool  {
 	comm := GetComm()
 	trg = TargetIcon
 	host := SourceIcon.(IIcon).GetHost()
@@ -2230,12 +2269,12 @@ func Edit0(src IObj, trg IObj) {
 				}
 			}
 		}
-		endAction()
+
 	}
 }*/
 
 //Edit -
-func Edit(src IObj, trg IObj) {
+func Edit(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	isComplexAction()
 	comm := GetComm()
@@ -2346,11 +2385,12 @@ func Edit(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //EnterHost - ++
-func EnterHost(src IObj, trg IObj) {
+func EnterHost(src IObj, trg IObj) bool {
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
 	persona := SourceIcon.(IPersona)
 
@@ -2371,11 +2411,12 @@ func EnterHost(src IObj, trg IObj) {
 		printLog("Entering Host...", congo.ColorGreen)
 		printLog("...Error: Target is not a Host", congo.ColorGreen)
 	}
-	endAction()
+
+	return true
 }
 
 //ExitHost - ++
-func ExitHost(src IObj, trg IObj) {
+func ExitHost(src IObj, trg IObj) bool {
 	persona := SourceIcon.(IPersona)
 	//host := persona.GetHost()
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
@@ -2387,11 +2428,12 @@ func ExitHost(src IObj, trg IObj) {
 		src.(IPersona).SetHost(Matrix)
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("...successful", congo.ColorGreen)
 	}
-	endAction()
+
+	return true
 }
 
 //SwitchSilentMode - ++
-func SwitchSilentMode(src IObj, trg IObj) {
+func SwitchSilentMode(src IObj, trg IObj) bool {
 	if persona, ok := src.(IPersona); ok {
 		printLog("Switching silent running mode...", congo.ColorGreen)
 		text := command
@@ -2415,11 +2457,12 @@ func SwitchSilentMode(src IObj, trg IObj) {
 			printLog("...Error: Argument is invalid...", congo.ColorYellow)
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //EraseMark -
-func EraseMark(src IObj, trg IObj) {
+func EraseMark(src IObj, trg IObj) bool {
 	isComplexAction() // есть вероятность что стрельнет механизм возврата
 	if icon, ok := src.(IPersona); ok {
 		//trg = pickObjByID(2)
@@ -2473,11 +2516,12 @@ func EraseMark(src IObj, trg IObj) {
 			}
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //GridHop -
-func GridHop(src IObj, trg IObj) {
+func GridHop(src IObj, trg IObj) bool {
 	persona := SourceIcon.(IPersona)
 	if grid, ok := trg.(*TGrid); ok {
 		isComplexAction()
@@ -2503,11 +2547,12 @@ func GridHop(src IObj, trg IObj) {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+trg.(IObj).GetName(), congo.ColorYellow)
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error!! "+trg.(IObj).GetName()+" is not a grid.", congo.ColorYellow)
 	}
-	endAction()
+
+	return true
 }
 
 //HackOnTheFly - ++
-func HackOnTheFly(src IObj, trg IObj) {
+func HackOnTheFly(src IObj, trg IObj) bool {
 	src = SourceIcon
 	trg = TargetIcon
 	var netHits int
@@ -2598,11 +2643,11 @@ func HackOnTheFly(src IObj, trg IObj) {
 		}
 	}
 
-	endAction()
+	return true
 }
 
 //MatrixPerception - ++
-func MatrixPerception(src IObj, trg IObj) {
+func MatrixPerception(src IObj, trg IObj) bool {
 	src = SourceIcon
 	trg = TargetIcon
 	var netHits int
@@ -2663,12 +2708,11 @@ func MatrixPerception(src IObj, trg IObj) {
 		}
 	}
 
-	endAction()
-
+	return true
 }
 
 //MatrixSearch -
-func MatrixSearch(src IObj, trg IObj) {
+func MatrixSearch(src IObj, trg IObj) bool {
 	src = SourceIcon
 	trg = TargetIcon
 	//var netHits int
@@ -2749,11 +2793,12 @@ func MatrixSearch(src IObj, trg IObj) {
 	} else {
 		printLog("..."+persona.GetName()+": Search Failed", congo.ColorGreen)
 	}
-	endAction()
+
+	return true
 }
 
 //ScanEnviroment - ++
-func ScanEnviroment(src IObj, trg IObj) {
+func ScanEnviroment(src IObj, trg IObj) bool {
 	//printLog("Start", congo.ColorYellow)
 	src = SourceIcon
 	trg = TargetIcon
@@ -2840,13 +2885,14 @@ func ScanEnviroment(src IObj, trg IObj) {
 		break
 	}
 	//printLog("End", congo.ColorYellow)
-	endAction()
+
+	return true
 }
 
 //SwapAttributes -
-func SwapAttributes(src IObj, trg IObj) { //need to rewrite to use IPersona
-	src = SourceIcon
-	if persona, ok := src.(*TPersona); ok {
+func SwapAttributes(src IObj, trg IObj) bool { //need to rewrite to use IPersona
+	src = SourceIcon.(IPersona)
+	if persona, ok := src.(IPersona); ok {
 		printLog("Initiate attributes swapping...", congo.ColorGreen)
 		//text := TargetIcon.(string)
 		isFreeAction()
@@ -2859,19 +2905,20 @@ func SwapAttributes(src IObj, trg IObj) { //need to rewrite to use IPersona
 		att1 := 0
 		switch comm[2] {
 		case "ATTACK":
-			att1 = SourceIcon.(*TPersona).GetAttackRaw()
+			//att1 = SourceIcon.(IPersona).GetAttackRaw()
+			att1 = persona.GetAttackRaw()
 			printLog("...Attribute 1 = Attack", congo.ColorGreen)
 			swap1 = true
 		case "SLEAZE":
-			att1 = SourceIcon.(*TPersona).GetSleazeRaw()
+			att1 = SourceIcon.(IPersona).GetSleazeRaw()
 			printLog("...Attribute 1 = Sleaze", congo.ColorGreen)
 			swap1 = true
 		case "DATA_PROCESSING":
-			att1 = SourceIcon.(*TPersona).GetDataProcessingRaw()
+			att1 = SourceIcon.(IPersona).GetDataProcessingRaw()
 			printLog("...Attribute 1 = Data Processing", congo.ColorGreen)
 			swap1 = true
 		case "FIREWALL":
-			att1 = SourceIcon.(*TPersona).GetFirewallRaw()
+			att1 = SourceIcon.(IPersona).GetFirewallRaw()
 			printLog("...Attribute 1 = Firewall", congo.ColorGreen)
 			swap1 = true
 		default:
@@ -2882,57 +2929,65 @@ func SwapAttributes(src IObj, trg IObj) { //need to rewrite to use IPersona
 		att2 := 0
 		switch comm[3] {
 		case "ATTACK":
-			att2 = SourceIcon.(*TPersona).GetAttackRaw()
+			att2 = SourceIcon.(IPersona).GetAttackRaw()
 			printLog("...Attribute 2 = Attack", congo.ColorGreen)
 			swap2 = true
 		case "SLEAZE":
-			att2 = SourceIcon.(*TPersona).GetSleazeRaw()
+			att2 = SourceIcon.(IPersona).GetSleazeRaw()
 			printLog("...Attribute 2 = Sleaze", congo.ColorGreen)
 			swap2 = true
 		case "DATA_PROCESSING":
-			att2 = SourceIcon.(*TPersona).GetDataProcessingRaw()
+			att2 = SourceIcon.(IPersona).GetDataProcessingRaw()
 			printLog("...Attribute 2 = Data Processing", congo.ColorGreen)
 			swap2 = true
 		case "FIREWALL":
-			att2 = SourceIcon.(*TPersona).GetFirewallRaw()
+			att2 = SourceIcon.(IPersona).GetFirewallRaw()
 			printLog("...Attribute 2 = Firewall", congo.ColorGreen)
 			swap2 = true
 		default:
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("...Error: Attribute 2 is invalid...", congo.ColorYellow)
 			swap2 = false
 		}
-		if persona.device.canSwapAtt == false {
+		if persona.GetDevice().canSwapAtt == false {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("This Persona cann't swap attributes!", congo.ColorRed)
 			comm[2] = " "
 			comm[3] = " "
 		}
 		if swap1 == true && swap2 == true {
 			if comm[2] == "ATTACK" {
-				persona.SetDeviceAttackRaw(att2)
+				persona.GetDevice().SetAttackRaw(att2)
+				//persona.SetDeviceAttackRaw(att2)
 				swap1 = true
 			} else if comm[2] == "SLEAZE" {
-				persona.SetDeviceSleazeRaw(att2)
+				persona.GetDevice().SetSleazeRaw(att2)
+				//persona.SetDeviceSleazeRaw(att2)
 				swap1 = true
 			} else if comm[2] == "DATA_PROCESSING" {
-				persona.SetDeviceDataProcessingRaw(att2)
+				persona.GetDevice().SetDataProcessingRaw(att2)
+				//persona.SetDeviceDataProcessingRaw(att2)
 				swap1 = true
 			} else if comm[2] == "FIREWALL" {
-				persona.SetDeviceFirewallRaw(att2)
+				persona.GetDevice().SetFirewallRaw(att2)
+				//persona.SetDeviceFirewallRaw(att2)
 				swap1 = true
 			} else {
 				swap1 = false
 			}
 			if comm[3] == "ATTACK" {
-				persona.SetDeviceAttackRaw(att1)
+				//persona.SetDeviceAttackRaw(att1)
+				persona.GetDevice().SetAttackRaw(att1)
 				swap2 = true
 			} else if comm[3] == "SLEAZE" {
-				persona.SetDeviceSleazeRaw(att1)
+				persona.GetDevice().SetSleazeRaw(att1)
+				//persona.SetDeviceSleazeRaw(att1)
 				swap2 = true
 			} else if comm[3] == "DATA_PROCESSING" {
-				persona.SetDeviceDataProcessingRaw(att1)
+				persona.GetDevice().SetDataProcessingRaw(att1)
+				//persona.SetDeviceDataProcessingRaw(att1)
 				swap2 = true
 			} else if comm[3] == "FIREWALL" {
-				persona.SetDeviceFirewallRaw(att1)
+				persona.GetDevice().SetFirewallRaw(att1)
+				//persona.SetDeviceFirewallRaw(att1)
 				swap2 = true
 			} else {
 				swap2 = false
@@ -2948,14 +3003,15 @@ func SwapAttributes(src IObj, trg IObj) { //need to rewrite to use IPersona
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Attribute swapping failed", congo.ColorYellow)
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //LoadProgram -
-func LoadProgram(src IObj, trg IObj) {
+func LoadProgram(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
-	if persona, ok := src.(*TPersona); ok {
+	if persona, ok := src.(IPersona); ok {
 		//text := TargetIcon.(string)
 		text := command
 		text = formatString(text)
@@ -2985,7 +3041,7 @@ func LoadProgram(src IObj, trg IObj) {
 					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program type: "+persona.GetDeviceSoft().programType[i], congo.ColorGreen)
 					time.Sleep(dur)
 					draw()
-					if persona.LoadProgram(program) { //////Проверка устройства
+					if persona.GetDevice().LoadProgram(program) { //////Проверка устройства
 						//persona.LoadProgram(program)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...program status: "+persona.GetDeviceSoft().programStatus[i], congo.ColorGreen)
 						time.Sleep(dur)
@@ -3016,11 +3072,11 @@ func LoadProgram(src IObj, trg IObj) {
 		}
 	}
 
-	endAction()
+	return true
 }
 
 //Login -
-func Login(src IObj, trg IObj) {
+func Login(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
 	text := command
@@ -3028,7 +3084,7 @@ func Login(src IObj, trg IObj) {
 	text = cleanText(text)
 	comm := strings.SplitN(text, ">", 3)
 	target := formatTargetName(comm[2])
-	if persona, ok := src.(*TPersona); ok {
+	if persona, ok := src.(IPersona); ok {
 		printLog(">>>LOGIN: "+target, congo.ColorGreen)
 		printLog(">>>PASSCODE: XXXXXXXXXXXXXXXXX", congo.ColorGreen)
 		if persona.GetName() == "Unknown" {
@@ -3050,15 +3106,16 @@ func Login(src IObj, trg IObj) {
 		}
 	}
 	SourceIcon = player
-	endAction()
+
 	//SourceIcon = player
+	return true
 }
 
 //UnloadProgram -
-func UnloadProgram(src IObj, trg IObj) {
+func UnloadProgram(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
-	if persona, ok := src.(*TPersona); ok {
+	if persona, ok := src.(IPersona); ok {
 		//text := TargetIcon.(string)
 		text := command
 		text = formatString(text)
@@ -3079,7 +3136,7 @@ func UnloadProgram(src IObj, trg IObj) {
 				draw()
 				if persona.GetDeviceSoft().programStatus[i] == "Running" {
 					if true { //////Проверка устройства
-						persona.UnloadProgram(program)
+						persona.GetDevice().UnloadProgram(program)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+program+" Terminated", congo.ColorGreen)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("Program exit code:0", congo.ColorGreen)
 						isFreeAction()
@@ -3097,14 +3154,14 @@ func UnloadProgram(src IObj, trg IObj) {
 		}
 	}
 
-	endAction()
+	return true
 }
 
 //SwapPrograms - ++
-func SwapPrograms(src IObj, trg IObj) {
+func SwapPrograms(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
-	if persona, ok := src.(*TPersona); ok {
+	if persona, ok := src.(IPersona); ok {
 		//text := TargetIcon.(string)
 		text := command
 		text = formatString(text)
@@ -3124,7 +3181,7 @@ func SwapPrograms(src IObj, trg IObj) {
 				draw()
 				if persona.GetDeviceSoft().programStatus[i] == "Running" {
 					if true { //////Проверка устройства
-						persona.UnloadProgram(program)
+						persona.GetDevice().UnloadProgram(program)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+program+" Terminated", congo.ColorGreen)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("Program exit code:0", congo.ColorGreen)
 						isFreeAction()
@@ -3163,7 +3220,7 @@ func SwapPrograms(src IObj, trg IObj) {
 					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program type: "+persona.GetDeviceSoft().programType[i], congo.ColorGreen)
 					time.Sleep(dur)
 					draw()
-					if persona.LoadProgram(program) { //////Проверка устройства
+					if persona.GetDevice().LoadProgram(program) { //////Проверка устройства
 						//persona.LoadProgram(program)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...program status: "+persona.GetDeviceSoft().programStatus[i], congo.ColorGreen)
 						time.Sleep(dur)
@@ -3182,11 +3239,12 @@ func SwapPrograms(src IObj, trg IObj) {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program '"+comm[3]+"' cannot be loaded", congo.ColorGreen)
 		}
 	}
-	endAction()
+
+	return true
 }
 
 //Wait - ++
-func Wait(src IObj, trg IObj) {
+func Wait(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	comm := GetComm()
 	for i := range comm {
@@ -3217,21 +3275,64 @@ func Wait(src IObj, trg IObj) {
 	}
 	//printLog(persona.GetPing(), congo.ColorDefault)
 	persona.SpendComplexAction()
-	endAction()
 
+	return true
 }
 
 //FullDefence -
-func FullDefence(src IObj, trg IObj) {
+func FullDefence(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
-	if persona, ok := src.(*TPersona); ok {
+	if persona, ok := src.(IPersona); ok {
 		printLog("Full defence protocol initiated", congo.ColorGreen)
 		persona.SetFullDeffenceFlag(true)
 		isComplexAction()
 	}
-	endAction()
 
+	return true
+}
+
+//InfuseAttack -
+func InfuseAttack(src IObj, trg IObj) bool {
+	if livPersona, ok := src.(ITechnom); ok {
+		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
+		if livPersona.GetDevice().GetModel() != "Living Persona" {
+			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+			return false
+		}
+	} else {
+		printLog("not a Technomancer", congo.ColorRed)
+		return false
+	}
+	////////////////////////
+	persona := src.(ITechnom)
+	comm := GetComm()
+	if len(comm) < 4 {
+		printLog("Error: Force not designated", congo.ColorYellow)
+		printLog("[COMPLEX_FORM]>[TARGET]>[FORCE]", congo.ColorDefault)
+		return false
+	}
+	printLog(persona.GetName(), congo.ColorDefault)
+	force := 0
+	for i := range comm {
+		if strings.Contains(comm[i], "-F") {
+			forceSTR := strings.Split(comm[i], "-F")
+			forceINT, _ := strconv.Atoi(forceSTR[1])
+			force = forceINT
+		}
+	}
+	if force == 0 {
+		printLog("Error: Force not designated correctly", congo.ColorYellow)
+		printLog("Use '-F3' for force = 3, '-F10' for force = 10, ect...", congo.ColorDefault)
+		return false
+	}
+	if targ, ok := TargetIcon.(IIcon); ok {
+		//targ.SetAttackMod(force) //need mechanika
+		TreadComplexForm(persona.GetID(), targ.GetID(), "Infusion of Attack", force, force)
+
+	}
+
+	return true
 }
 
 func addOverwatchScore(suc2 int) {
@@ -3379,6 +3480,11 @@ func calculateAttMods(comm []string, attacker IPersona, targetList []IObj) (attM
 				oppCyc = true
 			}
 		}
+	}
+	cfMod := countSustainedForms(attacker.GetID())
+	if cfMod > 0 {
+		attMod = attMod - (cfMod * 2)
+		printLog("...Sustained Complex Forms: -"+strconv.Itoa(cfMod*2)+" op/p", congo.ColorGreen)
 	}
 	if attacker.GetGrid().name == "Public Grid" {
 		attMod = attMod - 2

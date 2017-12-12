@@ -71,7 +71,7 @@ SoftwareSpec: NONE
 
 #########################
 
-Alias: Technomancer
+Alias: Technom
 Class: Technomancer
 Device: Living Persona
 ////Attributes:

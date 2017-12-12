@@ -24,7 +24,7 @@ func AddDevice() TDeviceDB {
 	//////////////
 	DB.DeviceDB["<UNREGISTRATED>"] = &TDevice{}
 	DB.DeviceDB["<UNREGISTRATED>"].deviceType = "Cyberdeck"
-	DB.DeviceDB["<UNREGISTRATED>"].model = "Erika MCD-1"
+	DB.DeviceDB["<UNREGISTRATED>"].model = "noDevice"
 	DB.DeviceDB["<UNREGISTRATED>"].deviceRating = 0
 	DB.DeviceDB["<UNREGISTRATED>"].attack = 0
 	DB.DeviceDB["<UNREGISTRATED>"].sleaze = 0

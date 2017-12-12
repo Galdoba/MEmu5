@@ -45,3 +45,19 @@ Host_IC:
  >Black IC
 
 #########################
+          
+Host: Strong
+Grid: Renraku Okoku
+Host_Atributes:
+  Rating: 4
+  Attack: 4
+  Sleaze: 7
+  Data Processing: 5
+  Firewall: 16
+Host_IC:
+ >Patrol IC
+ >Catapult IC
+ >Shoker IC
+ >Killer IC
+
+#########################
