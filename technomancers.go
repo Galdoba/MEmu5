@@ -28,6 +28,7 @@ type ITechnomOnly interface {
 	SetResonance(int)
 	GetSubmersion() int
 	GetSustainedForms() []ComplexForm
+	ResistFade(int, string)
 }
 
 //NewTechnom -
@@ -267,4 +268,28 @@ func (t *TTechnom) GetSustainedForms() []ComplexForm {
 		}
 	}
 	return formsList
+}
+
+func (t *TTechnom) ResistFade(fade int, fadeType string) {
+	printLog("...Fading: "+strconv.Itoa(fade)+" "+fadeType, congo.ColorGreen)
+	resDP := t.GetWillpower() + t.GetResonance()
+	printLog("...Fade resiting: "+strconv.Itoa(resDP)+" dice", congo.ColorGreen)
+	resistedFadeV, gl, cgl := simpleTest(t.id, resDP, 1000, 0)
+	if gl == true {
+		fade = fade + (xd6Test(1) / 2)
+	}
+	if cgl == true {
+		fade = fade + (xd6Test(1) / 2)
+		fadeType = "phys"
+	}
+	fade = fade - resistedFadeV
+	if fade < 0 {
+		fade = 0
+	}
+	if fadeType == "stun" {
+		t.ReceiveStunBiofeedbackDamage(fade)
+	}
+	if fadeType == "phys" {
+		t.ReceivePhysBiofeedbackDamage(fade)
+	}
 }

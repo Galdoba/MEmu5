@@ -3308,28 +3308,64 @@ func InfuseAttack(src IObj, trg IObj) bool {
 	persona := src.(ITechnom)
 	comm := GetComm()
 	if len(comm) < 4 {
-		printLog("Error: Force not designated", congo.ColorYellow)
-		printLog("[COMPLEX_FORM]>[TARGET]>[FORCE]", congo.ColorDefault)
+		printLog("Error: Level not designated", congo.ColorYellow)
+		printLog("[COMPLEX_FORM]>[TARGET]>[LEVEL]", congo.ColorDefault)
 		return false
 	}
 	printLog(persona.GetName(), congo.ColorDefault)
-	force := 0
+	level := 0
 	for i := range comm {
 		if strings.Contains(comm[i], "-F") {
-			forceSTR := strings.Split(comm[i], "-F")
-			forceINT, _ := strconv.Atoi(forceSTR[1])
-			force = forceINT
+			levelSTR := strings.Split(comm[i], "-F")
+			levelINT, _ := strconv.Atoi(levelSTR[1])
+			level = levelINT
 		}
 	}
-	if force == 0 {
-		printLog("Error: Force not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for force = 3, '-F10' for force = 10, ect...", congo.ColorDefault)
+	if level < 1 {
+		printLog("Error: Level not designated correctly", congo.ColorYellow)
+		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
-	if targ, ok := TargetIcon.(IIcon); ok {
-		//targ.SetAttackMod(force) //need mechanika
-		TreadComplexForm(persona.GetID(), targ.GetID(), "Infusion of Attack", force, force)
+	if level > (persona.GetResonance() * 2) {
+		printLog("Error: Level not designated correctly", congo.ColorYellow)
+	}
+	printLog("Begin threadeng:", congo.ColorGreen)
+	printLog("...Infusion of Attack", congo.ColorGreen)
+	if target, ok := TargetIcon.(IIcon); ok {
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance()
+		limit := level
+		fade := level + 1
+		fadeType := "stun"
+		if fade < 2 {
+			fade = 2
+		}
+		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+		if suc1 > persona.GetResonance() {
+			fadeType = "phys"
+		}
+		if gl == true {
+			fade = fade + (xd6Test(1) / 2)
+		}
+		if cgl == true {
+			fade = fade + (xd6Test(1) / 2)
+			fadeType = "phys"
+		}
+		if level >= target.GetAttack() {
+			if suc1 > target.GetAttack() {
+				suc1 = target.GetAttack()
+			}
+			TreadComplexForm(persona.GetID(), target.GetID(), "Infusion of Attack", level, suc1)
+			printLog("...Threadeng successful", congo.ColorGreen)
 
+		} else {
+			printLog("...Threadeng failed", congo.ColorYellow)
+			printLog("Target's Attack higher than Complex Form level", congo.ColorGreen)
+		}
+
+		persona.ResistFade(fade, fadeType)
+	} else {
+		printLog("Error: This Complex Form is not usable for this target type", congo.ColorYellow)
+		return false
 	}
 
 	return true

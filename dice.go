@@ -218,6 +218,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 					suc, gl, cgl := rule6Test(rollerID, dicePool1, limit, threshold)
 					netHits := (suc - threshold)
 					player.SetEdge(player.GetEdge() - 1)
+					command = " "
 					return netHits, gl, cgl
 				}
 				//dicePool1 = dicePool1 + player.GetMaxEdge()
@@ -251,7 +252,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 		if critGlitch {
 			printLog("......Warning: Error critical!", congo.ColorRed)
 		}
-		printLog("......Interrupt protocol ready", congo.ColorGreen)
+		//printLog("......Interrupt protocol ready", congo.ColorGreen)
 		for i := 40; i > 0; i-- {
 			congo.WindowsMap.ByTitle["Process"].WClear()
 			interruptProcess(i)
@@ -301,7 +302,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 							break
 						}
 						if char == "s" {
-							printLog("......Interrupt protocol deactivated", congo.ColorGreen)
+							//	printLog("......Interrupt protocol deactivated", congo.ColorGreen)
 							break
 						}
 					}
