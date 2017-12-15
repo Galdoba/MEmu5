@@ -3327,12 +3327,16 @@ func InfuseAttack(src IObj, trg IObj) bool {
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
-		printLog("Error: Level not designated correctly", congo.ColorYellow)
+		printLog("Error: Level can not be higher than Resonance x 2", congo.ColorYellow)
+		return false
 	}
+	targetList := pickTargets(comm)
 	printLog("Begin threadeng:", congo.ColorGreen)
+	persona.SpendComplexAction()
 	printLog("...Infusion of Attack", congo.ColorGreen)
 	if target, ok := TargetIcon.(IIcon); ok {
-		dp1 := persona.GetSoftwareSkill() + persona.GetResonance()
+		attMod := calculateAttMods(comm, persona, targetList)
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
 		limit := level
 		fade := level + 1
 		fadeType := "stun"
@@ -3501,6 +3505,14 @@ func calculateAttMods(comm []string, attacker IPersona, targetList []IObj) (attM
 	if attMod == 2 {
 		printLog("...Active Specialization: +"+strconv.Itoa(2)+" op/p", congo.ColorGreen)
 	}
+	var woundMod int
+	sWoundMod := (attacker.GetMaxStunCM() - attacker.GetStunCM()) / 3
+	pWoundMod := (attacker.GetMaxPhysCM() - attacker.GetPhysCM()) / 3
+	woundMod = sWoundMod + pWoundMod
+	if woundMod > 0 {
+		printLog("...Wound modificator: -"+strconv.Itoa(woundMod)+" op/p", congo.ColorGreen)
+	}
+	attMod = attMod + woundMod
 
 	var oppCyc bool
 	for i := range comm {
@@ -3561,6 +3573,9 @@ func pickTargets(comm []string) []IObj {
 		return targetList
 	}
 	targetName := formatTargetName(comm[2])
+	if targetName == "SELF" {
+		targetName = SourceIcon.GetName()
+	}
 	if grid, ok := ObjByNames[targetName].(*TGrid); ok {
 		targetList = append(targetList, grid)
 		printLog("...Target 1: "+grid.GetGridName()+" has top priority", congo.ColorYellow)

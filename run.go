@@ -47,6 +47,7 @@ var ObjByNames = map[string]IObj{
 //"null": nil,
 }
 
+//CFDBMap -
 var CFDBMap = map[int]ComplexForm{
 //null
 }

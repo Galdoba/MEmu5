@@ -75,25 +75,27 @@ func refreshPersonaWin() {
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorDefault)
 	col := congo.ColorDefault
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Condition Monitor:", congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Persona"].WPrint("Matrix  : ", congo.ColorDefault)
-	if player.GetMatrixCM() < 1 {
-		col = congo.ColorRed
-		congo.WindowsMap.ByTitle["Persona"].WPrint("DEVICE BRICKED!!!", congo.ColorRed)
+	if player.GetDevice().model != "Living Persona" {
+		congo.WindowsMap.ByTitle["Persona"].WPrint("Matrix  : ", congo.ColorDefault)
+		if player.GetMatrixCM() < 1 {
+			col = congo.ColorRed
+			congo.WindowsMap.ByTitle["Persona"].WPrint("DEVICE BRICKED!!!", congo.ColorRed)
 
-	} else {
-		for i := 0; i < player.GetMatrixCM(); i++ {
-			congo.WindowsMap.ByTitle["Persona"].WPrint("X ", congo.ColorGreen)
-			col = congo.ColorGreen
-			if i < 6 {
-				col = congo.ColorYellow
-			}
-			if i < 3 {
-				col = congo.ColorRed
-			}
+		} else {
+			for i := 0; i < player.GetMatrixCM(); i++ {
+				congo.WindowsMap.ByTitle["Persona"].WPrint("X ", congo.ColorGreen)
+				col = congo.ColorGreen
+				if i < 6 {
+					col = congo.ColorYellow
+				}
+				if i < 3 {
+					col = congo.ColorRed
+				}
 
+			}
 		}
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" ", col)
 	}
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" ", col)
 	congo.WindowsMap.ByTitle["Persona"].WPrint("Stun    : ", congo.ColorYellow)
 	if player.GetStunCM() < 1 {
 		col = congo.ColorRed

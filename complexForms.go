@@ -1,9 +1,9 @@
 package main
 
-//DB -
-//var CFDB TCompFormsDB
+//CFNumber -
 var CFNumber int
 
+//ComplexForm -
 type ComplexForm struct {
 	formNum      int
 	madeByID     int
@@ -23,6 +23,7 @@ func deleteComplexForm(srcID int, formName string) {
 	//
 }
 
+//TreadComplexForm -
 func TreadComplexForm(srcID, trgID int, formName string, formLevel, formSucc int) bool {
 	for i := range CFDBMap {
 		if getComplexForm(i).madeOnID == trgID && getComplexForm(i).cfName == formName && getComplexForm(i).madeByID == srcID { //if this Form from this src on this trg exist

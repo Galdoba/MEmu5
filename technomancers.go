@@ -259,7 +259,7 @@ func (t *TTechnom) GetDevice() *TDevice {
 	return t.device
 }
 
-//GetDevice -
+//GetSustainedForms -
 func (t *TTechnom) GetSustainedForms() []ComplexForm {
 	var formsList []ComplexForm
 	for i := range CFDBMap {
@@ -270,6 +270,7 @@ func (t *TTechnom) GetSustainedForms() []ComplexForm {
 	return formsList
 }
 
+//ResistFade -
 func (t *TTechnom) ResistFade(fade int, fadeType string) {
 	printLog("...Fading: "+strconv.Itoa(fade)+" "+fadeType, congo.ColorGreen)
 	resDP := t.GetWillpower() + t.GetResonance()

@@ -121,7 +121,7 @@ func (o *TObj) GetType() string {
 	return ""
 }
 
-//GetType -
+//GetUDevice -
 func (o *TObj) GetUDevice() string {
 	return o.uDevice
 }
@@ -398,6 +398,7 @@ func (i *TIcon) GetDeviceRating() int {
 	return i.GetDevice().deviceRating
 }
 
+//CheckThreadedForm -
 func (i *TIcon) CheckThreadedForm(cFormName string) bool {
 	for j := range CFDBMap {
 		if getComplexForm(j).madeOnID != i.GetID() {
@@ -411,6 +412,7 @@ func (i *TIcon) CheckThreadedForm(cFormName string) bool {
 	return false
 }
 
+//GetComplexFormEffect -
 func (i *TIcon) GetComplexFormEffect(cFormName string) (int, int) {
 	cFormIndex := 0
 	cFormEffect := 0
@@ -1576,6 +1578,8 @@ type IPersonaOnly interface {
 	GetAlias() string
 	GetStunCM() int
 	GetPhysCM() int
+	GetMaxStunCM() int
+	GetMaxPhysCM() int
 	SetStunCM(int)
 	SetPhysCM(int)
 	Dumpshock()
@@ -1948,6 +1952,7 @@ func (p *TPersona) GetDeviceSoft() *TProgram {
 }
 
 ///////////////
+
 //GetMatrixCM -
 func (p *TPersona) GetMatrixCM() int {
 	return p.device.matrixCM
@@ -1961,6 +1966,11 @@ func (p *TPersona) SetMatrixCM(cmValue int) {
 //GetStunCM -
 func (p *TPersona) GetStunCM() int {
 	return p.stunCM
+}
+
+//GetMaxStunCM -
+func (p *TPersona) GetMaxStunCM() int {
+	return p.maxStunCM
 }
 
 //SetStunCM -
@@ -1988,6 +1998,11 @@ func (p *TPersona) ReceiveStunDamage(cmValue int) {
 //GetPhysCM -
 func (p *TPersona) GetPhysCM() int {
 	return p.physCM
+}
+
+//GetMaxPhysCM -
+func (p *TPersona) GetMaxPhysCM() int {
+	return p.maxPhysCM
 }
 
 //SetPhysCM -
