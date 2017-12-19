@@ -73,6 +73,21 @@ type IObj interface {
 	GetDeviceRating() int
 	SetDeviceRating(int)
 	GetPing() string
+	CheckThreadedForm(string) (bool, int)
+}
+
+//CheckThreadedForm -
+func (o *TObj) CheckThreadedForm(cFormName string) (bool, int) {
+	for j := range CFDBMap {
+		if getComplexForm(j).madeOnID != o.GetID() {
+			continue
+		}
+		if getComplexForm(j).cfName != cFormName {
+			continue
+		}
+		return false, getComplexForm(j).formNum
+	}
+	return false, 0
 }
 
 //GetPing -
@@ -398,7 +413,7 @@ func (i *TIcon) GetDeviceRating() int {
 	return i.GetDevice().deviceRating
 }
 
-//CheckThreadedForm -
+/*//CheckThreadedForm -
 func (i *TIcon) CheckThreadedForm(cFormName string) bool {
 	for j := range CFDBMap {
 		if getComplexForm(j).madeOnID != i.GetID() {
@@ -410,7 +425,7 @@ func (i *TIcon) CheckThreadedForm(cFormName string) bool {
 		return true
 	}
 	return false
-}
+}*/
 
 //GetComplexFormEffect -
 func (i *TIcon) GetComplexFormEffect(cFormName string) (int, int) {
@@ -438,9 +453,15 @@ func (i *TIcon) GetAttack() int {
 		programBoost = 1
 	}
 	cFormsBoost := 0
-	if i.CheckThreadedForm("Infusion of Attack") {
+	infusion, _ := i.CheckThreadedForm("Infusion of Attack")
+	if infusion {
 		boost, _ := i.GetComplexFormEffect("Infusion of Attack")
-		cFormsBoost = boost
+		cFormsBoost = cFormsBoost + boost
+	}
+	diffusion, _ := i.CheckThreadedForm("Diffusion of Attack")
+	if diffusion {
+		boost, _ := i.GetComplexFormEffect("Diffusion of Attack")
+		cFormsBoost = cFormsBoost - boost
 	}
 
 	att := i.GetDevice().attack + i.GetDevice().attackMod + programBoost + cFormsBoost
@@ -486,9 +507,15 @@ func (i *TIcon) GetSleaze() int {
 		programBoost = 1
 	}
 	cFormsBoost := 0
-	if i.CheckThreadedForm("Infusion of Sleaze") {
+	infus, _ := i.CheckThreadedForm("Infusion of Sleaze")
+	if infus {
 		boost, _ := i.GetComplexFormEffect("Infusion of Sleaze")
-		cFormsBoost = boost
+		cFormsBoost = cFormsBoost + boost
+	}
+	diffus, _ := i.CheckThreadedForm("Diffusion of Sleaze")
+	if diffus {
+		boost, _ := i.GetComplexFormEffect("Diffusion of Sleaze")
+		cFormsBoost = cFormsBoost - boost
 	}
 
 	//att := i.GetDevice().sleaze + i.GetDevice().sleazeMod + programBoost + cFormsBoost
@@ -535,11 +562,16 @@ func (i *TIcon) GetDataProcessing() int {
 		programBoost = 1
 	}
 	cFormsBoost := 0
-	if i.CheckThreadedForm("Infusion of Data Processing") {
+	infus, _ := i.CheckThreadedForm("Infusion of Data Processing")
+	if infus {
 		boost, _ := i.GetComplexFormEffect("Infusion of Data Processing")
-		cFormsBoost = boost
+		cFormsBoost = cFormsBoost + boost
 	}
-
+	diffus, _ := i.CheckThreadedForm("Diffusion of Data Processing")
+	if diffus {
+		boost, _ := i.GetComplexFormEffect("Diffusion of Data Processing")
+		cFormsBoost = cFormsBoost - boost
+	}
 	att := i.GetDevice().dataProcessing + i.GetDevice().dataProcessingMod + programBoost + cFormsBoost
 	if att < 0 {
 		return 0
@@ -583,9 +615,15 @@ func (i *TIcon) GetFirewall() int {
 		programBoost = 1
 	}
 	cFormsBoost := 0
-	if i.CheckThreadedForm("Infusion of Firewall") {
+	infus, _ := i.CheckThreadedForm("Infusion of Firewall")
+	if infus {
 		boost, _ := i.GetComplexFormEffect("Infusion of Firewall")
-		cFormsBoost = boost
+		cFormsBoost = cFormsBoost + boost
+	}
+	diffus, _ := i.CheckThreadedForm("Diffusion of Firewall")
+	if diffus {
+		boost, _ := i.GetComplexFormEffect("Diffusion of Firewall")
+		cFormsBoost = cFormsBoost - boost
 	}
 
 	att := i.GetDevice().firewall + i.GetDevice().firewallMod + programBoost + cFormsBoost

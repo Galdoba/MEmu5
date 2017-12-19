@@ -39,6 +39,7 @@ var (
 	Matrix      *THost
 	STime       string
 	SrTime      time.Time
+	TimeMarker  string
 	command     string
 )
 

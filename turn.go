@@ -222,6 +222,9 @@ func checkTurn() bool {
 			if player.GetName() != "Unknown" {
 				congo.WindowsMap.ByTitle["Log"].WPrintLn("SYSTEM TIME: "+STime, congo.ColorDefault)
 			}
+			if STime == TimeMarker {
+				player.SetWaitFlag(false)
+			}
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
 			return true
 		}
@@ -287,8 +290,8 @@ func checkTurn() bool {
 				mActionName = icDecide(ic) //нужен целеуказывающий механизм для айсов
 
 				/////////////////////////////////////////////////////////////////////
-				printLog("--point DoAction", congo.ColorDefault)
-				printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
+				//printLog("--point DoAction", congo.ColorDefault)
+				//printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
 				doAction(mActionName)
 				//printLog("Go ednActionforIC()", congo.ColorDefault)
 				endActionPhase(ic)

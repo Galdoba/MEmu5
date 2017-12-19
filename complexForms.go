@@ -5,14 +5,15 @@ var CFNumber int
 
 //ComplexForm -
 type ComplexForm struct {
-	formNum      int
-	madeByID     int
-	madeOnID     int
-	cfName       string
-	level        int
-	succ         int
-	turnsActive  int
-	durationCode string
+	formNum           int
+	madeByID          int
+	madeOnID          int
+	cfName            string
+	level             int
+	succ              int
+	turnsActive       int
+	durationCode      string
+	threaderResonance int
 }
 
 func getComplexForm(formNum int) ComplexForm {
@@ -46,7 +47,9 @@ func TreadComplexForm(srcID, trgID int, formName string, formLevel, formSucc int
 		formSucc,
 		0,
 		designFormDuration(formName),
+		pickObjByID(srcID).(ITechnom).GetResonance(),
 	}
+	//pickObjByID(srcID).(ITechnom).GetResonance()
 	return true
 }
 

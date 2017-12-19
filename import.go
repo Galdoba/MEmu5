@@ -573,7 +573,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		parts[1] = strings.Trim(parts[1], SPACES)
 		val := parts[1]
 		charMAP[key] = val
-		congo.WindowsMap.ByTitle["Log"].WPrintLn(key+":"+val, congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn(key+":"+val, congo.ColorDefault)
 	}
 	var p IPersona
 	switch charMAP["Class"] {
@@ -619,7 +619,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	p.SetSkill("Hacking", hackSkill)
 	p.SetSkill("Hardware", hardwareSkill)
 	p.SetSkill("Software", softwareSkill)
-	
+
 	/////////////SPECS
 	compSpecSTR := charMAP["ComputerSpec"]
 	compSpec := strings.Split(compSpecSTR, ",")

@@ -51,6 +51,11 @@ func InitMatrixActionMap() {
 	MActions.MActionMap["INFUSE_SLEAZE"] = InfuseSleaze
 	MActions.MActionMap["INFUSE_DATA_PROCESSING"] = InfuseDataProcessing
 	MActions.MActionMap["INFUSE_FIREWALL"] = InfuseFirewall
+	MActions.MActionMap["DIFFUSE_ATTACK"] = DiffuseAttack
+	MActions.MActionMap["DIFFUSE_SLEAZE"] = DiffuseSleaze
+	MActions.MActionMap["DIFFUSE_DATA_PROCESSING"] = DiffuseDataProcessing
+	MActions.MActionMap["DIFFUSE_FIREWALL"] = DiffuseFirewall
+	MActions.MActionMap["KILL_COMPLEX_FORM"] = KillComplexForm
 	/////////////////////////////////////
 	MActions.MActionMap["EXECUTE_SCAN"] = PatrolICActionArea
 	MActions.MActionMap["PATROL_IC_ACTION"] = PatrolICActionTarget
@@ -1507,7 +1512,7 @@ func ICWait(src IObj, trg IObj) bool {
 	if ic, ok := SourceIcon.(*TIC); ok {
 		ic.SetInitiative(ic.GetInitiative() - 0)
 		ic.SpendComplexAction()
-		printLog(ic.GetName()+" waiting", congo.ColorRed)
+		//printLog(ic.GetName()+" waiting", congo.ColorRed)
 	}
 	//src.(IIC).SpendComplexAction()
 
@@ -1638,6 +1643,26 @@ func checkAction(actionName string) (bool, string) {
 		actionIsGood = true
 		mActionName = "INFUSE_FIREWALL"
 		return actionIsGood, mActionName
+	case "DIFFUSE_ATTACK":
+		actionIsGood = true
+		mActionName = "DIFFUSE_ATTACK"
+		return actionIsGood, mActionName
+	case "DIFFUSE_SLEAZE":
+		actionIsGood = true
+		mActionName = "DIFFUSE_SLEAZE"
+		return actionIsGood, mActionName
+	case "DIFFUSE_DATA_PROCESSING":
+		actionIsGood = true
+		mActionName = "DIFFUSE_DATA_PROCESSING"
+		return actionIsGood, mActionName
+	case "DIFFUSE_FIREWALL":
+		actionIsGood = true
+		mActionName = "DIFFUSE_FIREWALL"
+		return actionIsGood, mActionName
+	case "KILL_COMPLEX_FORM":
+		actionIsGood = true
+		mActionName = "KILL_COMPLEX_FORM"
+		return actionIsGood, mActionName
 	//////////////////////////////////////////
 	case "EXECUTE_SCAN":
 		actionIsGood = true
@@ -1674,6 +1699,7 @@ func doAction(mActionName string) bool {
 					if defender.GetID() == player.GetID() && attacker.GetID() != player.GetID() {
 						printLog(attacker.GetName()+" attack detected...", congo.ColorYellow)
 						printLog("..."+defender.GetName()+": Evaiding", congo.ColorGreen)
+						player.SetWaitFlag(false)
 					}
 				}
 			}
@@ -1685,7 +1711,7 @@ func doAction(mActionName string) bool {
 			}
 			return true
 		}
-		printLog(SourceIcon.GetName()+" cant do: "+mActionName, congo.ColorDefault)
+		//printLog(SourceIcon.GetName()+" cant do: "+mActionName, congo.ColorDefault)
 		//checkTurn()
 
 	}
@@ -1863,7 +1889,7 @@ func SwitchInterfaceMode(src IObj, trg IObj) bool {
 		newMode = strings.Replace(newMode, "SIM", "_", -1)
 		newMode = strings.Replace(newMode, "VR", "_", -1)
 		newMode = strings.Replace(newMode, "_", "", -1)
-		printLog(newMode, congo.ColorGreen)
+		//printLog(newMode, congo.ColorGreen)
 		switch newMode {
 		case "AR":
 			newMode = "AR"
@@ -1872,6 +1898,11 @@ func SwitchInterfaceMode(src IObj, trg IObj) bool {
 			newMode = "COLD-SIM"
 			printLog("...Switching to Virtial Reality", congo.ColorGreen)
 			printLog("...Safety mode : ON", congo.ColorGreen)
+			if persona.GetDevice().GetModel() == "Living Persona" {
+				printLog("...Error: @$#%**$$@^!@", congo.ColorYellow)
+				printLog("...Interface Mode switching failed", congo.ColorYellow)
+				return false
+			}
 		case "HOT":
 			newMode = "HOT-SIM"
 			printLog("...Switching to Virtial Reality", congo.ColorGreen)
@@ -3262,6 +3293,10 @@ func SwapPrograms(src IObj, trg IObj) bool {
 func Wait(src IObj, trg IObj) bool {
 	persona := src.(IPersona)
 	comm := GetComm()
+	//date := (SrTime.String())
+	//date = (SrTime.Format("2006-01-02 15:04:05"))
+	timePeriod := "init"
+	timeInt := 0
 	for i := range comm {
 		//printLog(comm[i], congo.ColorGreen)
 		if comm[i] == "-EV" {
@@ -3276,19 +3311,63 @@ func Wait(src IObj, trg IObj) bool {
 			} else {
 				persona.SetWaitFlag(true)
 			}
+			break
 			//persona.SetWaitFlag(true)
 			//persona.SetInitiative(0)
 
+		}
+		if comm[i] == "TURNS" {
+			timePeriod = "turns"
+			break
+		}
+		if comm[i] == "MINUTES" {
+			timePeriod = "minutes"
+			break
+		}
+		if comm[i] == "HOURS" {
+			timePeriod = "hours"
+			break
 		}
 	}
 	if len(comm) > 2 {
 		waitTime := comm[2]
 		waitTimeInt, _ := strconv.Atoi(waitTime)
-		persona.SetInitiative(persona.GetInitiative() - waitTimeInt)
+		timeInt = waitTimeInt
+		//persona.SetInitiative(persona.GetInitiative() - timeInt)
 	} else {
 		//src.(IPersona).SetInitiative(0)
 	}
-	//printLog(persona.GetPing(), congo.ColorDefault)
+	expectDate := SrTime
+	switch timePeriod {
+	default:
+	case "turns":
+		for t := 0; t < timeInt; t++ {
+			expectDate = expectDate.Add(3 * time.Second)
+			persona.SetWaitFlag(true)
+			eXdate := (expectDate.Format("2006-01-02 15:04:05"))
+			TimeMarker = eXdate
+		}
+		persona.SpendComplexAction()
+		return true
+	case "minutes":
+		for t := 0; t < timeInt*20; t++ {
+			expectDate = expectDate.Add(3 * time.Second)
+			persona.SetWaitFlag(true)
+			eXdate := (expectDate.Format("2006-01-02 15:04:05"))
+			TimeMarker = eXdate
+		}
+		persona.SpendComplexAction()
+		return true
+	case "hours":
+		for t := 0; t < timeInt*20*60; t++ {
+			expectDate = expectDate.Add(3 * time.Second)
+			persona.SetWaitFlag(true)
+			eXdate := (expectDate.Format("2006-01-02 15:04:05"))
+			TimeMarker = eXdate
+		}
+		persona.SpendComplexAction()
+		return true
+	}
 	persona.SpendComplexAction()
 
 	return true
@@ -3348,7 +3427,7 @@ func InfuseAttack(src IObj, trg IObj) bool {
 	targetList := pickTargets(comm)
 	printLog("Begin threadeng:", congo.ColorGreen)
 	persona.SpendComplexAction()
-	printLog("...Infusion of Attack", congo.ColorGreen)
+	printLog("...Infusion of Attack: "+strconv.Itoa(level)+" level", congo.ColorGreen)
 	if target, ok := TargetIcon.(IIcon); ok {
 		attMod := calculateAttMods(comm, persona, targetList)
 		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
@@ -3431,7 +3510,7 @@ func InfuseSleaze(src IObj, trg IObj) bool {
 	targetList := pickTargets(comm)
 	printLog("Begin threadeng:", congo.ColorGreen)
 	persona.SpendComplexAction()
-	printLog("...Infusion of Sleaze", congo.ColorGreen)
+	printLog("...Infusion of Sleaze: "+strconv.Itoa(level)+" level", congo.ColorGreen)
 	if target, ok := TargetIcon.(IIcon); ok {
 		attMod := calculateAttMods(comm, persona, targetList)
 		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
@@ -3514,7 +3593,7 @@ func InfuseDataProcessing(src IObj, trg IObj) bool {
 	targetList := pickTargets(comm)
 	printLog("Begin threadeng:", congo.ColorGreen)
 	persona.SpendComplexAction()
-	printLog("...Infusion of Data Processing", congo.ColorGreen)
+	printLog("...Infusion of Data Processing: "+strconv.Itoa(level)+" level", congo.ColorGreen)
 	if target, ok := TargetIcon.(IIcon); ok {
 		attMod := calculateAttMods(comm, persona, targetList)
 		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
@@ -3597,7 +3676,7 @@ func InfuseFirewall(src IObj, trg IObj) bool {
 	targetList := pickTargets(comm)
 	printLog("Begin threadeng:", congo.ColorGreen)
 	persona.SpendComplexAction()
-	printLog("...Infusion of Firewall", congo.ColorGreen)
+	printLog("...Infusion of Firewall: "+strconv.Itoa(level)+" level", congo.ColorGreen)
 	if target, ok := TargetIcon.(IIcon); ok {
 		attMod := calculateAttMods(comm, persona, targetList)
 		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
@@ -3636,6 +3715,384 @@ func InfuseFirewall(src IObj, trg IObj) bool {
 		return false
 	}
 
+	return true
+}
+
+//DiffuseAttack -
+func DiffuseAttack(src IObj, trg IObj) bool {
+	if livPersona, ok := src.(ITechnom); ok {
+		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
+		if livPersona.GetDevice().GetModel() != "Living Persona" {
+			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+			return false
+		}
+	} else {
+		printLog("not a Technomancer", congo.ColorRed)
+		return false
+	}
+	////////////////////////
+	persona := src.(ITechnom)
+	comm := GetComm()
+	if len(comm) < 4 {
+		printLog("Error: Level not designated", congo.ColorYellow)
+		printLog("[COMPLEX_FORM]>[TARGET]>[LEVEL]", congo.ColorDefault)
+		return false
+	}
+	printLog(persona.GetName(), congo.ColorDefault)
+	level := 0
+	for i := range comm {
+		if strings.Contains(comm[i], "-F") {
+			levelSTR := strings.Split(comm[i], "-F")
+			levelINT, _ := strconv.Atoi(levelSTR[1])
+			level = levelINT
+		}
+	}
+	if level < 1 {
+		printLog("Error: Level not designated correctly", congo.ColorYellow)
+		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		return false
+	}
+	if level > (persona.GetResonance() * 2) {
+		printLog("Error: Level can not be higher than Resonance x 2", congo.ColorYellow)
+		return false
+	}
+	targetList := pickTargets(comm)
+	printLog("Begin threadeng:", congo.ColorGreen)
+	persona.SpendComplexAction()
+	printLog("...Diffusion of Attack: "+strconv.Itoa(level)+" level", congo.ColorGreen)
+	if target, ok := TargetIcon.(IIcon); ok {
+		attMod := calculateAttMods(comm, persona, targetList)
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
+		limit := level
+		fade := level - 2
+		fadeType := "stun"
+		if fade < 2 {
+			fade = 2
+		}
+		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+		if suc1 > persona.GetResonance() {
+			fadeType = "phys"
+		}
+		if gl == true {
+			fade = fade + (xd6Test(1) / 2)
+		}
+		if cgl == true {
+			fade = fade + (xd6Test(1) / 2)
+			fadeType = "phys"
+		}
+		if level >= target.GetAttack() {
+			if suc1 > target.GetAttack() {
+				suc1 = target.GetAttack()
+			}
+			TreadComplexForm(persona.GetID(), target.GetID(), "Diffusion of Attack", level, suc1)
+			printLog("...Threadeng successful", congo.ColorGreen)
+
+		} else {
+			printLog("...Threadeng failed", congo.ColorYellow)
+			printLog("Target's Attack higher than Complex Form level", congo.ColorGreen)
+		}
+
+		persona.ResistFade(fade, fadeType)
+	} else {
+		printLog("Error: This Complex Form is not usable for this target type", congo.ColorYellow)
+		return false
+	}
+
+	return true
+}
+
+//DiffuseSleaze -
+func DiffuseSleaze(src IObj, trg IObj) bool {
+	if livPersona, ok := src.(ITechnom); ok {
+		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
+		if livPersona.GetDevice().GetModel() != "Living Persona" {
+			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+			return false
+		}
+	} else {
+		printLog("not a Technomancer", congo.ColorRed)
+		return false
+	}
+	////////////////////////
+	persona := src.(ITechnom)
+	comm := GetComm()
+	if len(comm) < 4 {
+		printLog("Error: Level not designated", congo.ColorYellow)
+		printLog("[COMPLEX_FORM]>[TARGET]>[LEVEL]", congo.ColorDefault)
+		return false
+	}
+	printLog(persona.GetName(), congo.ColorDefault)
+	level := 0
+	for i := range comm {
+		if strings.Contains(comm[i], "-F") {
+			levelSTR := strings.Split(comm[i], "-F")
+			levelINT, _ := strconv.Atoi(levelSTR[1])
+			level = levelINT
+		}
+	}
+	if level < 1 {
+		printLog("Error: Level not designated correctly", congo.ColorYellow)
+		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		return false
+	}
+	if level > (persona.GetResonance() * 2) {
+		printLog("Error: Level can not be higher than Resonance x 2", congo.ColorYellow)
+		return false
+	}
+	targetList := pickTargets(comm)
+	printLog("Begin threadeng:", congo.ColorGreen)
+	persona.SpendComplexAction()
+	printLog("...Diffusion of Sleaze: "+strconv.Itoa(level)+" level", congo.ColorGreen)
+	if target, ok := TargetIcon.(IIcon); ok {
+		attMod := calculateAttMods(comm, persona, targetList)
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
+		limit := level
+		fade := level - 2
+		fadeType := "stun"
+		if fade < 2 {
+			fade = 2
+		}
+		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+		if suc1 > persona.GetResonance() {
+			fadeType = "phys"
+		}
+		if gl == true {
+			fade = fade + (xd6Test(1) / 2)
+		}
+		if cgl == true {
+			fade = fade + (xd6Test(1) / 2)
+			fadeType = "phys"
+		}
+		if level >= target.GetSleaze() {
+			if suc1 > target.GetSleaze() {
+				suc1 = target.GetSleaze()
+			}
+			TreadComplexForm(persona.GetID(), target.GetID(), "Diffusion of Sleaze", level, suc1)
+			printLog("...Threading successful", congo.ColorGreen)
+
+		} else {
+			printLog("...Threading failed", congo.ColorYellow)
+			printLog("Target's Sleaze higher than Complex Form level", congo.ColorGreen)
+		}
+
+		persona.ResistFade(fade, fadeType)
+	} else {
+		printLog("Error: This Complex Form is not usable for this target type", congo.ColorYellow)
+		return false
+	}
+
+	return true
+}
+
+//DiffuseDataProcessing -
+func DiffuseDataProcessing(src IObj, trg IObj) bool {
+	if livPersona, ok := src.(ITechnom); ok {
+		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
+		if livPersona.GetDevice().GetModel() != "Living Persona" {
+			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+			return false
+		}
+	} else {
+		printLog("not a Technomancer", congo.ColorRed)
+		return false
+	}
+	////////////////////////
+	persona := src.(ITechnom)
+	comm := GetComm()
+	if len(comm) < 4 {
+		printLog("Error: Level not designated", congo.ColorYellow)
+		printLog("[COMPLEX_FORM]>[TARGET]>[LEVEL]", congo.ColorDefault)
+		return false
+	}
+	printLog(persona.GetName(), congo.ColorDefault)
+	level := 0
+	for i := range comm {
+		if strings.Contains(comm[i], "-F") {
+			levelSTR := strings.Split(comm[i], "-F")
+			levelINT, _ := strconv.Atoi(levelSTR[1])
+			level = levelINT
+		}
+	}
+	if level < 1 {
+		printLog("Error: Level not designated correctly", congo.ColorYellow)
+		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		return false
+	}
+	if level > (persona.GetResonance() * 2) {
+		printLog("Error: Level can not be higher than Resonance x 2", congo.ColorYellow)
+		return false
+	}
+	targetList := pickTargets(comm)
+	printLog("Begin threadeng:", congo.ColorGreen)
+	persona.SpendComplexAction()
+	printLog("...Diffusion of Data Processing: "+strconv.Itoa(level)+" level", congo.ColorGreen)
+	if target, ok := TargetIcon.(IIcon); ok {
+		attMod := calculateAttMods(comm, persona, targetList)
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
+		limit := level
+		fade := level - 2
+		fadeType := "stun"
+		if fade < 2 {
+			fade = 2
+		}
+		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+		if suc1 > persona.GetResonance() {
+			fadeType = "phys"
+		}
+		if gl == true {
+			fade = fade + (xd6Test(1) / 2)
+		}
+		if cgl == true {
+			fade = fade + (xd6Test(1) / 2)
+			fadeType = "phys"
+		}
+		if level >= target.GetDataProcessing() {
+			if suc1 > target.GetDataProcessing() {
+				suc1 = target.GetDataProcessing()
+			}
+			TreadComplexForm(persona.GetID(), target.GetID(), "Diffusion of Data Processing", level, suc1)
+			printLog("...Threading successful", congo.ColorGreen)
+
+		} else {
+			printLog("...Threading failed", congo.ColorYellow)
+			printLog("Target's Data Processing higher than Complex Form level", congo.ColorGreen)
+		}
+
+		persona.ResistFade(fade, fadeType)
+	} else {
+		printLog("Error: This Complex Form is not usable for this target type", congo.ColorYellow)
+		return false
+	}
+
+	return true
+}
+
+//DiffuseFirewall -
+func DiffuseFirewall(src IObj, trg IObj) bool {
+	if livPersona, ok := src.(ITechnom); ok {
+		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
+		if livPersona.GetDevice().GetModel() != "Living Persona" {
+			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+			return false
+		}
+	} else {
+		printLog("not a Technomancer", congo.ColorRed)
+		return false
+	}
+	////////////////////////
+	persona := src.(ITechnom)
+	comm := GetComm()
+	if len(comm) < 4 {
+		printLog("Error: Level not designated", congo.ColorYellow)
+		printLog("[COMPLEX_FORM]>[TARGET]>[LEVEL]", congo.ColorDefault)
+		return false
+	}
+	printLog(persona.GetName(), congo.ColorDefault)
+	level := 0
+	for i := range comm {
+		if strings.Contains(comm[i], "-F") {
+			levelSTR := strings.Split(comm[i], "-F")
+			levelINT, _ := strconv.Atoi(levelSTR[1])
+			level = levelINT
+		}
+	}
+	if level < 1 {
+		printLog("Error: Level not designated correctly", congo.ColorYellow)
+		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		return false
+	}
+	if level > (persona.GetResonance() * 2) {
+		printLog("Error: Level can not be higher than Resonance x 2", congo.ColorYellow)
+		return false
+	}
+	targetList := pickTargets(comm)
+	printLog("Begin threadeng:", congo.ColorGreen)
+	persona.SpendComplexAction()
+	printLog("...Diffusion of Firewall: "+strconv.Itoa(level)+" level", congo.ColorGreen)
+	if target, ok := TargetIcon.(IIcon); ok {
+		attMod := calculateAttMods(comm, persona, targetList)
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
+		limit := level
+		fade := level - 2
+		fadeType := "stun"
+		if fade < 2 {
+			fade = 2
+		}
+		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+		if suc1 > persona.GetResonance() {
+			fadeType = "phys"
+		}
+		if gl == true {
+			fade = fade + (xd6Test(1) / 2)
+		}
+		if cgl == true {
+			fade = fade + (xd6Test(1) / 2)
+			fadeType = "phys"
+		}
+		if level >= target.GetFirewall() {
+			if suc1 > target.GetFirewall() {
+				suc1 = target.GetFirewall()
+			}
+			TreadComplexForm(persona.GetID(), target.GetID(), "Diffusion of Firewall", level, suc1)
+			printLog("...Threading successful", congo.ColorGreen)
+
+		} else {
+			printLog("...Threading failed", congo.ColorYellow)
+			printLog("Target's Firewall higher than Complex Form level", congo.ColorGreen)
+		}
+
+		persona.ResistFade(fade, fadeType)
+	} else {
+		printLog("Error: This Complex Form is not usable for this target type", congo.ColorYellow)
+		return false
+	}
+
+	return true
+}
+
+//KillComplexForm -
+func KillComplexForm(src IObj, trg IObj) bool {
+	/*if livPersona, ok := src.(ITechnom); ok {
+		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
+		if livPersona.GetDevice().GetModel() != "Living Persona" {
+			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+			return false
+		}
+	} else {
+		printLog("not a Technomancer", congo.ColorRed)
+		return false
+	}
+	////////////////////////
+	persona := src.(ITechnom)
+	comm := GetComm()
+	targetList := pickTargets(comm)
+	if target, ok := TargetIcon.(IIcon); ok {
+		level := 0
+
+		formExist, formNum := target.CheckThreadedForm("test")
+		if formExist {
+			getComplexForm(formNum)
+		}
+		attMod := calculateAttMods(comm, persona, targetList)
+		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
+		limit := level
+		fade := level - 2
+		fadeType := "stun"
+		if fade < 2 {
+			fade = 2
+		}
+		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
+		if suc1 > persona.GetResonance() {
+			fadeType = "phys"
+		}
+		if gl == true {
+			fade = fade + (xd6Test(1) / 2)
+		}
+		if cgl == true {
+			fade = fade + (xd6Test(1) / 2)
+			fadeType = "phys"
+		}
+	}*/
 	return true
 }
 
