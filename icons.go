@@ -491,7 +491,8 @@ func (i *TIcon) GetSleaze() int {
 		cFormsBoost = boost
 	}
 
-	att := i.GetDevice().sleaze + i.GetDevice().sleazeMod + programBoost + cFormsBoost
+	//att := i.GetDevice().sleaze + i.GetDevice().sleazeMod + programBoost + cFormsBoost
+	att := i.GetSleazeRaw() + i.GetSleazeMod() + programBoost + cFormsBoost
 	if att < 0 {
 		return 0
 	}

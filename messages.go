@@ -59,8 +59,7 @@ func refreshPersonaWin() {
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Attribute Array: ", congo.ColorGreen)
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(strconv.Itoa(player.GetAttack())+" "+strconv.Itoa(player.GetSleaze())+" "+strconv.Itoa(player.GetDataProcessing())+" "+strconv.Itoa(player.GetFirewall()), congo.ColorGreen)
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn("Persona MCM: " + strconv.Itoa(objectList[0].(IPersona).GetMatrixCM()), congo.ColorYellow)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Att  : "+strconv.Itoa(player.GetAttackRaw())+" + "+strconv.Itoa(player.GetAttackMod()), congo.ColorGreen)
-	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Att  : "+strconv.Itoa(player.GetAttack()), congo.ColorYellow)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Att  : "+strconv.Itoa(player.GetAttack()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slz  : "+strconv.Itoa(player.GetSleaze()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" DtPr : "+strconv.Itoa(player.GetDataProcessing()), congo.ColorGreen)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Fwll : "+strconv.Itoa(player.GetFirewall()), congo.ColorGreen)
@@ -196,6 +195,9 @@ func refreshPersonaWin() {
 	}
 	drawLineInWindow("Persona")
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn(fmt.Sprintf("CFDB: %v", CFDBMap), congo.ColorYellow)
+	//for i := 0; i < len(CFDBMap); i++ {
+	//	congo.WindowsMap.ByTitle["Persona"].WPrintLn(fmt.Sprintf("%v", CFDBMap[i+1]), congo.ColorYellow)
+	//}
 	//fow := player.GetFieldOfView()
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn(fmt.Sprintf("FoW: %v", fow), congo.ColorYellow)
 	//congo.WindowsMap.ByTitle["Log"].WPrintLn("0", congo.ColorDefault)

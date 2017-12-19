@@ -101,6 +101,14 @@ func (t *TTechnom) GetDeviceRating() int {
 	return t.device.deviceRating
 }
 
+//GetSleazeRaw -
+func (t *TTechnom) GetSleazeRaw() int {
+	if t.device.model == "Living Persona" {
+		return t.intuition
+	}
+	return t.device.sleaze
+}
+
 //GetAttack -
 /*func (t *TTechnom) GetAttack() int {
 	//	if t.device.model == "Living Persona" {
@@ -110,28 +118,28 @@ func (t *TTechnom) GetDeviceRating() int {
 }*/
 
 //GetSleaze -
-func (t *TTechnom) GetSleaze() int {
-	/*if t.device.model == "Living Persona" {
+/*func (t *TTechnom) GetSleaze() int {
+	if t.device.model == "Living Persona" {
 		return t.intuition + t.device.sleazeMod
-	}*/
+	}
 	return t.device.sleaze + t.device.sleazeMod
-}
+}*/
 
 //GetDataProcessing -
-func (t *TTechnom) GetDataProcessing() int {
-	/*if t.device.model == "Living Persona" {
+/*func (t *TTechnom) GetDataProcessing() int {
+	if t.device.model == "Living Persona" {
 		return t.logic + t.device.dataProcessingMod
-	}*/
+	}
 	return t.device.dataProcessing + t.device.dataProcessingMod
 }
 
 //GetFirewall -
 func (t *TTechnom) GetFirewall() int {
-	/*if t.device.model == "Living Persona" {
+	if t.device.model == "Living Persona" {
 		return t.willpower + t.device.firewallMod
-	}*/
+	}
 	return t.device.firewall + t.device.firewallMod
-}
+}*/
 
 //GetResonance -
 func (t *TTechnom) GetResonance() int {

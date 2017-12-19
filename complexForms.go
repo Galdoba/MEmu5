@@ -67,3 +67,24 @@ func countSustainedForms(srcID int) int {
 	}
 	return sustainedFormsCount
 }
+
+/*
+Status: Official
+
+Fading Value Changes for Complex Forms (P. 252-3, Resonance Library)
+The Fading Values for complex forms should be updated as follows. Note that the minimum Fading Value for a complex form is 2 (Threading, p. 251).
+
+Cleaner: L–2
+Diffusion of [Matrix Attribute]: L–2
+Editor: L–1
+Infusion of [Matrix Attribute]: L–2
+Static Veil: L–3
+Pulse Storm: L–3
+Puppeteer: L+1
+Resonance Channel: L–3
+Resonance Spike: L–3
+Resonance Veil: L–3
+Static Bomb: L–1
+Stitches: L–3
+Tattletale: L–3
+*/
