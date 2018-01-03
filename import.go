@@ -580,6 +580,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	case "Decker":
 		printLog("is Decker", congo.ColorDefault)
 		p = NewPersona(charMAP["Alias"], charMAP["Device"])
+		p.GetDevice()
 	case "Technomancer":
 		printLog("is TECH", congo.ColorDefault)
 		t := NewTechnom(charMAP["Alias"], charMAP["Device"])
@@ -735,6 +736,9 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		}
 
 	}
+
+	p.GetDevice().owner = player
+	p.GetDevice().faction = player.GetFaction()
 
 	ObjByNames[p.GetName()] = p
 

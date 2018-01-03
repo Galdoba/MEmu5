@@ -32,7 +32,7 @@ type THost struct {
 	grid               *TGrid
 	icState            ICList
 	alert              string
-	owner              IIcon
+	owner              IObj
 	freeActionsCount   int
 	simpleActionsCount int
 }
@@ -147,8 +147,13 @@ func (h *THost) GetLongAct() int {
 }
 
 //GetOwner -
-func (h *THost) GetOwner() IIcon {
+func (h *THost) GetOwner() IObj {
 	return h.owner
+}
+
+//SetOwner -
+func (h *THost) SetOwner(o IObj) {
+	h.owner = o
 }
 
 //GetSilentRunningMode -

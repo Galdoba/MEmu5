@@ -4543,8 +4543,10 @@ func placeMARK(source, target IIcon) {
 	}
 	target.GetMarkSet().MarksFrom[source.GetID()] = currentMARKS
 	master := target.GetOwner()
-	if master != nil && master != target {
-		placeMARK(source, master)
+	if masterIcon, ok := master.(IIcon); ok {
+		if masterIcon != nil && masterIcon != target {
+			placeMARK(source, masterIcon)
+		}
 	}
 }
 

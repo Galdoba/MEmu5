@@ -269,7 +269,7 @@ type TIcon struct {
 	silentMode         bool
 	initiative         int
 	id                 int
-	owner              IIcon
+	owner              IObj
 	isPlayer           bool
 	convergenceFlag    bool
 	connected          bool
@@ -301,7 +301,8 @@ type IIconOnly interface {
 	SetInitiative(int)
 	GetSimSence() string
 	SetSimSence(string)
-	GetOwner() IIcon
+	GetOwner() IObj
+	SetOwner(IObj)
 	IsPlayer() bool
 	LockIcon(IIcon)
 	UnlockIcon(IIcon)
@@ -886,8 +887,13 @@ func (i *TIcon) GetLinkLockStatus() Locked {
 }
 
 //GetOwner -
-func (i *TIcon) GetOwner() IIcon {
+func (i *TIcon) GetOwner() IObj {
 	return i.owner
+}
+
+//SetOwner -
+func (i *TIcon) SetOwner(o IObj) {
+	i.owner = o
 }
 
 //IsPlayer -
@@ -1287,7 +1293,7 @@ type TDevice struct {
 	maxMatrixCM   int
 	deviceType    string
 	model         string
-	owner         string //*TPersona
+	owner         IObj
 	id            int
 	markSet       MarkSet
 	initiative    int
@@ -1306,6 +1312,8 @@ type IDevice interface {
 	//GetSleaze() int
 	GetModel() string
 	GetSoftwareList() *TProgram
+	LoadProgramToDevice(string) bool
+	UnloadProgramFromDevice(string) bool
 }
 
 //NewDevice -
@@ -1367,7 +1375,7 @@ func (d *TDevice) LoadProgramToDevice(name string) bool {
 		}
 	}
 	if name == "Agent" {
-		printLog("вот тут мы его загружаем", congo.ColorDefault)
+		d.NewAgent()
 	}
 	return true
 }
@@ -1756,6 +1764,7 @@ func NewPersona(alias string, d string) IPersona {
 	p.alias = alias
 	p.device = addDevice(d)
 	p.uDevice = p.device.model
+	//p.device.owner = &p
 	p.grid = gridList[0].(*TGrid) //временно - должен стартовать из публичной сети
 	p.maxMatrixCM = p.device.GetMatrixCM()
 	p.matrixCM = p.maxMatrixCM
@@ -2869,7 +2878,7 @@ func (p *TPersona) SetSimSence(smsence string) {
 
 //TFile -
 type TFile struct {
-	owner    IIcon //*TPersona
+	owner    IObj //*TPersona
 	name     string
 	fileName string
 	//encryptionFlag bool - ////////////Flags aren't nesessary
@@ -2891,7 +2900,7 @@ type IFile interface {
 
 //IFileOnly -
 type IFileOnly interface {
-	SetOwner(IIcon)
+	//SetOwner(IObj)
 	//SetName(string)
 	SetFileName(string)
 	GetFileName() string
@@ -3003,7 +3012,7 @@ func (f *TFile) GetFaction() string {
 }
 
 //GetOwner -
-func (f *TFile) GetOwner() IIcon {
+func (f *TFile) GetOwner() IObj {
 	return f.owner
 }
 
@@ -3028,7 +3037,7 @@ func (f *TFile) GetDataBombRating() int {
 }
 
 //SetOwner -
-func (f *TFile) SetOwner(owner IIcon) {
+func (f *TFile) SetOwner(owner IObj) {
 	f.owner = owner
 }
 
