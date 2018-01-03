@@ -27,6 +27,8 @@ Decompiling: 1
 DecompilingSpec: NONE
 Registering: 1
 RegisteringSpec: NONE
+Programs: Armor, Biofeedback Filter, Edit, Encryption, Hammer, Signal Scrub , Toolbox
+
 ////Specialisations:
 (NOT IMPLEMENTED)
 ////Qualities:
@@ -64,6 +66,7 @@ Hardware: 6
 HardwareSpec: NONE
 Software: 6
 SoftwareSpec: NONE
+Programs: Armor(4), Biofeedback Filter, Agent(5), Encryption, Hammer, Signal Scrub , Armor(2),Toolbox,Edit
 ////Qualities:
 (NOT IMPLEMENTED)
 ////SIN:

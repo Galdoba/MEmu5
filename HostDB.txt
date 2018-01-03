@@ -61,3 +61,21 @@ Host_IC:
  >Killer IC
 
 #########################
+          
+Host: Aresmain
+Grid: Public Grid
+Host_Atributes:
+  Rating: 6
+  Attack: 6
+  Sleaze: 9
+  Data Processing: 7
+  Firewall: 8
+Host_IC:
+ >Patrol IC
+ >Scramble IC
+ >Bloodhound IC
+ >Killer IC
+ >Track IC
+ >Shoker IC
+
+#########################

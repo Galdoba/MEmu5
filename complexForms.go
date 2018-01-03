@@ -71,6 +71,53 @@ func countSustainedForms(srcID int) int {
 	return sustainedFormsCount
 }
 
+func calculateFade(formName string, lvl int) int {
+	fade := 0
+	switch formName {
+	default:
+	case "Diffusion of Attack":
+		fade = lvl - 2
+	case "Diffusion of Sleaze":
+		fade = lvl - 2
+	case "Diffusion of Data Processing":
+		fade = lvl - 2
+	case "Diffusion of Firewall":
+		fade = lvl - 2
+	case "Editor":
+		fade = lvl - 1
+	case "Infusion of Attack":
+		fade = lvl - 2
+	case "Infusion of Sleaze":
+		fade = lvl - 2
+	case "Infusion of Data Processing":
+		fade = lvl - 2
+	case "Infusion of Firewall":
+		fade = lvl - 2
+	case "Static Veil":
+		fade = lvl - 3
+	case "Pulse Storm":
+		fade = lvl - 3
+	case "Puppeteer":
+		fade = lvl + 1
+	case "Resonanse Channel":
+		fade = lvl - 3
+	case "Resonance Spike":
+		fade = lvl - 3
+	case "Resonance Veil":
+		fade = lvl - 3
+	case "Static Bomb":
+		fade = lvl - 1
+	case "Stiches":
+		fade = lvl - 3
+	case "Tattletale":
+		fade = lvl - 3
+	}
+	if fade < 2 {
+		fade = 2
+	}
+	return fade
+}
+
 /*
 Status: Official
 

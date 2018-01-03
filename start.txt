@@ -1,1 +1,1 @@
-go run icons.go run.go grids.go messages.go hosts.go dice.go deviceIndex.go command.go mActions.go turn.go namesMaker.go import.go technomancers.go
+go run icons.go run.go grids.go messages.go hosts.go dice.go deviceIndex.go command.go mActions.go turn.go namesMaker.go import.go technomancers.go complexForms.go programs.go

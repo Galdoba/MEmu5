@@ -82,10 +82,10 @@ func (o *TObj) CheckThreadedForm(cFormName string) (bool, int) {
 		if getComplexForm(j).madeOnID != o.GetID() {
 			continue
 		}
-		if getComplexForm(j).cfName != cFormName {
+		if getComplexForm(j).cfName == cFormName {
 			continue
 		}
-		return false, getComplexForm(j).formNum
+		return true, getComplexForm(j).formNum
 	}
 	return false, 0
 }
@@ -345,6 +345,23 @@ type IIconOnly interface {
 	SetSleazeRaw(int)
 	SetDataProcessingRaw(int)
 	SetFirewallRaw(int)
+	GetPrograms() []*TcyberProgram
+}
+
+//GetPrograms -
+func (i *TIcon) GetPrograms() []*TcyberProgram {
+	/*if i.GetDevice().cyberSoftware == nil {
+		panic(0)
+	}
+
+	if i.GetDevice() == nil {
+		addDevice(i.GetUDevice())
+		//i.device.AddProgramtoDevice("NULL", 0)
+	}*/
+	/*	if i.GetDevice() != nil {
+		return i.GetDevice().cyberSoftware
+	}*/
+	return i.GetDevice().GetCyberSoftwareList()
 }
 
 //SetName -
@@ -384,14 +401,24 @@ func (i *TIcon) GetIntuition() int {
 
 //CheckRunningProgram -
 func (i *TIcon) CheckRunningProgram(name string) bool {
-	for j := range i.GetDevice().GetSoftwareList().programName {
+	programs := i.GetPrograms()
+	for i := range programs {
+		if programs[i].programName != name {
+			continue
+		}
+		if programs[i].programStatus == "Running" {
+			return true
+		}
+	}
+
+	/*for j := range i.GetDevice().GetSoftwareList().programName {
 		if i.GetDevice().software.programName[j] == name {
 			if i.GetDevice().software.programStatus[j] == "Running" {
 				return true
 				//test.programName[0] = test.programName[0] + "__"
 			}
 		}
-	}
+	}*/
 	return false
 }
 
@@ -413,8 +440,8 @@ func (i *TIcon) GetDeviceRating() int {
 	return i.GetDevice().deviceRating
 }
 
-/*//CheckThreadedForm -
-func (i *TIcon) CheckThreadedForm(cFormName string) bool {
+//CheckThreadedForm -
+func (i *TIcon) CheckThreadedForm(cFormName string) (bool, int) {
 	for j := range CFDBMap {
 		if getComplexForm(j).madeOnID != i.GetID() {
 			continue
@@ -422,10 +449,10 @@ func (i *TIcon) CheckThreadedForm(cFormName string) bool {
 		if getComplexForm(j).cfName != cFormName {
 			continue
 		}
-		return true
+		return true, getComplexForm(j).formNum
 	}
-	return false
-}*/
+	return false, 0
+}
 
 //GetComplexFormEffect -
 func (i *TIcon) GetComplexFormEffect(cFormName string) (int, int) {
@@ -443,6 +470,7 @@ func (i *TIcon) GetComplexFormEffect(cFormName string) (int, int) {
 			cFormIndex = getComplexForm(j).formNum
 		}
 	}
+
 	return cFormEffect, cFormIndex
 }
 
@@ -468,6 +496,7 @@ func (i *TIcon) GetAttack() int {
 	if att < 0 {
 		return 0
 	}
+	//printLog(strconv.Itoa(att), congo.ColorGreen)
 	return att
 }
 
@@ -1232,6 +1261,7 @@ type TProgram struct {
 	programName   []string
 	programType   []string
 	programStatus []string
+	programRating []int
 }
 
 //TDevice -
@@ -1250,6 +1280,7 @@ type TDevice struct {
 	maxRunningPrograms int
 	curRunningPrograms int
 	software           *TProgram
+	cyberSoftware      []*TcyberProgram
 	//storedPrograms
 	modifications []string
 	matrixCM      int
@@ -1298,6 +1329,9 @@ func NewDevice(model string, rating int) *TDevice {
 	d.uDevice = model
 	d.SetID()
 	d.maxRunningPrograms = d.deviceRating
+	//d.cyberSoftware = nil
+	d.cyberSoftware = make([]*TcyberProgram, 0, 99)
+
 	//d.software = make([]TProgram, 20)
 	//add all soft:
 	//d.software = preaparePrograms()
@@ -1311,40 +1345,69 @@ func NewDevice(model string, rating int) *TDevice {
 	return &d
 }
 
-//LoadProgram -
-func (d *TDevice) LoadProgram(name string) bool {
-	for i := 0; i < len(d.software.programName); i++ {
-		if d.software.programName[i] == name {
-			if d.GetRunningProgramsQty() < d.GetMaxRunningPrograms() { //тест проверки на то может ли загрузиться данная программа
-				d.software.programStatus[i] = "Running"
-			} else {
-				return false
-			}
+//GetPrograms -
+func (d *TDevice) GetPrograms() []*TcyberProgram {
+	if d.cyberSoftware == nil {
+		panic(0)
+	}
+	return d.cyberSoftware
+}
+
+//LoadProgramToDevice -
+func (d *TDevice) LoadProgramToDevice(name string) bool {
+	programs := d.GetPrograms()
+	for i := range programs {
+		if name != programs[i].programName {
+			continue
 		}
+		if d.GetRunningProgramsQty() < d.GetMaxRunningPrograms() { //тест проверки на то может ли загрузиться данная программа
+			programs[i].programStatus = "Running"
+		} else {
+			return false
+		}
+	}
+	if name == "Agent" {
+		printLog("вот тут мы его загружаем", congo.ColorDefault)
 	}
 	return true
 }
 
-//UnloadProgram -
-func (d *TDevice) UnloadProgram(name string) bool {
-	for i := 0; i < len(d.software.programName); i++ {
-		if d.software.programName[i] == name {
-			if d.software.programStatus[i] == "Running" {
-				d.software.programStatus[i] = "inStore"
-			} else {
-				return false
-			}
-
+//UnloadProgramFromDevice -
+func (d *TDevice) UnloadProgramFromDevice(name string) bool {
+	programs := d.GetPrograms()
+	for i := range programs {
+		if name != programs[i].programName {
+			continue
 		}
+		if programs[i].programStatus != "Running" {
+			return false
+		}
+		programs[i].programStatus = "Stored"
+	}
+	if name == "Agent" {
+		printLog("вот тут мы его отключаем", congo.ColorDefault)
 	}
 	return true
+
+	/*	for i := 0; i < len(d.software.programName); i++ {
+			if d.software.programName[i] == name {
+				if d.software.programStatus[i] == "Running" {
+					d.software.programStatus[i] = "inStore"
+				} else {
+					return false
+				}
+
+			}
+		}
+		return true*/
 }
 
 //GetRunningProgramsQty -
 func (d *TDevice) GetRunningProgramsQty() int {
 	d.curRunningPrograms = 0
-	for i := range d.software.programStatus {
-		if d.software.programStatus[i] == "Running" {
+	programs := d.GetPrograms()
+	for i := range programs {
+		if programs[i].programStatus == "Running" {
 			d.curRunningPrograms++
 		}
 	}
@@ -1364,6 +1427,26 @@ func (d *TDevice) GetMaxRunningPrograms() int {
 //GetSoftwareList -
 func (d *TDevice) GetSoftwareList() *TProgram {
 	return d.software
+}
+
+//GetCyberSoftwareList -
+func (d *TDevice) GetCyberSoftwareList() []*TcyberProgram {
+	return d.cyberSoftware
+}
+
+//AddProgramtoDevice -
+func (d *TDevice) AddProgramtoDevice(prgName string, prgRat int) {
+	d.cyberSoftware = append(d.cyberSoftware, preapareCyberProgram(prgName, prgRat))
+}
+
+//RemoveProgramFromDevice -
+func (d *TDevice) RemoveProgramFromDevice(prgName string) {
+	for i := range d.cyberSoftware {
+		if d.cyberSoftware[i].programName == prgName {
+			d.cyberSoftware = append(d.cyberSoftware[:i], d.cyberSoftware[i+1:]...)
+			break
+		}
+	}
 }
 
 func addDevice(model string) *TDevice {
@@ -1496,9 +1579,11 @@ func (d *TDevice) UnlockIcon(icon IIcon) {
 
 //CheckRunningProgram -
 func (d *TDevice) CheckRunningProgram(name string) bool {
-	for i := range d.software.programName {
-		if d.software.programName[i] == name {
-			if d.software.programStatus[i] == "Running" {
+	return false
+	programs := d.GetPrograms()
+	for i := range programs {
+		if programs[i].programName == name {
+			if programs[i].programStatus == "Running" {
 				return true
 			}
 		}
@@ -2289,7 +2374,7 @@ func (p *TPersona) SetPhysicalLocation(location bool) {
 	p.physLocation = location
 }
 
-//LoadProgram -
+/*//LoadProgram -
 func (p *TPersona) LoadProgram(name string) bool {
 	for i := 0; i < len(p.device.software.programName); i++ {
 		if p.device.software.programName[i] == name {
@@ -2307,18 +2392,17 @@ func (p *TPersona) LoadProgram(name string) bool {
 		}
 	}
 	return true
-}
+}*/
 
 //UnloadProgram -
 func (p *TPersona) UnloadProgram(name string) bool {
 	for i := 0; i < len(p.device.software.programName); i++ {
 		if p.device.software.programName[i] == name {
 			if p.device.software.programStatus[i] == "Running" {
-				p.device.software.programStatus[i] = "inStore"
+				p.device.software.programStatus[i] = "Stored"
 			} else {
 				return false
 			}
-
 		}
 	}
 	return true
@@ -2341,13 +2425,22 @@ func (p *TPersona) CrashProgram(name string) bool {
 
 //CheckRunningProgram -
 func (p *TPersona) CheckRunningProgram(name string) bool {
-	for i := range p.device.software.programName {
+	programs := p.GetPrograms()
+	for i := range programs {
+		if programs[i].programName != name {
+			continue
+		}
+		if programs[i].programStatus == "Running" {
+			return true
+		}
+	}
+	/*for i := range p.device.software.programName {
 		if p.device.software.programName[i] == name {
 			if p.device.software.programStatus[i] == "Running" {
 				return true
 			}
 		}
-	}
+	}*/
 	return false
 }
 

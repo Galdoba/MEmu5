@@ -35,14 +35,23 @@ func refreshPersonaWin() {
 		congo.WindowsMap.ByTitle["Persona"].WPrint("-", congo.ColorDefault)
 	}
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Persona"].WPrintLn("---------", congo.ColorYellow)
+	programs := player.GetDevice().GetCyberSoftwareList()
+	for i := range programs {
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("Program "+strconv.Itoa(i+1)+": "+programs[i].programName, congo.ColorYellow)
+		if programs[i].programRating > 0 {
+			congo.WindowsMap.ByTitle["Persona"].WPrintLn("--Rating: "+strconv.Itoa(programs[i].programRating), congo.ColorYellow)
+		}
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("--Status: "+programs[i].programStatus, congo.ColorYellow)
+	}
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Running Programs: ", congo.ColorGreen)
 	var rPrgLst []string
+	var rPrgLstRat []int
 	loadedPrgsQty := 0
-	for j := range player.GetDevice().GetSoftwareList().programStatus {
-		//for j := range player.GetDeviceSoft().programStatus {
-		//congo.WindowsMap.ByTitle["Persona"].WPrintLn("Program: "+player.GetDeviceSoft().programName[j]+" | Status: "+player.GetDeviceSoft().programStatus[j], congo.ColorGreen)
-		if player.GetDevice().GetSoftwareList().programStatus[j] == "Running" {
-			rPrgLst = append(rPrgLst, player.GetDeviceSoft().programName[j])
+	for j := range programs {
+		if programs[j].programStatus == "Running" {
+			rPrgLst = append(rPrgLst, programs[j].programName)
+			rPrgLstRat = append(rPrgLstRat, programs[j].programRating)
 			loadedPrgsQty++
 		}
 	}
@@ -52,8 +61,13 @@ func refreshPersonaWin() {
 	for i := 0; i < player.GetDevice().GetMaxRunningPrograms(); i++ {
 		if len(rPrgLst) < player.GetDevice().GetMaxRunningPrograms() {
 			rPrgLst = append(rPrgLst, "--EMPTY--")
+			rPrgLstRat = append(rPrgLstRat, 0)
 		}
-		congo.WindowsMap.ByTitle["Persona"].WPrintLn(" Slot "+strconv.Itoa(i+1)+": "+rPrgLst[i], congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Persona"].WPrint(" Slot "+strconv.Itoa(i+1)+": "+rPrgLst[i], congo.ColorGreen)
+		if rPrgLstRat[i] > 0 {
+			congo.WindowsMap.ByTitle["Persona"].WPrint("("+strconv.Itoa(rPrgLstRat[i])+")", congo.ColorGreen)
+		}
+		congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorGreen)
 	}
 	//congo.WindowsMap.ByTitle["Persona"].WPrintLn("Total loaded programs: "+strconv.Itoa(loadedPrgsQty), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Persona"].WPrintLn("Attribute Array: ", congo.ColorGreen)

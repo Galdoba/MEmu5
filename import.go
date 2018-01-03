@@ -619,6 +619,43 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 	p.SetSkill("Hacking", hackSkill)
 	p.SetSkill("Hardware", hardwareSkill)
 	p.SetSkill("Software", softwareSkill)
+	///////////////PROGRAMMS
+	//read
+	programs := charMAP["Programs"]
+	availProgs := strings.Split(programs, ",")
+	for i := range availProgs {
+		availProgs[i] = strings.Trim(availProgs[i], SPACES)
+		prgName := ""
+		prgRat := 0
+		if strings.Contains(availProgs[i], "(") {
+			strg := strings.Split(availProgs[i], "(")
+			prgName = strg[0]
+			strg[1] = strings.Trim(strg[1], SPACES)
+			strg[1] = strings.Trim(strg[1], ")")
+			prgRat, _ = strconv.Atoi(strg[1])
+		} else {
+			prgName = availProgs[i]
+			prgRat = 0
+		}
+		//printLog(prgName+" // "+strconv.Itoa(prgRat), congo.ColorRed)
+		//store
+
+		for j := range p.GetDevice().software.programName {
+			if p.GetDevice().software.programName[j] == prgName {
+				p.GetDevice().RemoveProgramFromDevice(prgName)
+			}
+			if p.GetDevice().software.programName[j] == availProgs[i] {
+				p.GetDevice().software.programStatus[j] = "Stored"
+			}
+		}
+		p.GetDevice().AddProgramtoDevice(prgName, prgRat)
+	}
+
+	/*for i := range p.GetDevice().software.programName{
+		if p.GetDevice().software.programStatus[i] != "inStore"{
+			p.GetDevice().software.programStatus[i] = "inStore"
+		}
+	}*/
 
 	/////////////SPECS
 	compSpecSTR := charMAP["ComputerSpec"]

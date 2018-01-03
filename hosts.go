@@ -59,6 +59,11 @@ func (h *THost) SetName(name string) {
 	h.name = name
 }
 
+//GetPrograms -
+func (h *THost) GetPrograms() []*TcyberProgram {
+	return nil
+}
+
 //RollInitiative -
 func (h *THost) RollInitiative() {
 	h.SetInitiative(h.GetDataProcessing() + h.GetIntuition() + xd6Test(4))

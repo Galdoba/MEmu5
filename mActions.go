@@ -2956,15 +2956,15 @@ func SwapAttributes(src IObj, trg IObj) bool { //need to rewrite to use IPersona
 			printLog("...Attribute 1 = Attack", congo.ColorGreen)
 			swap1 = true
 		case "SLEAZE":
-			att1 = SourceIcon.(IPersona).GetSleazeRaw()
+			att1 = persona.GetSleazeRaw()
 			printLog("...Attribute 1 = Sleaze", congo.ColorGreen)
 			swap1 = true
 		case "DATA_PROCESSING":
-			att1 = SourceIcon.(IPersona).GetDataProcessingRaw()
+			att1 = persona.GetDataProcessingRaw()
 			printLog("...Attribute 1 = Data Processing", congo.ColorGreen)
 			swap1 = true
 		case "FIREWALL":
-			att1 = SourceIcon.(IPersona).GetFirewallRaw()
+			att1 = persona.GetFirewallRaw()
 			printLog("...Attribute 1 = Firewall", congo.ColorGreen)
 			swap1 = true
 		default:
@@ -2975,19 +2975,19 @@ func SwapAttributes(src IObj, trg IObj) bool { //need to rewrite to use IPersona
 		att2 := 0
 		switch comm[3] {
 		case "ATTACK":
-			att2 = SourceIcon.(IPersona).GetAttackRaw()
+			att2 = persona.GetAttackRaw()
 			printLog("...Attribute 2 = Attack", congo.ColorGreen)
 			swap2 = true
 		case "SLEAZE":
-			att2 = SourceIcon.(IPersona).GetSleazeRaw()
+			att2 = persona.GetSleazeRaw()
 			printLog("...Attribute 2 = Sleaze", congo.ColorGreen)
 			swap2 = true
 		case "DATA_PROCESSING":
-			att2 = SourceIcon.(IPersona).GetDataProcessingRaw()
+			att2 = persona.GetDataProcessingRaw()
 			printLog("...Attribute 2 = Data Processing", congo.ColorGreen)
 			swap2 = true
 		case "FIREWALL":
-			att2 = SourceIcon.(IPersona).GetFirewallRaw()
+			att2 = persona.GetFirewallRaw()
 			printLog("...Attribute 2 = Firewall", congo.ColorGreen)
 			swap2 = true
 		default:
@@ -2995,25 +2995,24 @@ func SwapAttributes(src IObj, trg IObj) bool { //need to rewrite to use IPersona
 			swap2 = false
 		}
 		if persona.GetDevice().canSwapAtt == false {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("This Persona cann't swap attributes!", congo.ColorRed)
-			comm[2] = " "
-			comm[3] = " "
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("This Persona can not swap attributes!", congo.ColorRed)
+			return false
 		}
 		if swap1 == true && swap2 == true {
 			if comm[2] == "ATTACK" {
-				persona.GetDevice().SetAttackRaw(att2)
+				persona.SetAttackRaw(att2)
 				//persona.SetDeviceAttackRaw(att2)
 				swap1 = true
 			} else if comm[2] == "SLEAZE" {
-				persona.GetDevice().SetSleazeRaw(att2)
+				persona.SetSleazeRaw(att2)
 				//persona.SetDeviceSleazeRaw(att2)
 				swap1 = true
 			} else if comm[2] == "DATA_PROCESSING" {
-				persona.GetDevice().SetDataProcessingRaw(att2)
+				persona.SetDataProcessingRaw(att2)
 				//persona.SetDeviceDataProcessingRaw(att2)
 				swap1 = true
 			} else if comm[2] == "FIREWALL" {
-				persona.GetDevice().SetFirewallRaw(att2)
+				persona.SetFirewallRaw(att2)
 				//persona.SetDeviceFirewallRaw(att2)
 				swap1 = true
 			} else {
@@ -3021,18 +3020,18 @@ func SwapAttributes(src IObj, trg IObj) bool { //need to rewrite to use IPersona
 			}
 			if comm[3] == "ATTACK" {
 				//persona.SetDeviceAttackRaw(att1)
-				persona.GetDevice().SetAttackRaw(att1)
+				persona.SetAttackRaw(att1)
 				swap2 = true
 			} else if comm[3] == "SLEAZE" {
-				persona.GetDevice().SetSleazeRaw(att1)
+				persona.SetSleazeRaw(att1)
 				//persona.SetDeviceSleazeRaw(att1)
 				swap2 = true
 			} else if comm[3] == "DATA_PROCESSING" {
-				persona.GetDevice().SetDataProcessingRaw(att1)
+				persona.SetDataProcessingRaw(att1)
 				//persona.SetDeviceDataProcessingRaw(att1)
 				swap2 = true
 			} else if comm[3] == "FIREWALL" {
-				persona.GetDevice().SetFirewallRaw(att1)
+				persona.SetFirewallRaw(att1)
 				//persona.SetDeviceFirewallRaw(att1)
 				swap2 = true
 			} else {
@@ -3056,68 +3055,32 @@ func SwapAttributes(src IObj, trg IObj) bool { //need to rewrite to use IPersona
 //LoadProgram -
 func LoadProgram(src IObj, trg IObj) bool {
 	src = SourceIcon
-	congo.WindowsMap.ByTitle["User Input"].WClear()
+	comm := GetComm()
+	targetProgram := formatTargetName(comm[2])
+	printLog("Loading Program...", congo.ColorGreen)
 	if persona, ok := src.(IPersona); ok {
-		//text := TargetIcon.(string)
-		text := command
-		text = formatString(text)
-		text = cleanText(text)
-		comm := strings.SplitN(text, ">", 4)
-		programINfound := false
-		programINRunning := false
-		for i := range persona.GetDeviceSoft().programName {
-			program := persona.GetDeviceSoft().programName[i]
-			prgName := persona.GetDeviceSoft().programName[i]
-			prgName = formatString(prgName)
-			prgName = cleanText(prgName)
-			dur := time.Second / 3
-			draw()
-			if prgName == comm[2] {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Loading program...", congo.ColorGreen)
-				time.Sleep(dur)
-				draw()
-				if persona.GetDeviceSoft().programStatus[i] == "Running" {
-					programINRunning = true
-				}
-				if persona.GetDeviceSoft().programStatus[i] == "inStore" {
-
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program name: "+persona.GetDeviceSoft().programName[i], congo.ColorGreen)
-					time.Sleep(dur)
-					draw()
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program type: "+persona.GetDeviceSoft().programType[i], congo.ColorGreen)
-					time.Sleep(dur)
-					draw()
-					if persona.GetDevice().LoadProgram(program) { //////Проверка устройства
-						//persona.LoadProgram(program)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("...program status: "+persona.GetDeviceSoft().programStatus[i], congo.ColorGreen)
-						time.Sleep(dur)
-						draw()
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Loading Complete", congo.ColorGreen)
-						programINfound = true
-					}
-				}
-				if persona.GetDeviceSoft().programStatus[i] == "Crashed" {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program name: "+persona.GetDeviceSoft().programName[i], congo.ColorGreen)
-					time.Sleep(dur)
-					draw()
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program type: "+persona.GetDeviceSoft().programType[i], congo.ColorGreen)
-					time.Sleep(dur)
-					draw()
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program status: "+persona.GetDeviceSoft().programStatus[i], congo.ColorRed)
-					time.Sleep(dur)
-					draw()
-				}
+		programs := persona.GetPrograms()
+		printLog("...Program: "+targetProgram, congo.ColorGreen)
+		prgFound := false
+		for i := range programs {
+			if programs[i].programName != targetProgram {
+				continue
 			}
+			prgFound = true
+			if programs[i].programStatus != "Stored" {
+				printLog("...Error: Program '"+programs[i].programName+"' is "+programs[i].programStatus, congo.ColorYellow)
+				return false
+			}
+			printLog("...Status: "+programs[i].programStatus, congo.ColorGreen)
+			persona.GetDevice().LoadProgramToDevice(targetProgram)
 		}
-		if programINfound {
-			isFreeAction()
-		} else if programINRunning {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: program '"+comm[2]+"' already running", congo.ColorYellow)
-		} else {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Program '"+comm[2]+"' cannot be loaded", congo.ColorGreen)
+		if !prgFound {
+			printLog("...Error: Program '"+targetProgram+"' is not available", congo.ColorGreen)
+			return false
 		}
+		persona.SpendFreeAction()
 	}
-
+	printLog("Loading successful", congo.ColorGreen)
 	return true
 }
 
@@ -3157,8 +3120,8 @@ func Login(src IObj, trg IObj) bool {
 	return true
 }
 
-//UnloadProgram -
-func UnloadProgram(src IObj, trg IObj) bool {
+/*//UnloadProgram -
+func UnloadProgram0(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
 	if persona, ok := src.(IPersona); ok {
@@ -3202,9 +3165,43 @@ func UnloadProgram(src IObj, trg IObj) bool {
 
 	return true
 }
+*/
+//UnloadProgram -
+func UnloadProgram(src IObj, trg IObj) bool {
+	src = SourceIcon
+	comm := GetComm()
+	targetProgram := formatTargetName(comm[2])
+	printLog("Unloading Program...", congo.ColorGreen)
+	congo.WindowsMap.ByTitle["User Input"].WClear()
+	if persona, ok := src.(IPersona); ok {
+		programs := persona.GetPrograms()
+		printLog("...Program: "+targetProgram, congo.ColorGreen)
+		prgFound := false
+		for i := range programs {
+			if programs[i].programName != targetProgram {
+				continue
+			}
+			prgFound = true
+			if programs[i].programStatus != "Running" {
+				printLog("...Error: Program '"+programs[i].programName+"' is not running", congo.ColorYellow)
+				return false
+			}
+			persona.GetDevice().UnloadProgramFromDevice(targetProgram) //unload here
+		}
+		if !prgFound {
+			printLog("...Error: Program '"+targetProgram+"' is not available", congo.ColorGreen)
+			return false
+		}
+		persona.SpendFreeAction()
+
+	}
+	printLog("...Exit code: 0", congo.ColorGreen)
+	printLog("Program termination completed", congo.ColorGreen)
+	return true
+}
 
 //SwapPrograms - ++
-func SwapPrograms(src IObj, trg IObj) bool {
+func SwapPrograms0(src IObj, trg IObj) bool {
 	src = SourceIcon
 	congo.WindowsMap.ByTitle["User Input"].WClear()
 	if persona, ok := src.(IPersona); ok {
@@ -3227,7 +3224,7 @@ func SwapPrograms(src IObj, trg IObj) bool {
 				draw()
 				if persona.GetDeviceSoft().programStatus[i] == "Running" {
 					if true { //////Проверка устройства
-						persona.GetDevice().UnloadProgram(program)
+						persona.GetDevice().UnloadProgramFromDevice(program)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+program+" Terminated", congo.ColorGreen)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("Program exit code:0", congo.ColorGreen)
 						isFreeAction()
@@ -3266,7 +3263,7 @@ func SwapPrograms(src IObj, trg IObj) bool {
 					congo.WindowsMap.ByTitle["Log"].WPrintLn("...program type: "+persona.GetDeviceSoft().programType[i], congo.ColorGreen)
 					time.Sleep(dur)
 					draw()
-					if persona.GetDevice().LoadProgram(program) { //////Проверка устройства
+					if persona.GetDevice().LoadProgramToDevice(program) { //////Проверка устройства
 						//persona.LoadProgram(program)
 						congo.WindowsMap.ByTitle["Log"].WPrintLn("...program status: "+persona.GetDeviceSoft().programStatus[i], congo.ColorGreen)
 						time.Sleep(dur)
@@ -3286,6 +3283,63 @@ func SwapPrograms(src IObj, trg IObj) bool {
 		}
 	}
 
+	return true
+}
+
+//SwapPrograms - ++
+func SwapPrograms(src IObj, trg IObj) bool {
+	printLog("Program Swap protocol initiated... ", congo.ColorGreen)
+	src = SourceIcon
+	congo.WindowsMap.ByTitle["User Input"].WClear()
+	comm := GetComm()
+	if len(comm) < 4 {
+		printLog("...Error: not enough data", congo.ColorGreen)
+		printLog("Program Swap failed", congo.ColorRed)
+		return false
+	}
+	programOUT := formatTargetName(comm[2])
+	printLog("...Unloading '"+programOUT+"' program", congo.ColorGreen)
+	programIN := formatTargetName(comm[3])
+	loadedOUT := false
+	loadedIN := false
+	if persona, ok := src.(IPersona); ok {
+		programs := persona.GetPrograms()
+		//clearing space
+		for i := range programs {
+			if programs[i].programName != programOUT {
+				continue
+			}
+			if programs[i].programStatus == "Running" {
+				persona.GetDevice().UnloadProgramFromDevice(programOUT)
+				loadedOUT = true
+			}
+		}
+		if !loadedOUT {
+			printLog("...Error: Program '"+programOUT+"' is not running", congo.ColorYellow)
+			printLog("Program Swap failed", congo.ColorRed)
+			return false
+		}
+		printLog("...completed", congo.ColorGreen)
+		//loading new program
+		printLog("...Loading '"+programIN+"' program", congo.ColorGreen)
+		for i := range programs {
+			if programs[i].programName != programIN {
+				continue
+			}
+			if programs[i].programStatus == "Stored" {
+				persona.GetDevice().LoadProgramToDevice(programIN)
+				loadedIN = true
+			} else {
+				printLog("...Error: Program '"+programs[i].programName+"' is "+programs[i].programStatus, congo.ColorYellow)
+			}
+		}
+		if !loadedIN {
+			printLog("Program Swap failed", congo.ColorRed)
+			return false
+		}
+		printLog("...completed", congo.ColorGreen)
+		printLog("Program Swap succsessful", congo.ColorGreen)
+	}
 	return true
 }
 
@@ -4052,7 +4106,7 @@ func DiffuseFirewall(src IObj, trg IObj) bool {
 
 //KillComplexForm -
 func KillComplexForm(src IObj, trg IObj) bool {
-	/*if livPersona, ok := src.(ITechnom); ok {
+	if livPersona, ok := src.(ITechnom); ok {
 		printLog(livPersona.GetDevice().GetModel(), congo.ColorDefault)
 		if livPersona.GetDevice().GetModel() != "Living Persona" {
 			printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
@@ -4066,33 +4120,49 @@ func KillComplexForm(src IObj, trg IObj) bool {
 	persona := src.(ITechnom)
 	comm := GetComm()
 	targetList := pickTargets(comm)
-	if target, ok := TargetIcon.(IIcon); ok {
-		level := 0
+	formName := "Random Form"
+	printLog("Comm:", congo.ColorYellow)
+	for i := range comm {
+		printLog(comm[i], congo.ColorDefault)
+	}
+	printLog("Targets:", congo.ColorYellow)
+	for i := range targetList {
+		printLog(targetList[i].GetName(), congo.ColorDefault)
+	}
+	printLog("Complex Form:", congo.ColorYellow)
+	if len(comm) < 4 {
+		printLog("Random Form", congo.ColorDefault)
+	} else {
+		formName = formatTargetName(comm[3])
+		printLog(formName+" form", congo.ColorDefault)
+	}
 
-		formExist, formNum := target.CheckThreadedForm("test")
-		if formExist {
-			getComplexForm(formNum)
+	if target, ok := TargetIcon.(IIcon); ok {
+		printLog("execute target: "+target.GetName(), congo.ColorGreen)
+		if formName == "Random Form" {
+			for i := range CFDBMap {
+				if getComplexForm(i).madeOnID == target.GetID() {
+					formName = getComplexForm(i).cfName
+					break
+				}
+			}
+			printLog("Random Form picked: "+formName, congo.ColorGreen)
 		}
-		attMod := calculateAttMods(comm, persona, targetList)
-		dp1 := persona.GetSoftwareSkill() + persona.GetResonance() + attMod
-		limit := level
-		fade := level - 2
-		fadeType := "stun"
-		if fade < 2 {
-			fade = 2
+		formTreaded, formID := target.CheckThreadedForm(formName)
+		if formTreaded {
+			threaderID := getComplexForm(formID).madeByID
+			threaderName := pickObjByID(threaderID).GetName()
+			printLog(threaderName, congo.ColorRed)
+			if threaderID == persona.GetID() {
+				printLog("This is own Form, no test Needed", congo.ColorGreen)
+				delete(CFDBMap, formID)
+				persona.SpendFreeAction()
+			}
+		} else {
+			printLog("Form: "+formName+" is not threded on "+target.GetName(), congo.ColorYellow)
 		}
-		suc1, gl, cgl := simpleTest(persona.GetID(), dp1, limit, 0)
-		if suc1 > persona.GetResonance() {
-			fadeType = "phys"
-		}
-		if gl == true {
-			fade = fade + (xd6Test(1) / 2)
-		}
-		if cgl == true {
-			fade = fade + (xd6Test(1) / 2)
-			fadeType = "phys"
-		}
-	}*/
+
+	}
 	return true
 }
 
@@ -4285,6 +4355,7 @@ func formatTargetName(targetName string) string {
 	targetName = strings.Replace(targetName, "_", " ", -1)
 	targetName = strings.Title(targetName)
 	targetName = strings.Replace(targetName, " Ic", " IC", -1)
+	targetName = strings.Replace(targetName, " Of ", " of ", -1)
 	return targetName
 }
 
