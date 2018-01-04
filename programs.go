@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
-import "github.com/Galdoba/ConGo/congo"
+//import "fmt"
+//import "github.com/Galdoba/ConGo/congo"
 import "strconv"
 
 //TcyberProgram -
@@ -15,19 +15,17 @@ type TcyberProgram struct {
 func preapareCyberProgram(prgName string, rating int) *TcyberProgram {
 	program := new(TcyberProgram)
 	program.programName = prgName
-	//program2 := make(map[string]ICyberProgramData)
-	//program2[prgName].SetRating(rating)
-	//program2[prgName].SetStatus("inStorage")
-	//program2[prgName].SetRating(rating)
 	program.programRating = rating
 	program.programStatus = "Stored"
-	program.programType = "--PLACEHOLDER--"
+	program.programType = "--PLACEHOLDER--" // Common/Hacking/Rigger
 	return program
 }
 
 //TAgent -
 type TAgent struct {
 	TPersona
+	actionProtocol string
+	rating         int
 }
 
 //IAgent -
@@ -38,6 +36,8 @@ type IAgent interface {
 
 //IAgentOnly -
 type IAgentOnly interface {
+	GetActionProtocol() string
+	GetRating() int
 }
 
 //NewTechnom -
@@ -49,7 +49,7 @@ func (d *TDevice) NewAgent() IAgent {
 	if ownerPersona == nil { //not sure how to handle "owner==nil" problem
 		ownerPersona = SourceIcon
 	}
-	printLog(fmt.Sprintf("INFO: %v", ownerPersona)+" --is the owner for an Agent", congo.ColorYellow)
+	//printLog(fmt.Sprintf("INFO: %v", ownerPersona)+" --is the owner for an Agent", congo.ColorYellow)
 	//printLog(ownerPersona.GetName(), congo.ColorDefault)
 	var agent *TcyberProgram
 	for i := range programs {
@@ -59,7 +59,9 @@ func (d *TDevice) NewAgent() IAgent {
 		agent = programs[i]
 	}
 	a := TAgent{}
-	a.SetID()
+	id = id + xd6Test(3)
+	a.id = id
+	a.rating = agent.programRating
 	a.device = d
 	a.uDevice = d.model
 	a.uType = "Agent"
@@ -86,11 +88,11 @@ func (d *TDevice) NewAgent() IAgent {
 	//a.id = id
 	a.silentMode = false
 	a.simSence = "HOT-SIM"
-	a.maxStunCM = 10
-	a.stunCM = 10
-	a.maxPhysCM = 10
-	a.physCM = 10
-
+	a.maxStunCM = 999999
+	a.stunCM = 999999
+	a.maxPhysCM = 999999
+	a.physCM = 999999
+	a.actionProtocol = "Idle"
 	a.maxMatrixCM = a.GetDeviceRating()/2 + 8
 	a.matrixCM = 10
 	a.host = Matrix
@@ -103,33 +105,32 @@ func (d *TDevice) NewAgent() IAgent {
 	a.physLocation = false
 	a.freeActionsCount = 1
 	a.simpleActionsCount = 2
-	//ownerPersona.ChangeFOWParametr(a.id, 0, "Spotted")
-	data := player.GetFieldOfView().KnownData[a.id]
+	ownerPersona.ChangeFOWParametr(a.id, 0, "Spotted")
+	data := ownerPersona.GetFieldOfView().KnownData[a.id]
 	data[0] = "Spotted"
 	data[1] = "Unknown"
-	data[2] = "Unknown"
-	/*data[3] = "Unknown"
+	data[2] = "MCM"
+	data[3] = "Unknown"
 	data[4] = "Unknown"
 	data[5] = "Unknown"
-	data[6] = "Unknown"
-	data[7] = "Unknown"
-	data[8] = "Unknown"
-	data[9] = "Unknown"
-	data[10] = "Unknown"
+	data[6] = a.GetSimSence()
+	data[7] = strconv.Itoa(a.GetAttack())
+	data[8] = strconv.Itoa(a.GetSleaze())
+	data[9] = strconv.Itoa(a.GetDataProcessing())
+	data[10] = strconv.Itoa(a.GetFirewall())
 	data[11] = "Unknown"
 	data[12] = "Unknown"
-	data[13] = "Unknown"
+	data[13] = a.GetGridName()
 	data[14] = "Unknown"
 	data[15] = "Unknown"
 	data[16] = "Unknown"
 	data[17] = "Unknown"
-	data[18] = "Unknown"*/
-	player.GetFieldOfView().KnownData[a.id] = data
-	player.ChangeFOWParametr(a.id, 0, "Spotted")
-
+	data[18] = a.GetOwner().GetName()
+	ownerPersona.GetFieldOfView().KnownData[a.id] = data
 	ObjByNames[a.name] = &a
-	printLog(fmt.Sprintf("INFO: %v", a)+" --is an Agent", congo.ColorDefault)
-	printLog(fmt.Sprintf("INFO: %v", a.GetType())+" --is an Agent's type", congo.ColorDefault)
+	//printLog(fmt.Sprintf("INFO: %v", a)+" --is an Agent", congo.ColorDefault)
+	//printLog(fmt.Sprintf("INFO: %v", a.GetType())+" --is an Agent's type", congo.ColorDefault)
+	a.initiative = 1
 	id++
 	return &a
 }
@@ -142,4 +143,14 @@ func (a *TAgent) RollInitiative() {
 //GetType -
 func (a *TAgent) GetType() string {
 	return "Agent"
+}
+
+//GetActionProtocol -
+func (a *TAgent) GetActionProtocol() string {
+	return a.actionProtocol
+}
+
+//GetRating -
+func (a *TAgent) GetRating() int {
+	return a.rating
 }

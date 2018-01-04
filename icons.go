@@ -1375,7 +1375,9 @@ func (d *TDevice) LoadProgramToDevice(name string) bool {
 		}
 	}
 	if name == "Agent" {
-		d.NewAgent()
+		agent := d.NewAgent()
+		agent.RollInitiative()
+		agent.SetInitiative(agent.GetInitiative() - (InitiativePass * 10))
 	}
 	return true
 }
@@ -1394,20 +1396,27 @@ func (d *TDevice) UnloadProgramFromDevice(name string) bool {
 	}
 	if name == "Agent" {
 		printLog("вот тут мы его отключаем", congo.ColorDefault)
+		agent := findAgent(d)
+		ObjByNames[agent.GetName()] = nil
+		delete(ObjByNames, agent.GetName())
 	}
 	return true
+}
 
-	/*	for i := 0; i < len(d.software.programName); i++ {
-			if d.software.programName[i] == name {
-				if d.software.programStatus[i] == "Running" {
-					d.software.programStatus[i] = "inStore"
-				} else {
-					return false
-				}
+func findAgent(d *TDevice) IAgent {
+	var exportAgent IAgent
+	for _, obj := range ObjByNames {
+		if agent, ok := obj.(IAgent); ok {
+			if agent.GetDevice() == d {
+				printLog("Found: "+agent.GetName(), congo.ColorYellow)
+				exportAgent = agent
 
+				break
 			}
 		}
-		return true*/
+	}
+
+	return exportAgent
 }
 
 //GetRunningProgramsQty -
@@ -1805,6 +1814,11 @@ func NewPersona(alias string, d string) IPersona {
 	return &p
 }
 
+//GetID -
+func (p *TPersona) GetID() int {
+	return p.id
+}
+
 //GetAttribute -
 func (p *TPersona) GetAttribute(name string) int {
 	switch name {
@@ -2151,7 +2165,6 @@ func (p *TPersona) GetGrid() *TGrid {
 //SetGrid -
 func (p *TPersona) SetGrid(grid *TGrid) {
 	p.grid = grid
-	printLog("WELCOME TO: "+p.grid.name, congo.ColorDefault)
 }
 
 //GetHost -

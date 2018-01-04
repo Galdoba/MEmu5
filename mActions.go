@@ -2586,7 +2586,6 @@ func GridHop(src IObj, trg IObj) bool {
 			}
 			persona.(IPersona).SetGrid(grid)
 			printLog("...completed", congo.ColorGreen)
-			printLog("Welcome to "+grid.GetGridName()+"!", congo.ColorGreen)
 		}
 	} else {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Switching grid to...", congo.ColorGreen)

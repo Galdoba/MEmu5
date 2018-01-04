@@ -300,6 +300,28 @@ func checkTurn() bool {
 			}
 
 		}
+		if agent, ok := icon.(IAgent); ok {
+			if agent.GetInitiative() > 0 {
+				//выбираем источник
+				SourceIcon = agent
+				//выбираем цель
+				TargetIcon = agent
+				//выбираем действие
+				printLog("Agent Protocol: "+agent.GetActionProtocol(), congo.ColorDefault)
+				printLog("Agent is waiting", congo.ColorDefault)
+				mActionName = "WAIT" //нужен целеуказывающий механизм для айсов
+
+				/////////////////////////////////////////////////////////////////////
+				//printLog("--point DoAction", congo.ColorDefault)
+				//printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
+				doAction(mActionName)
+				printLog("Agent: "+mActionName, congo.ColorDefault)
+				endActionPhase(agent)
+				//printLog("end checkTurn() 2", congo.ColorDefault)
+				return false
+			}
+
+		}
 	}
 	//	printLog("end checkTurn() 3", congo.ColorDefault)
 	return true
