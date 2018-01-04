@@ -220,6 +220,7 @@ func checkTurn() bool {
 			buildInitiativePassOrder()
 			STime = forwardShadowrunTime()
 			if player.GetName() != "Unknown" {
+				drawLineInWindow("Log")
 				congo.WindowsMap.ByTitle["Log"].WPrintLn("SYSTEM TIME: "+STime, congo.ColorDefault)
 			}
 			if STime == TimeMarker {
@@ -304,26 +305,25 @@ func checkTurn() bool {
 			if agent.GetInitiative() > 0 {
 				//выбираем источник
 				SourceIcon = agent
+				actStr, tarStr := agent.RunActionProtocol()
+				actStr = formatString(actStr)
+				//tarStr = formatString(tarStr)
 				//выбираем цель
-				TargetIcon = agent
+				TargetIcon = ObjByNames[tarStr]
 				//выбираем действие
 				printLog("Agent Protocol: "+agent.GetActionProtocol(), congo.ColorDefault)
-				printLog("Agent is waiting", congo.ColorDefault)
-				mActionName = "WAIT" //нужен целеуказывающий механизм для айсов
-
+				mActionName = actStr
 				/////////////////////////////////////////////////////////////////////
-				//printLog("--point DoAction", congo.ColorDefault)
-				//printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
+				command = formatString(agent.GetName() + ">" + mActionName + ">" + tarStr)
+				printLog(command, congo.ColorDefault)
 				doAction(mActionName)
-				printLog("Agent: "+mActionName, congo.ColorDefault)
+				//printLog("Agent: "+mActionName+", target: "+tarStr, congo.ColorDefault)
 				endActionPhase(agent)
 				//printLog("end checkTurn() 2", congo.ColorDefault)
 				return false
 			}
-
 		}
 	}
-	//	printLog("end checkTurn() 3", congo.ColorDefault)
 	return true
 }
 

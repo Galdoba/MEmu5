@@ -182,6 +182,8 @@ func (o *TObj) GetMarkSet() MarkSet {
 	return o.markSet
 }
 
+
+
 //GetFieldOfView -
 func (o *TObj) GetFieldOfView() FieldOfView {
 	//panic("Abs Func Call")

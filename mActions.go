@@ -1791,7 +1791,6 @@ func BruteForce(src IObj, trg IObj) bool {
 			markRound = 3
 		}
 	}
-
 	var validSpecs []string
 	//validSpecs = append(validSpecs, "Brute Force")
 	haveSpec, spec := persona.HaveValidSpec(validSpecs)
@@ -2450,7 +2449,10 @@ func EnterHost(src IObj, trg IObj) bool {
 				printLog("...ACCESS DENIED", congo.ColorRed)
 			} else { //выполняем само действие
 				persona.SetHost(host)
-				printLog("SYSTEM MESSAGE: You are now connected to "+host.GetName(), congo.ColorDefault)
+				if persona == player {
+					printLog("SYSTEM MESSAGE: You are now connected to "+host.GetName(), congo.ColorDefault)
+				}
+				//printLog("SYSTEM MESSAGE: You are now connected to "+host.GetName(), congo.ColorDefault)
 			}
 		}
 	} else {

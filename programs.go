@@ -38,6 +38,7 @@ type IAgent interface {
 type IAgentOnly interface {
 	GetActionProtocol() string
 	GetRating() int
+	RunActionProtocol() (string, string)
 }
 
 //NewTechnom -
@@ -92,7 +93,7 @@ func (d *TDevice) NewAgent() IAgent {
 	a.stunCM = 999999
 	a.maxPhysCM = 999999
 	a.physCM = 999999
-	a.actionProtocol = "Idle"
+	a.actionProtocol = "Follow"
 	a.maxMatrixCM = a.GetDeviceRating()/2 + 8
 	a.matrixCM = 10
 	a.host = Matrix
@@ -106,6 +107,7 @@ func (d *TDevice) NewAgent() IAgent {
 	a.freeActionsCount = 1
 	a.simpleActionsCount = 2
 	ownerPersona.ChangeFOWParametr(a.id, 0, "Spotted")
+
 	data := ownerPersona.GetFieldOfView().KnownData[a.id]
 	data[0] = "Spotted"
 	data[1] = "Unknown"
@@ -153,4 +155,35 @@ func (a *TAgent) GetActionProtocol() string {
 //GetRating -
 func (a *TAgent) GetRating() int {
 	return a.rating
+}
+
+func (a *TAgent) RunActionProtocol() (string, string) {
+	if owner, ok := a.GetOwner().(IPersona); ok {
+		switch a.actionProtocol {
+		default:
+			return "", ""
+		case "Idle":
+			return "WAIT", a.GetName()
+		case "Follow":
+			if owner.GetGrid() != a.GetGrid() { //if Agent is not on the same Grid as Owner
+				return "GRID_HOP", owner.GetGrid().GetGridName() //            follow to the same Grid
+			}
+			host := owner.GetHost()
+			if host != a.GetHost() { //if Agent is not on the same Host as Owner
+				if host.GetName() == "Matrix" {
+					return "EXIT_HOST", host.GetName()
+				}
+				if !checkExistingMarks(a.id, host.GetID(), 1) { //if not have MARKS on Host
+					if a.GetSleaze() < a.GetAttack() {
+						return "BRUTE_FORCE", host.GetName()
+					} else {
+						return "HACK_ON_THE_FLY", host.GetName()
+					}
+				}
+				return "ENTER_HOST", host.GetName() //            Check if Agent have Mark on the Host
+			}
+		}
+	}
+
+	return "WAIT", a.GetName()
 }
