@@ -3462,15 +3462,15 @@ func InfuseAttack(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -3545,15 +3545,15 @@ func InfuseSleaze(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -3628,15 +3628,15 @@ func InfuseDataProcessing(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -3711,15 +3711,15 @@ func InfuseFirewall(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -3794,15 +3794,15 @@ func DiffuseAttack(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -3877,15 +3877,15 @@ func DiffuseSleaze(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -3960,15 +3960,15 @@ func DiffuseDataProcessing(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {
@@ -4043,15 +4043,15 @@ func DiffuseFirewall(src IObj, trg IObj) bool {
 	printLog(persona.GetName(), congo.ColorDefault)
 	level := 0
 	for i := range comm {
-		if strings.Contains(comm[i], "-F") {
-			levelSTR := strings.Split(comm[i], "-F")
+		if strings.Contains(comm[i], "-L") {
+			levelSTR := strings.Split(comm[i], "-L")
 			levelINT, _ := strconv.Atoi(levelSTR[1])
 			level = levelINT
 		}
 	}
 	if level < 1 {
 		printLog("Error: Level not designated correctly", congo.ColorYellow)
-		printLog("Use '-F3' for level = 3, '-F10' for level = 10, ect...", congo.ColorDefault)
+		printLog("Use '-L3' for level = 3, '-L10' for level = 10, ect...", congo.ColorDefault)
 		return false
 	}
 	if level > (persona.GetResonance() * 2) {

@@ -6,7 +6,7 @@ MEmu5 is an attempt to digitalise the abstract rules for the Matrix in Shadowrun
 
 1. Edit "playerDB.txt" to add your character using template provided. 
 2. run MEmu5.exe
-3. activate your character: ```login>[charName]``` (Decker is the name of test character)
+3. activate your character: ```login>[charName]``` ("Decker" is the name of test character)
 4. search host: ```matrix search>host>[hostName]```
 5. do your shadowstuff using rules in Shadowrun 5 Core Rule Book (p. 217-249)
 
@@ -44,7 +44,7 @@ you can spend Edge using "Push the Limit", "Negate Glitch" and "Reroll" interrup
 ## What I plan to do:
 
 * implementations of all devices from Shadowrun5 universe
-* implementations of all Technomancer stuff 
+* implementations of all Technomancer stuff (Partly done - no Sprites yet, some Complex Forms are working though)
 * implementations of all AI stuff
 * A LOT of bugs fixes
 * updating as new books and features come to SR Universe
@@ -124,11 +124,11 @@ erase mark           # will atempt to delete 1 random MARK placed on player (wil
 "Edit File":
 optional arguments: "copy", "delete", "download", "encrypt"
 ```
-Edit>file 9           # will do... nothing. Will run test and change "Last Edit Date" of the file to current time. Needed mostly for RolePlaing purposes. (Not implemented properly) 
-Edit>file 9>copy           # will create a new file with ownership of the player
-Edit>file 9>delete           # will destroy file
-Edit>file 9>download           # will initiate download process. (at the end of turn (Data Processing*5) Mp will be transfered to players device
-Edit>file 9>encrypt           # will set Encryption Rating according to rules in CRB (Not implemented yet)
+Edit file>file 9           # will do... nothing. Will run test and change "Last Edit Date" of the file to current time. Needed mostly for RolePlaing purposes. (Not implemented properly) 
+Edit file>file 9>copy           # will create a new file with ownership of the player
+Edit file>file 9>delete           # will destroy file
+Edit file>file 9>download           # will initiate download process. (at the end of turn (Data Processing*5) Mp will be transfered to players device
+Edit file>file 9>encrypt           # will set Encryption Rating according to rules in CRB (Not implemented yet)
 ```
 
 "Grid Hop":
@@ -178,6 +178,19 @@ matrix search>file>system log   # will initiate search for icon type "File" with
 wait                #wait until End of Combat Turn
 wait>14             #drop players initiative by 14
 wait>-ev            #wait until any "Search" or "Download" process is complete
+```
+
+"Infuse [ATTARIBUTE]": 
+(Available ONLY for Technomancers)
+```
+Infuse attack>self>-L4             #Tread Complex Form "Infusion of Attack" with Level 4 on self
+Infuse firewall>Patrol IC>-L7            #Tread Complex Form "Infusion of Firewall" with Level 7 on Patrol IC (Why would you do that?)
+```
+
+"Diffuse [ATTARIBUTE]": 
+(Available ONLY for Technomancers)
+```
+Diffuse attack>Trace IC>-L4             #Tread Complex Form "Diffusion of Attack" with Level 4 on Tarce IC
 ```
 
 
