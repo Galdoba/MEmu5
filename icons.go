@@ -182,8 +182,6 @@ func (o *TObj) GetMarkSet() MarkSet {
 	return o.markSet
 }
 
-
-
 //GetFieldOfView -
 func (o *TObj) GetFieldOfView() FieldOfView {
 	//panic("Abs Func Call")
@@ -1006,7 +1004,7 @@ func (h *THost) NewIC(name string) *TIC {
 	i.sleaze = h.sleaze
 	i.dataProcessing = h.dataProcessing
 	i.firewall = h.firewall
-	i.id = id + xd6Test(3)
+	i.id = id
 	i.isLoaded = true
 	i.simSence = "HOT-SIM"
 	for n := range h.icState.icName {
@@ -1043,7 +1041,7 @@ func (h *THost) NewIC(name string) *TIC {
 	i.freeActionsCount = 0
 	i.simpleActionsCount = 2
 	//objectList = append(objectList, &i)
-	id++
+	id = id + xd6Test(3)
 	ObjByNames[i.name] = &i
 	return &i
 }

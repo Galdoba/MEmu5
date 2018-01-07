@@ -43,6 +43,7 @@ func InitMatrixActionMap() {
 	MActions.MActionMap["UNLOAD_PROGRAM"] = UnloadProgram
 	MActions.MActionMap["SET_DATABOMB"] = SetDatabomb
 	MActions.MActionMap["SWAP_PROGRAMS"] = SwapPrograms
+	MActions.MActionMap["SEND_MESSAGE"] = SendMessage
 	MActions.MActionMap["LONGACT"] = LongAct
 	MActions.MActionMap["WAIT"] = Wait
 	MActions.MActionMap["FULL_DEFENCE"] = FullDefence
@@ -1614,6 +1615,10 @@ func checkAction(actionName string) (bool, string) {
 		actionIsGood = true
 		mActionName = "SWAP_PROGRAMS"
 		return actionIsGood, mActionName
+	case "SEND_MESSAGE":
+		actionIsGood = true
+		mActionName = "SEND_MESSAGE"
+		return actionIsGood, mActionName
 	case "LONGACT":
 		actionIsGood = true
 		mActionName = "LONGACT"
@@ -1739,6 +1744,11 @@ func canIconCanDoAction(mActionName string, icon IIcon) bool {
 		actionType = "simple"
 	case "SILENT_MODE":
 		actionType = "simple"
+	case "SEND_MESSAGE":
+		actionType = "simple"
+	case "CHECK_OVERWATCH_SCORE":
+		actionType = "simple"
+		//////////////////////////////////
 	default:
 		actionType = "complex"
 	}
@@ -2605,10 +2615,11 @@ func HackOnTheFly(src IObj, trg IObj) bool {
 	var netHits int
 	persona := src.(IPersona)
 	isComplexAction()
-	text := command
+	/*text := command
 	text = formatString(text)
 	text = cleanText(text)
-	comm := strings.Split(text, ">")
+	comm := strings.Split(text, ">")*/
+	comm := GetComm()
 	//lComm := len(comm) - 1
 	attMod := 0
 
@@ -2682,7 +2693,7 @@ func HackOnTheFly(src IObj, trg IObj) bool {
 				}
 
 			} else {
-				host.SetAlert("Active Alert")
+				host.SetAlert("Passive Alert")
 				placeMARK(icon, persona)
 			}
 		} else {
@@ -2867,10 +2878,10 @@ func ScanEnviroment(src IObj, trg IObj) bool {
 			}
 			canSee := persona.GetFieldOfView().KnownData[icon.GetID()]
 			if icon.GetHost() == persona.GetHost() && canSee[0] != "Spotted" {
-				if icon.GetName() != persona.GetName() {
+				if icon.GetFaction() != persona.GetFaction() {
 					targetList = append(targetList, icon)
 				}
-				//printLog("append "+icon.GetName()+" to TargetList", congo.ColorYellow) - debug
+				//printLog("append "+icon.GetName()+" to TargetList", congo.ColorYellow) // - debug
 			}
 		}
 	}
@@ -2900,6 +2911,7 @@ func ScanEnviroment(src IObj, trg IObj) bool {
 	printLog("..."+persona.GetName()+": "+strconv.Itoa(suc1)+" successes", congo.ColorGreen)
 
 	for j := range targetList {
+		//printLog("Debug: Evaluating "+targetList[j].GetName(), congo.ColorRed)
 		needToReveal := suc1
 		if icon, ok := targetList[j].(IIcon); ok {
 			if icon.GetSilentRunningMode() {
@@ -2916,12 +2928,16 @@ func ScanEnviroment(src IObj, trg IObj) bool {
 
 				}
 				netHits = suc1 - suc2
+				//printLog("Debug: "+icon.GetName()+": netHits "+strconv.Itoa(netHits), congo.ColorRed)
 				needToReveal = netHits
+
 				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
+
 				if netHits < 0 {
 					printLog("...Matrix Perception failed", congo.ColorYellow)
 				}
 			} else {
+				//printLog("Debug: ELSE:: "+icon.GetName()+": netHits "+strconv.Itoa(netHits), congo.ColorRed)
 				persona.GetFieldOfView().KnownData[icon.GetID()] = revealData(persona, icon, needToReveal)
 			}
 		}
@@ -3121,52 +3137,6 @@ func Login(src IObj, trg IObj) bool {
 	return true
 }
 
-/*//UnloadProgram -
-func UnloadProgram0(src IObj, trg IObj) bool {
-	src = SourceIcon
-	congo.WindowsMap.ByTitle["User Input"].WClear()
-	if persona, ok := src.(IPersona); ok {
-		//text := TargetIcon.(string)
-		text := command
-		text = formatString(text)
-		text = cleanText(text)
-		comm := strings.SplitN(text, ">", 4)
-		programFound := false
-		for i := range persona.GetDeviceSoft().programName {
-			program := persona.GetDeviceSoft().programName[i]
-			prgName := persona.GetDeviceSoft().programName[i]
-			prgName = formatString(prgName)
-			prgName = cleanText(prgName)
-			dur := time.Second / 3
-			draw()
-
-			if prgName == comm[2] {
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("Stopping program...", congo.ColorGreen)
-				time.Sleep(dur)
-				draw()
-				if persona.GetDeviceSoft().programStatus[i] == "Running" {
-					if true { //////Проверка устройства
-						persona.GetDevice().UnloadProgram(program)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("..."+program+" Terminated", congo.ColorGreen)
-						congo.WindowsMap.ByTitle["Log"].WPrintLn("Program exit code:0", congo.ColorGreen)
-						isFreeAction()
-
-					}
-				} else {
-					congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: "+program+" is "+persona.GetDeviceSoft().programStatus[i], congo.ColorGreen)
-				}
-				programFound = true
-			}
-
-		}
-		if programFound == false {
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: program '"+comm[2]+"' not found", congo.ColorGreen)
-		}
-	}
-
-	return true
-}
-*/
 //UnloadProgram -
 func UnloadProgram(src IObj, trg IObj) bool {
 	src = SourceIcon
@@ -3341,6 +3311,44 @@ func SwapPrograms(src IObj, trg IObj) bool {
 		printLog("...completed", congo.ColorGreen)
 		printLog("Program Swap succsessful", congo.ColorGreen)
 	}
+	return true
+}
+
+func SendMessage(src IObj, trg IObj) bool {
+	comm := GetComm()
+	printLog("Sending Message...", congo.ColorGreen)
+	targetList := pickTargets(comm)
+	if len(comm) < 4 {
+		printLog("...Error: Message has no data", congo.ColorGreen)
+		printLog("Use '[SEND MESSAGE]>[TARGET]>[MESSAGE TEXT]' format", congo.ColorDefault)
+		return false
+	}
+	if persona, ok := src.(IPersona); ok {
+		persona.SpendSimpleAction()
+		for i := range targetList {
+			if agent, ok := targetList[i].(IAgent); ok {
+				if comm[3] == "REPORT" {
+					printLog("Status report:", congo.ColorGreen)
+					printLog("Persona: "+agent.GetName(), congo.ColorGreen)
+					printLog("Owner :"+agent.GetOwner().GetName(), congo.ColorGreen)
+					printLog("Action Protocol: "+agent.GetActionProtocol(), congo.ColorGreen)
+					printLog("Current Enviroment: "+agent.GetHost().GetName()+" "+agent.GetGrid().GetGridName(), congo.ColorGreen)
+					printLog("Silent Running mode: "+strconv.FormatBool(agent.GetSilentRunningMode()), congo.ColorGreen)
+					printLog("End report:", congo.ColorGreen)
+				}
+				if comm[3] == "WAIT" {
+					agent.SetActionProtocol("Idle")
+				}
+				if comm[3] == "FOLLOW" {
+					agent.SetActionProtocol("Follow")
+				}
+				if comm[3] == "SCAN_ENVIROMENT" {
+					agent.SetActionProtocol("Overwatch")
+				}
+			}
+		}
+	}
+
 	return true
 }
 
@@ -4556,11 +4564,12 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 	mem := make([]int, 0, 30)
 
 	for i := range canSee {
-		if canSee[i] == "Unknown" { //|| canSee[0] != "Spotted" {
+		if canSee[i] == "Unknown" || canSee[i] == "" { //|| canSee[0] != "Spotted" {
+			canSee[i] = "Unknown"
 			mem = append(mem, i)
 		}
 	}
-	for i := rand.Intn(33); i > 0; i-- { //perception has a chance to reveal some data. TOPIC TO DISSCUSS: on what chance exactly is. Note: 33 stands for chance to reaveal 30 positions from X (33 here) picks
+	for i := rand.Intn(33); i > 0; i-- { //perception has a chance to reveal some data. TOPIC TO DISSCUSS: on what chance exactly is. Note: 30 stands for chance to reaveal 30 positions from X (33 here) picks
 		shuffleInt(mem)
 	}
 	for i := needToReveal; i > 0; i-- {
@@ -4572,24 +4581,26 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 				persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
 				//	break
 			}
+			if canSee[choosen] != "Unknown" {
+				mem = append(mem[:0], mem[1:]...)
+				continue
+			}
 			switch choosen {
-			/*case 0:
-			if target, ok := icon.(IIcon); ok {
-				canSee[choosen] = "Spotted"
-				printLog("...Icon Spotted: "+target.GetName(), congo.ColorGreen)
-				//printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
-			}*/
 			case 1:
 				if target, ok := icon.(IFile); ok && target.GetHost() == persona.GetHost() {
 					canSee[choosen] = target.GetLastEditDate()
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 2:
 				if target, ok := icon.(IICOnly); ok {
 					canSee[choosen] = strconv.Itoa(target.GetMatrixCM())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.(IObj).GetName()+": Matrix Condition Monitor = "+strconv.Itoa(target.GetMatrixCM()), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 3:
 				if target, ok := icon.(IFile); ok {
@@ -4601,6 +4612,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					} else {
 						printLog("..."+target.GetName()+": No Databomb Detected", congo.ColorGreen)
 					}
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 4:
 				if target, ok := icon.(IHost); ok && target.GetHost() == persona.GetHost() {
@@ -4617,56 +4630,48 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 							}
 						}
 					}
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 5:
 				if target, ok := icon.(IIcon); ok {
 					canSee[choosen] = strconv.Itoa(target.GetDeviceRating())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Device Rating = "+strconv.Itoa(target.GetDeviceRating()), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 7:
 				if target, ok := icon.(IIcon); ok {
-					if host, ok := target.(IHost); ok {
-						if persona.GetHost() != host {
-							continue
-						}
-					}
 					canSee[choosen] = strconv.Itoa(target.GetAttack())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Attack = "+strconv.Itoa(target.GetAttack()), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 8:
 				if target, ok := icon.(IIcon); ok {
-					if host, ok := target.(IHost); ok {
-						if persona.GetHost() != host {
-							continue
-						}
-					}
 					canSee[choosen] = strconv.Itoa(target.GetSleaze())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Sleaze = "+strconv.Itoa(target.GetSleaze()), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 9:
 				if target, ok := icon.(IIcon); ok {
-					if host, ok := target.(IHost); ok {
-						if persona.GetHost() != host {
-							continue
-						}
-					}
 					canSee[choosen] = strconv.Itoa(target.GetDataProcessing())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Data Processing = "+strconv.Itoa(target.GetDataProcessing()), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 10:
 				if target, ok := icon.(IIcon); ok {
-					if host, ok := target.(IHost); ok {
-						if persona.GetHost() != host {
-							continue
-						}
-					}
 					canSee[choosen] = strconv.Itoa(target.GetFirewall())
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Firewall = "+strconv.Itoa(target.GetFirewall()), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 12:
 				if target, ok := icon.(IFile); ok {
@@ -4678,12 +4683,16 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					} else {
 						printLog("..."+target.GetName()+": No file encryption detected", congo.ColorGreen)
 					}
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 13:
 				if target, ok := icon.(IHost); ok {
 					canSee[choosen] = target.GetGrid().GetGridName()
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": Located in "+target.GetGrid().GetGridName(), congo.ColorGreen)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 15:
 				if target, ok := icon.(IFile); ok {
@@ -4691,21 +4700,42 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("...Data revealed: ", congo.ColorGreen)
 					printLog("..."+target.GetName()+": File size evaluated", congo.ColorGreen)
 					printLog("..."+target.GetName()+": File size = "+strconv.Itoa(target.GetSize())+" Mp", congo.ColorYellow)
+				} else {
+					canSee[choosen] = "Unknown"
 				}
 			case 18:
 				if target, ok := icon.(IIcon); ok {
-					canSee[choosen] = target.GetOwner().GetName()
-					printLog("...Data revealed: ", congo.ColorGreen)
-					printLog("..."+target.GetName()+": Owner = "+target.GetOwner().GetName(), congo.ColorGreen)
+					if target.GetOwner() == nil {
+						canSee[choosen] = "No Owner"
+						printLog("...Data revealed: ", congo.ColorGreen)
+						printLog("..."+target.GetName()+" have no Owner", congo.ColorGreen)
+					} else {
+						canSee[choosen] = target.GetOwner().GetName()
+						printLog("...Data revealed: ", congo.ColorGreen)
+						printLog("..."+target.GetName()+": Owner = "+target.GetOwner().GetName(), congo.ColorGreen)
+					}
+				} else {
+					canSee[choosen] = "Unknown"
+
 				}
 
 			default:
+				canSee[choosen] = "Unknown"
+				continue
 			}
-			if len(mem) > i+1 {
-				mem = append(mem[:i], mem[i+1:]...)
-			}
-			//needToReveal--
 			persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
+			owner := persona.GetOwner()
+			if owner != persona.(IObj) && owner != nil {
+				//owner.GetFieldOfView().KnownData[icon.GetID()] = canSee
+				for q := range owner.GetFieldOfView().KnownData[icon.GetID()] {
+					if owner.GetFieldOfView().KnownData[icon.GetID()][q] == "Unknown" {
+						owner.ChangeFOWParametr(icon.GetID(), q, canSee[q])
+					}
+					if owner.GetFieldOfView().KnownData[icon.GetID()][q] == "" {
+						owner.ChangeFOWParametr(icon.GetID(), q, canSee[q])
+					}
+				}
+			}
 		}
 	}
 	/*allInfo := src.canSee.KnownData[trg.GetID()]

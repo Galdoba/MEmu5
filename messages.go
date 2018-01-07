@@ -65,7 +65,7 @@ func refreshPersonaWin() {
 		}
 		congo.WindowsMap.ByTitle["Persona"].WPrint(" Slot "+strconv.Itoa(i+1)+": "+rPrgLst[i], congo.ColorGreen)
 		if rPrgLstRat[i] > 0 {
-			congo.WindowsMap.ByTitle["Persona"].WPrint("("+strconv.Itoa(rPrgLstRat[i])+")", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Persona"].WPrint("(Rating: "+strconv.Itoa(rPrgLstRat[i])+")", congo.ColorGreen)
 		}
 		congo.WindowsMap.ByTitle["Persona"].WPrintLn("", congo.ColorGreen)
 	}
@@ -314,10 +314,13 @@ func refreshEnviromentWin() {
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Combat Turn №: "+strconv.Itoa(CombatTurn), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Initiative Pass №: "+strconv.Itoa(InitiativePass), congo.ColorDefault)
 	congo.WindowsMap.ByTitle["Enviroment"].WPrintLn(STime, congo.ColorDefault)
+	drawLineInWindow("Enviroment")
 	keysForHost := getSortedKeysByType("Host")
 	drawLine := false
 	for i := range keysForHost {
-		drawLineInWindow("Enviroment")
+		if drawLine {
+			drawLineInWindow("Enviroment")
+		}
 		host := pickObjByID(keysForHost[i]).(IHost)
 		var sampleCode [30]string
 		sampleCode[0] = "Spotted" //[0]
@@ -334,9 +337,6 @@ func refreshEnviromentWin() {
 			}
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Type: Host", congo.ColorGreen)
-		}
-		if checkFoW[5] == whatCanSee[5] && checkFoW[5] != "Unknown" {
-			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: "+whatCanSee[5], congo.ColorGreen)
 		}
 		if whatCanSee[5] != "Unknown" {
 			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host Rating: "+strconv.Itoa(host.GetDeviceRating()), congo.ColorGreen)
@@ -443,7 +443,7 @@ func refreshEnviromentWin() {
 				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
 
 			}
-			/*if whatCanSee[11] != "Unknown" {
+			/*if whatCanSee[11] != "Unknown" || whatCanSee[11] != "UNSCANNABLE" {
 				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Icon Name: "+ic.GetName(), congo.ColorGreen)
 			}*/
 			icMCM := " _ "
@@ -585,7 +585,9 @@ func refreshEnviromentWin() {
 	drawLine = false
 	keysForAgent := getSortedKeysByType("Agent")
 	for i := range keysForAgent {
-		drawLineInWindow("Enviroment")
+		if drawLine {
+			drawLineInWindow("Enviroment")
+		}
 		agent := pickObjByID(keysForAgent[i]).(IAgent)
 		var sampleCode [30]string
 		sampleCode[0] = "Spotted" //[0]
@@ -619,7 +621,7 @@ func refreshEnviromentWin() {
 					}
 					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
 				}
-				if whatCanSee[13] != "Unknown" {
+				if whatCanSee[13] != "Unknown" || whatCanSee[13] != "UNSCANNABLE" {
 					var position string
 					if agent.GetHost() != Matrix {
 						position = agent.GetHost().GetName()
@@ -635,7 +637,6 @@ func refreshEnviromentWin() {
 				}
 			}
 		}
-		congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("End Agent", congo.ColorGreen)
 	}
 }
 

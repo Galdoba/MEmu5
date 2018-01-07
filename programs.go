@@ -37,6 +37,7 @@ type IAgent interface {
 //IAgentOnly -
 type IAgentOnly interface {
 	GetActionProtocol() string
+	SetActionProtocol(string)
 	GetRating() int
 	RunActionProtocol() (string, string)
 }
@@ -87,16 +88,16 @@ func (d *TDevice) NewAgent() IAgent {
 	a.edge = 0
 	a.maxEdge = 0
 	//a.id = id
-	a.silentMode = false
+	a.silentMode = ownerPersona.(IPersona).GetSilentRunningMode()
 	a.simSence = "HOT-SIM"
 	a.maxStunCM = 999999
 	a.stunCM = 999999
 	a.maxPhysCM = 999999
 	a.physCM = 999999
-	a.actionProtocol = "Follow"
+	a.actionProtocol = "Overwatch"
 	a.maxMatrixCM = a.GetDeviceRating()/2 + 8
 	a.matrixCM = 10
-	a.host = Matrix
+	a.host = ownerPersona.(IIcon).GetHost()
 	a.markSet.MarksFrom = make(map[int]int)
 	a.markSet.MarksFrom[a.id] = 4
 	a.linklocked.LockedByID = make(map[int]bool)
@@ -152,6 +153,11 @@ func (a *TAgent) GetActionProtocol() string {
 	return a.actionProtocol
 }
 
+//SetActionProtocol -
+func (a *TAgent) SetActionProtocol(newProtocol string) {
+	a.actionProtocol = newProtocol
+}
+
 //GetRating -
 func (a *TAgent) GetRating() int {
 	return a.rating
@@ -162,8 +168,10 @@ func (a *TAgent) RunActionProtocol() (string, string) {
 		switch a.actionProtocol {
 		default:
 			return "", ""
+			//////////////////////////////////////
 		case "Idle":
-			return "WAIT", a.GetName()
+			return "WAIT", ""
+			//////////////////////////////////////
 		case "Follow":
 			if owner.GetGrid() != a.GetGrid() { //if Agent is not on the same Grid as Owner
 				return "GRID_HOP", owner.GetGrid().GetGridName() //            follow to the same Grid
@@ -182,6 +190,9 @@ func (a *TAgent) RunActionProtocol() (string, string) {
 				}
 				return "ENTER_HOST", host.GetName() //            Check if Agent have Mark on the Host
 			}
+			////////////////////////////////////////
+		case "Overwatch":
+			return "SCAN_ENVIROMENT", "ALL"
 		}
 	}
 
