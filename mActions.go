@@ -4566,16 +4566,26 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 	for i := range canSee {
 		if canSee[i] == "Unknown" || canSee[i] == "" { //|| canSee[0] != "Spotted" {
 			canSee[i] = "Unknown"
-			mem = append(mem, i)
+			if i != 29 {
+				mem = append(mem, i)
+			}
+			//mem = append(mem, i)
 		}
 	}
-	for i := rand.Intn(33); i > 0; i-- { //perception has a chance to reveal some data. TOPIC TO DISSCUSS: on what chance exactly is. Note: 30 stands for chance to reaveal 30 positions from X (33 here) picks
+	for i := rand.Intn(30); i > 0; i-- { //perception has a chance to reveal some data. TOPIC TO DISSCUSS: on what chance exactly is. Note: 30 stands for chance to reaveal 30 positions from X (33 here) picks
 		shuffleInt(mem)
 	}
+	k := -1
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(fmt.Sprintf("Mem[]: %v", mem), congo.ColorGreen)
 	for i := needToReveal; i > 0; i-- {
+		mem = append(mem, 29)
+		//mem = append(mem[:0], mem[1:]...)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn(fmt.Sprintf("Mem[]: %v", mem), congo.ColorYellow)
 		needToReveal--
-		if i < len(mem) {
-			choosen := mem[i]
+		k++
+		if k < len(mem) {
+			choosen := mem[k]
+			//printLog("k = "+strconv.Itoa(k)+"i = "+strconv.Itoa(i)+" | "+"choosen = "+strconv.Itoa(choosen)+" | "+"needToReveal = "+strconv.Itoa(needToReveal), congo.ColorDefault)
 			if canSee[0] != "Spotted" {
 				canSee[0] = "Spotted"
 				persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
@@ -4593,6 +4603,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Last Edit Date = "+target.GetLastEditDate(), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 2:
 				if target, ok := icon.(IICOnly); ok {
@@ -4601,6 +4613,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.(IObj).GetName()+": Matrix Condition Monitor = "+strconv.Itoa(target.GetMatrixCM()), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 3:
 				if target, ok := icon.(IFile); ok {
@@ -4614,6 +4628,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					}
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 4:
 				if target, ok := icon.(IHost); ok && target.GetHost() == persona.GetHost() {
@@ -4632,6 +4648,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					}
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 5:
 				if target, ok := icon.(IIcon); ok {
@@ -4640,6 +4658,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Device Rating = "+strconv.Itoa(target.GetDeviceRating()), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 7:
 				if target, ok := icon.(IIcon); ok {
@@ -4648,6 +4668,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Attack = "+strconv.Itoa(target.GetAttack()), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 8:
 				if target, ok := icon.(IIcon); ok {
@@ -4656,6 +4678,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Sleaze = "+strconv.Itoa(target.GetSleaze()), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 9:
 				if target, ok := icon.(IIcon); ok {
@@ -4664,6 +4688,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Data Processing = "+strconv.Itoa(target.GetDataProcessing()), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 10:
 				if target, ok := icon.(IIcon); ok {
@@ -4672,6 +4698,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Firewall = "+strconv.Itoa(target.GetFirewall()), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 12:
 				if target, ok := icon.(IFile); ok {
@@ -4685,6 +4713,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					}
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 13:
 				if target, ok := icon.(IHost); ok {
@@ -4693,6 +4723,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": Located in "+target.GetGrid().GetGridName(), congo.ColorGreen)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 15:
 				if target, ok := icon.(IFile); ok {
@@ -4702,6 +4734,8 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					printLog("..."+target.GetName()+": File size = "+strconv.Itoa(target.GetSize())+" Mp", congo.ColorYellow)
 				} else {
 					canSee[choosen] = "Unknown"
+					i++
+					needToReveal++
 				}
 			case 18:
 				if target, ok := icon.(IIcon); ok {
@@ -4716,11 +4750,19 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 					}
 				} else {
 					canSee[choosen] = "Unknown"
-
+					i++
+					needToReveal++
 				}
+			case 29:
+				//printLog("...Breaking: ", congo.ColorGreen)
+				//i = 0
+				//needToReveal = 0
+				break
 
 			default:
 				canSee[choosen] = "Unknown"
+				i++
+				needToReveal++
 				continue
 			}
 			persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
