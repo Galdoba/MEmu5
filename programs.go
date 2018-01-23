@@ -181,18 +181,18 @@ func (a *TAgent) RunActionProtocol() (string, string) {
 				if host.GetName() == "Matrix" {
 					return "EXIT_HOST", host.GetName()
 				}
-				if !checkExistingMarks(a.id, host.GetID(), 1) { //if not have MARKS on Host
+				if !checkExistingMarks(a.id, host.GetID(), 1) { //if not have MARKS on Host - get them
 					if a.GetSleaze() < a.GetAttack() {
 						return "BRUTE_FORCE", host.GetName()
 					} else {
 						return "HACK_ON_THE_FLY", host.GetName()
 					}
 				}
-				return "ENTER_HOST", host.GetName() //            Check if Agent have Mark on the Host
+				return "ENTER_HOST", host.GetName() //            Enter host where owner is
 			}
 			////////////////////////////////////////
 		case "Overwatch":
-			return "SCAN_ENVIROMENT", "ALL"
+			return "SCAN_ENVIROMENT", "ALL" //do 'matrix perception>all' repeteadly
 		}
 	}
 

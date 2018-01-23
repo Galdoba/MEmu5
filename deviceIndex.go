@@ -172,6 +172,20 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Living Persona"].canSwapAtt = false
 	DB.DeviceDB["Living Persona"].software = preaparePrograms()
 
+	/////////////
+	DB.DeviceDB["Sprite Persona"] = &TDevice{}
+	DB.DeviceDB["Sprite Persona"].deviceType = "Sprite Persona"
+	DB.DeviceDB["Sprite Persona"].model = "Sprite Persona"
+	DB.DeviceDB["Sprite Persona"].deviceRating = 0
+	DB.DeviceDB["Sprite Persona"].attack = 0
+	DB.DeviceDB["Sprite Persona"].sleaze = 0
+	DB.DeviceDB["Sprite Persona"].dataProcessing = 0
+	DB.DeviceDB["Sprite Persona"].firewall = 0
+	DB.DeviceDB["Sprite Persona"].maxMatrixCM = 0
+	DB.DeviceDB["Sprite Persona"].matrixCM = 0
+	DB.DeviceDB["Sprite Persona"].canSwapAtt = false
+	DB.DeviceDB["Sprite Persona"].software = preaparePrograms()
+
 	/*	DB.DeviceDB["noDevice"].software.programName = append(DB.DeviceDB["noDevice"].software.programName, "Browse")
 		DB.DeviceDB["noDevice"].software.programStatus = append(DB.DeviceDB["noDevice"].software.programStatus, "notAvailable")
 		DB.DeviceDB["noDevice"].software.programType = append(DB.DeviceDB["noDevice"].software.programType, "COMMON")*/

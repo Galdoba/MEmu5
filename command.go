@@ -71,7 +71,7 @@ func UserInput(input string) bool {
 		}
 		return false
 	}
-	if mActionName == "LOAD_PROGRAM" || mActionName == "UNLOAD_PROGRAM" || mActionName == "LOGIN" {
+	if mActionName == "LOAD_PROGRAM" || mActionName == "UNLOAD_PROGRAM" || mActionName == "LOGIN" || mActionName == "COMPILE" {
 		TargetIcon = SourceIcon
 		if len(comm) < 3 {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not enough data...", congo.ColorYellow)

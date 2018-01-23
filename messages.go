@@ -637,6 +637,67 @@ func refreshEnviromentWin() {
 				}
 			}
 		}
+
+		if drawLine {
+			drawLineInWindow("Enviroment")
+		}
+	}
+
+	keysForSprite := getSortedKeysByType("Sprite")
+	for i := range keysForSprite {
+		if drawLine {
+			drawLineInWindow("Enviroment")
+		}
+		sprite := pickObjByID(keysForSprite[i]).(ISprite)
+		var sampleCode [30]string
+		sampleCode[0] = "Spotted" //[0]
+		sampleCode[1] = "Unknown" //[1]
+		var checkFoW [30]string
+		checkFoW = sampleCode
+		whatCanSee := player.GetFieldOfView().KnownData[sprite.GetID()]
+		playerMarks := sprite.GetMarkSet().MarksFrom[player.GetID()]
+		if sprite.GetHost() == player.GetHost() {
+			drawLine = true
+			if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
+				congo.WindowsMap.ByTitle["Enviroment"].WPrint("Icon: "+sprite.GetType()+" "+strconv.Itoa(sprite.GetID()), congo.ColorGreen)
+				for i := 0; i < playerMarks; i++ {
+					congo.WindowsMap.ByTitle["Enviroment"].WPrint("*", congo.ColorGreen)
+				}
+				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
+				if whatCanSee[18] != "Unknown" {
+					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Owner: "+sprite.GetOwner().GetName(), congo.ColorGreen)
+					if sprite.GetOwner().GetName() == player.GetName() {
+						//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Action Protocol: "+agent.GetActionProtocol(), congo.ColorGreen)
+					}
+				}
+				if whatCanSee[5] != "Unknown" || whatCanSee[7] != "Unknown" || whatCanSee[8] != "Unknown" || whatCanSee[9] != "Unknown" || whatCanSee[10] != "Unknown" {
+					//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Agent Rating: "+strconv.Itoa(agent.GetRating()), congo.ColorGreen)
+				}
+				if whatCanSee[2] != "Unknown" {
+					curMCM := sprite.GetMatrixCM()
+					congo.WindowsMap.ByTitle["Enviroment"].WPrint("Matrix Condition:", congo.ColorGreen)
+					congo.WindowsMap.ByTitle["Process"].WPrint("0", congo.ColorGreen)
+					for i := 0; i < curMCM; i++ {
+						congo.WindowsMap.ByTitle["Process"].WPrint("1", congo.ColorGreen)
+						congo.WindowsMap.ByTitle["Enviroment"].WPrint(" X", congo.ColorGreen)
+					}
+					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
+				}
+				if whatCanSee[13] != "Unknown" || whatCanSee[13] != "UNSCANNABLE" {
+					var position string
+					if sprite.GetHost() != Matrix {
+						position = sprite.GetHost().GetName()
+						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host: "+position, congo.ColorGreen)
+					} else {
+						position = sprite.GetGrid().GetGridName()
+						congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Grid: "+position, congo.ColorGreen)
+					}
+				}
+			}
+		}
+		if drawLine {
+			drawLineInWindow("Enviroment")
+		}
 	}
 }
 
@@ -653,3 +714,52 @@ func printLog(s string, color congo.TColor) {
 	//	}
 	//}
 }
+
+/*keysForSprite := getSortedKeysByType("Sprite")
+for i := range keysForSprite {
+	if drawLine {
+		drawLineInWindow("Enviroment")
+	}
+	agent := pickObjByID(keysForSprite[i]).(ISprite)
+	var sampleCode [30]string
+	sampleCode[0] = "Spotted" //[0]
+	sampleCode[1] = "Unknown" //[1]
+	var checkFoW [30]string
+	checkFoW = sampleCode
+	whatCanSee := player.GetFieldOfView().KnownData[agent.GetID()]
+	playerMarks := agent.GetMarkSet().MarksFrom[player.GetID()]
+	if agent.GetHost() == player.GetHost() {
+		drawLine = true
+		if checkFoW[0] == whatCanSee[0] && checkFoW[0] == "Spotted" {
+			congo.WindowsMap.ByTitle["Enviroment"].WPrint("Icon: "+agent.GetType()+" "+strconv.Itoa(agent.GetID()), congo.ColorGreen)
+			for i := 0; i < playerMarks; i++ {
+				congo.WindowsMap.ByTitle["Enviroment"].WPrint("*", congo.ColorGreen)
+			}
+			congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
+			if whatCanSee[18] != "Unknown" {
+				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Owner: "+agent.GetOwner().GetName(), congo.ColorGreen)
+				if agent.GetOwner().GetName() == player.GetName() {
+					//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Action Protocol: "+agent.GetActionProtocol(), congo.ColorGreen)
+				}
+			}
+			if whatCanSee[5] != "Unknown" || whatCanSee[7] != "Unknown" || whatCanSee[8] != "Unknown" || whatCanSee[9] != "Unknown" || whatCanSee[10] != "Unknown" {
+				//congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Agent Rating: "+strconv.Itoa(agent.GetRating()), congo.ColorGreen)
+			}
+			if whatCanSee[2] != "Unknown" {
+				//curMCM := agent.GetMatrixCM()
+				//congo.WindowsMap.ByTitle["Enviroment"].WPrint("Matrix Condition:", congo.ColorGreen)
+				//for i := 0; i < curMCM; i++ {
+				//	congo.WindowsMap.ByTitle["Enviroment"].WPrint(" X", congo.ColorGreen)
+				//}
+				congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("", congo.ColorGreen)
+			}
+			if whatCanSee[13] != "Unknown" || whatCanSee[13] != "UNSCANNABLE" {
+				var position string
+				if agent.GetHost() != Matrix {
+					position = agent.GetHost().GetName()
+					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Host: "+position, congo.ColorGreen)
+				} else {
+					position = agent.GetGrid().GetGridName()
+					congo.WindowsMap.ByTitle["Enviroment"].WPrintLn("Grid: "+position, congo.ColorGreen)
+				}
+			}*/

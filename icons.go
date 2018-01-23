@@ -351,14 +351,14 @@ type IIconOnly interface {
 
 //GetPrograms -
 func (i *TIcon) GetPrograms() []*TcyberProgram {
-	/*if i.GetDevice().cyberSoftware == nil {
-		panic(0)
+	if i.GetDevice().cyberSoftware == nil {
+		//panic(0)
 	}
 
 	if i.GetDevice() == nil {
 		addDevice(i.GetUDevice())
 		//i.device.AddProgramtoDevice("NULL", 0)
-	}*/
+	}
 	/*	if i.GetDevice() != nil {
 		return i.GetDevice().cyberSoftware
 	}*/
@@ -402,6 +402,7 @@ func (i *TIcon) GetIntuition() int {
 
 //CheckRunningProgram -
 func (i *TIcon) CheckRunningProgram(name string) bool {
+
 	programs := i.GetPrograms()
 	for i := range programs {
 		if programs[i].programName != name {

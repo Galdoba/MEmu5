@@ -29,6 +29,7 @@ type ITechnomOnly interface {
 	GetSubmersion() int
 	GetSustainedForms() []ComplexForm
 	ResistFade(int, string)
+	NewSprite(spriteType string, level int) *TSprite 
 }
 
 //NewTechnom -

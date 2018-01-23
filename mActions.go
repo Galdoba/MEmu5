@@ -57,6 +57,7 @@ func InitMatrixActionMap() {
 	MActions.MActionMap["DIFFUSE_DATA_PROCESSING"] = DiffuseDataProcessing
 	MActions.MActionMap["DIFFUSE_FIREWALL"] = DiffuseFirewall
 	MActions.MActionMap["KILL_COMPLEX_FORM"] = KillComplexForm
+	MActions.MActionMap["COMPILE"] = Compile
 	/////////////////////////////////////
 	MActions.MActionMap["EXECUTE_SCAN"] = PatrolICActionArea
 	MActions.MActionMap["PATROL_IC_ACTION"] = PatrolICActionTarget
@@ -1667,6 +1668,10 @@ func checkAction(actionName string) (bool, string) {
 	case "KILL_COMPLEX_FORM":
 		actionIsGood = true
 		mActionName = "KILL_COMPLEX_FORM"
+		return actionIsGood, mActionName
+	case "COMPILE":
+		actionIsGood = true
+		mActionName = "COMPILE"
 		return actionIsGood, mActionName
 	//////////////////////////////////////////
 	case "EXECUTE_SCAN":
@@ -4175,6 +4180,43 @@ func KillComplexForm(src IObj, trg IObj) bool {
 	return true
 }
 
+//Compile -
+func Compile(src IObj, trg IObj) bool {
+	livPersona, ok := src.(ITechnom)
+	if !ok {
+		printLog("--DEBUG--:Can't use Resonance abilities with mundane electronics (CRB p.251)", congo.ColorRed)
+		return false
+	}
+	comm := GetComm()
+	for i := range comm {
+		printLog("comm["+strconv.Itoa(i)+"] = "+comm[i], congo.ColorDefault)
+	}
+	var desc string
+	if len(comm) > 2 {
+		desc = comm[2]
+	}
+	switch desc {
+	case "COURIER_SPRITE":
+		printLog("Must compile Courier Sprite", congo.ColorDefault)
+	case "CRACK_SPRITE":
+		printLog("Must compile Crack Sprite", congo.ColorDefault)
+	case "DATA_SPRITE":
+		printLog("Must compile Data Sprite", congo.ColorDefault)
+		sprite := livPersona.NewSprite("Data Sprite", 5)
+		printLog(sprite.GetName(), congo.ColorDefault)
+	case "FAULT_SPRITE":
+		printLog("Must compile Fault Sprite", congo.ColorDefault)
+	case "MACHINE_SPRITE":
+		printLog("Must compile Machine Sprite", congo.ColorDefault)
+	default:
+		printLog("Error: Unknown type of sprite", congo.ColorDefault)
+		return false
+	}
+
+	printLog(livPersona.GetName()+" compile "+desc+" type", congo.ColorDefault)
+	return true
+}
+
 func addOverwatchScore(suc2 int) {
 	if icon, ok := SourceIcon.(IIcon); ok {
 		icon.SetOverwatchScore(icon.GetOverwatchScore() + suc2)
@@ -4589,7 +4631,16 @@ func revealData(persona IPersona, icon IIcon, needToReveal int) [30]string {
 			if canSee[0] != "Spotted" {
 				canSee[0] = "Spotted"
 				persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
-				//	break
+				i++
+				needToReveal++
+				continue
+			}
+			if canSee[11] == "Unknown" {
+				canSee[11] = icon.GetType()
+				persona.GetFieldOfView().KnownData[icon.GetID()] = canSee
+				i++
+				needToReveal++
+				continue
 			}
 			if canSee[choosen] != "Unknown" {
 				mem = append(mem[:0], mem[1:]...)
