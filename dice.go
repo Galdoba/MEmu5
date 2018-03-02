@@ -182,21 +182,21 @@ func rule6Test(rollerID int, dicePool1 int, limit int, threshold int) (int, bool
 		suc = suc + addSuc
 		sixes = addDp.sixes()
 		if rollerID == player.GetID() && len(addDp.pool) > 0 {
-			congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array: ", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrint("......Performance Array: ")
 			for i := range addDp.pool {
-				congo.WindowsMap.ByTitle["Log"].WPrint(strconv.Itoa(addDp.pool[i])+" ", congo.ColorGreen)
+				congo.WindowsMap.ByTitle["Log"].WPrint(strconv.Itoa(addDp.pool[i]) + " ")
 				draw()
 			}
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("", congo.ColorGreen)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("")
 
-			printLog("......Result: "+strconv.Itoa(addSuc)+" successes", congo.ColorGreen)
+			printLog("......Result: " + strconv.Itoa(addSuc) + " successes")
 			if sixes > 0 {
-				printLog("......Reevaluating resources: "+strconv.Itoa(sixes)+" Mp/p available", congo.ColorGreen)
+				printLog("......Reevaluating resources: " + strconv.Itoa(sixes) + " Mp/p available")
 			}
 
 		}
 	}
-	printLog("...Final Result: "+strconv.Itoa(suc), congo.ColorGreen)
+	printLog("...Final Result: " + strconv.Itoa(suc))
 	return suc, glitch, critGlitch
 	//return 0, false, false
 }
@@ -209,12 +209,12 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 		comm := strings.Split(text, ">")
 		for i := range comm {
 			if comm[i] == "-PL" {
-				printLog("...Additional resources evaluated", congo.ColorGreen)
+				printLog("...Additional resources evaluated")
 				if player.GetEdge() > 0 {
 					dicePool1 = dicePool1 + player.GetMaxEdge()
-					printLog("...Expected efficiency "+strconv.Itoa(dicePool1)+" Mp/p", congo.ColorGreen)
+					printLog("...Expected efficiency " + strconv.Itoa(dicePool1) + " Mp/p")
 					limit = 999
-					printLog("...Warning: Hardware limit deactivated", congo.ColorYellow)
+					printLog("...Warning: Hardware limit deactivated")
 					suc, gl, cgl := rule6Test(rollerID, dicePool1, limit, threshold)
 					netHits := (suc - threshold)
 					player.SetEdge(player.GetEdge() - 1)
@@ -245,12 +245,12 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 	glitch := sourceIcon.glitch()
 	critGlitch := sourceIcon.critGlitch()
 	if rollerID == player.GetID() && player.GetEdge() > 0 {
-		printLog("......Roll result: "+strconv.Itoa(suc)+" successes", congo.ColorGreen)
+		printLog("......Roll result: " + strconv.Itoa(suc) + " successes")
 		if glitch {
-			printLog("......Error: Glitch detected!", congo.ColorYellow)
+			printLog("......Error: Glitch detected!")
 		}
 		if critGlitch {
-			printLog("......Warning: Error critical!", congo.ColorRed)
+			printLog("......Warning: Error critical!")
 		}
 		//printLog("......Interrupt protocol ready", congo.ColorGreen)
 		for i := 40; i > 0; i-- {
@@ -264,10 +264,10 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 					if key != 0 {
 						char := string(key)
 						if char == "r" {
-							printLog("......Reroll protocol Initiated", congo.ColorYellow)
+							printLog("......Reroll protocol Initiated")
 							player.SetEdge(player.GetEdge() - 1)
 							rerollDp := dicePool1 - suc
-							printLog("......Rerolling "+strconv.Itoa(rerollDp)+" dices...", congo.ColorGreen)
+							printLog("......Rerolling " + strconv.Itoa(rerollDp) + " dices...")
 							suc2, sgl, scgl := reRoll(rerollDp, rollerID)
 							if sgl {
 								glitch = sgl
@@ -276,12 +276,12 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 								critGlitch = scgl
 							}
 							suc = suc + suc2
-							printLog("......Reroll result: "+strconv.Itoa(suc2)+" successes", congo.ColorGreen)
-							printLog("...Final result: "+strconv.Itoa(suc), congo.ColorGreen)
+							printLog("......Reroll result: " + strconv.Itoa(suc2) + " successes")
+							printLog("...Final result: " + strconv.Itoa(suc))
 							break
 						}
 						if char == "n" {
-							printLog("......Emergency data steam rerouting", congo.ColorYellow)
+							printLog("......Emergency data steam rerouting")
 							player.SetEdge(player.GetEdge() - 1)
 							if critGlitch {
 								critGlitch = false
@@ -294,7 +294,7 @@ func simpleTest(rollerID int, dicePool1 int, limit int, threshold int) (int, boo
 							break
 						}
 						if char == "p" {
-							printLog("......Allocating additional resourses", congo.ColorYellow)
+							printLog("......Allocating additional resourses")
 							player.SetEdge(player.GetEdge() - 1)
 							limit = 999
 							addSucc, _, _ := rule6Test(player.GetID(), player.GetMaxEdge(), limit, 0)

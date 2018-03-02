@@ -128,7 +128,7 @@ func (h *THost) GetConvergenceFlag() bool {
 
 //GetDevice -
 func (h *THost) GetDevice() *TDevice {
-	return nil
+	return addDevice("Host")
 }
 
 //GetHost -
@@ -173,7 +173,7 @@ func (h *THost) IsPlayer() bool {
 
 //ReceiveMatrixDamage -
 func (h *THost) ReceiveMatrixDamage(damage int) {
-	printLog("...error: Host is immune to Matrix Damage", congo.ColorYellow)
+	printLog("...error: Host is immune to Matrix Damage")
 }
 
 //ResistMatrixDamage -
@@ -251,7 +251,7 @@ func (h *THost) LoadNextIC() bool {
 		//for i := 0; i < h.deviceRating; i++ {
 		if h.icState.icStatus[i] == false {
 			if player.GetHost() == h {
-				printLog(h.icState.icName[i]+" was loaded...", congo.ColorYellow)
+				printLog(h.icState.icName[i] + " was loaded...")
 			}
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn(h.icState.icName[i]+" was loaded...", congo.ColorRed)
 			//congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
@@ -648,15 +648,15 @@ func (h *THost) SetAlert(newAlert string) {
 	h.alert = newAlert
 	if player.GetHost() == h && h.name != "Matrix" {
 		if h.alert == "Passive Alert" {
-			printLog("...Host now in Passive Alert mode!", congo.ColorYellow)
+			printLog("...Host now in Passive Alert mode!")
 		}
 		if h.alert == "Active Alert" && notify == true {
-			printLog("...Host now in Active Alert mode!", congo.ColorRed)
-			printLog("SYSTEM MESSAGE:", congo.ColorDefault)
-			printLog("Attention all users!", congo.ColorDefault)
-			printLog("IC Activation Protocol engaged.", congo.ColorDefault)
-			printLog("Please terminate all operations and sign off.", congo.ColorDefault)
-			printLog("We deeply regret any inconvenience we may have caused.", congo.ColorDefault)
+			printLog("...Host now in Active Alert mode!")
+			printLog("SYSTEM MESSAGE:")
+			printLog("Attention all users!")
+			printLog("IC Activation Protocol engaged.")
+			printLog("Please terminate all operations and sign off.")
+			printLog("We deeply regret any inconvenience we may have caused.")
 		}
 	}
 }

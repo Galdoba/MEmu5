@@ -2,16 +2,17 @@ package main
 
 import (
 	"strconv"
-
-	"github.com/Galdoba/ConGo/congo"
 )
+
+//SPNumber - index of Sprite Power
+var SPNumber int
 
 //TSprite -
 type TSprite struct {
 	TPersona
 	actionProtocol string
 	level          int
-	//matrixCM       int
+	resonance      int
 }
 
 //IAgent -
@@ -22,8 +23,11 @@ type ISprite interface {
 
 //IAgentOnly -
 type ISpriteOnly interface {
-	TestMet() string
+	GetSprLevel() int
+	Supression() bool
 }
+
+var _ ISprite = (*TSprite)(nil)
 
 //NewTechnom -
 func (t *TTechnom) NewSprite(spriteType string, level int) *TSprite {
@@ -31,9 +35,15 @@ func (t *TTechnom) NewSprite(spriteType string, level int) *TSprite {
 	id = id + xd6Test(3)
 	s.id = id
 	s.level = level
-	s.device = addDevice("Sprite Persona")
+	s.device = addDevice(spriteType)
 	s.GetDevice().AddProgramtoDevice("", 0)
-	s.uDevice = "Sprite Persona"
+	s.uDevice = spriteType
+	if s.GetDevice().model == spriteType {
+		s.uDevice = spriteType
+	} else {
+		s.uDevice = s.GetDevice().model
+	}
+	s.deviceRating = level
 	s.uType = "Sprite"
 	s.isPlayer = false
 	s.name = s.GetType() + " " + strconv.Itoa(s.id)
@@ -44,12 +54,68 @@ func (t *TTechnom) NewSprite(spriteType string, level int) *TSprite {
 	s.logic = level
 	s.intuition = level
 	s.charisma = level
-	printLog("wait", congo.ColorDefault)
-	hold()
-	hold()
-	hold()
-	hold()
-
+	switch spriteType {
+	case "Courier Sprite":
+		s.SetAttackRaw(level)
+		s.SetSleazeRaw(level + 3)
+		s.SetDataProcessingRaw(level + 1)
+		s.SetFirewallRaw(level + 2)
+		s.SetDeviceRating(level)
+		s.SetMaxMatrixCM((s.level+1)/2 + 8)
+		s.SetMatrixCM(s.maxMatrixCM)
+		s.computerSkill = level
+		s.hackingSkill = level
+	case "Crack Sprite":
+		s.SetAttackRaw(level)
+		s.SetSleazeRaw(level + 3)
+		s.SetDataProcessingRaw(level + 2)
+		s.SetFirewallRaw(level + 1)
+		s.SetDeviceRating(level)
+		s.SetMaxMatrixCM((s.level+1)/2 + 8)
+		s.SetMatrixCM(s.maxMatrixCM)
+		s.computerSkill = level
+		s.electronicSkill = level
+		s.hackingSkill = level
+	case "Data Sprite":
+		s.SetAttackRaw(level - 1)
+		if s.GetAttackRaw() < 1 {
+			s.SetAttackRaw(1)
+		}
+		s.SetSleazeRaw(level)
+		s.SetDataProcessingRaw(level + 4)
+		s.SetFirewallRaw(level + 1)
+		s.SetDeviceRating(level)
+		s.SetMaxMatrixCM((s.level+1)/2 + 8)
+		s.SetMatrixCM(s.maxMatrixCM)
+		//s.SetMatrixCM((level+1)/2 + 8)
+		s.computerSkill = level
+		s.electronicSkill = level
+	case "Fault Sprite":
+		s.SetAttackRaw(level + 3)
+		s.SetSleazeRaw(level)
+		s.SetDataProcessingRaw(level + 1)
+		s.SetFirewallRaw(level + 2)
+		s.SetDeviceRating(level)
+		s.computerSkill = level
+		s.cybercombatSkill = level
+		s.hackingSkill = level
+	case "Machine Sprite":
+		s.SetAttackRaw(level + 1)
+		s.SetSleazeRaw(level)
+		s.SetDataProcessingRaw(level + 3)
+		s.SetFirewallRaw(level + 2)
+		s.SetDeviceRating(level)
+		s.SetMaxMatrixCM((s.level+1)/2 + 8)
+		s.SetMatrixCM(s.maxMatrixCM)
+		s.computerSkill = level
+		s.electronicSkill = level
+		s.hardwareSkill = level
+	default:
+		panic("Error: Sprite unknown type")
+	}
+	s.SetMaxMatrixCM((s.level+1)/2 + 8)
+	s.SetMatrixCM(s.GetMaxMatrixCM())
+	//s.SetMatrixCM((level+1)/2 + 8)
 	//SKILLS
 	/*a.cybercombatSkill = agent.programRating
 	a.computerSkill = agent.programRating
@@ -73,9 +139,10 @@ func (t *TTechnom) NewSprite(spriteType string, level int) *TSprite {
 	s.stunCM = 999999
 	s.maxPhysCM = 999999
 	s.physCM = 999999
-	s.actionProtocol = "Overwatch"
-	s.maxMatrixCM = s.level/2 + 8
-	s.matrixCM = s.maxMatrixCM
+	s.actionProtocol = "Follow"
+	//s.SetMaxMatrixCM((s.level+1)/2 + 8)
+	//s.SetMatrixCM(s.maxMatrixCM)
+	//s.matrixCM = s.maxMatrixCM
 	s.host = t.GetHost()
 	s.markSet.MarksFrom = make(map[int]int)
 	s.markSet.MarksFrom[s.id] = 4
@@ -100,7 +167,7 @@ func (t *TTechnom) NewSprite(spriteType string, level int) *TSprite {
 	data[8] = strconv.Itoa(s.GetSleaze())
 	data[9] = strconv.Itoa(s.GetDataProcessing())
 	data[10] = strconv.Itoa(s.GetFirewall())
-	data[11] = "Unknown"
+	data[11] = s.GetUDevice()
 	data[12] = "Unknown"
 	data[13] = s.GetGridName()
 	data[14] = "Unknown"
@@ -118,8 +185,8 @@ func (t *TTechnom) NewSprite(spriteType string, level int) *TSprite {
 }
 
 //RollInitiative -
-func (s *TSprite) TestMet() string {
-	return "test completed"
+func (s *TSprite) GetSprLevel() int {
+	return s.level
 }
 
 //RollInitiative -
@@ -181,4 +248,34 @@ func (s *TSprite) RunActionProtocol() (string, string) {
 	}
 
 	return "WAIT", s.GetName()
+}
+
+//
+func (s *TSprite) SetMaxMatrixCM(mxMCM int) {
+	s.GetDevice().maxMatrixCM = mxMCM
+}
+
+type SpritePower struct {
+	powerName        string
+	activeUser       ISprite
+	activeEnviroment IHost
+	activeTarget     IIcon
+}
+
+//type AffectedTarget interface {
+//	Get
+//}
+
+func (s *TSprite) Supression() bool {
+	if s.uDevice != "Crack Sprite" {
+		return false
+	}
+	SPNumber++
+	SPowerMap[SPNumber] = SpritePower{
+		"Supression",
+		s,
+		s.GetHost(),
+		nil,
+	}
+	return true
 }

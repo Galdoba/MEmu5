@@ -34,7 +34,7 @@ func addIconToCombatRooster(icon IIcon) {
 
 func endActionPhase(icon IIcon) bool {
 	if CombatRooster.iconActed == nil {
-		printLog("Creating CR...", congo.ColorDefault)
+		printLog("Creating CR...")
 		buildInitiativePassOrder()
 	}
 	for i := range CombatRooster.iconID { //Check combat rooster. mark Icon as Acted and break
@@ -107,8 +107,8 @@ func sortMovementOrder(icons []IIcon, maxInit int) []IIcon {
 
 func trackCombat() {
 	congo.WindowsMap.ByTitle["Process"].WClear()
-	congo.WindowsMap.ByTitle["Process"].WPrintLn("Info: Combat Turn # "+strconv.Itoa(CombatTurn), congo.ColorDefault)
-	congo.WindowsMap.ByTitle["Process"].WPrintLn("Info: Initiative Pass # "+strconv.Itoa(InitiativePass), congo.ColorDefault)
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("Info: Combat Turn # " + strconv.Itoa(CombatTurn))
+	congo.WindowsMap.ByTitle["Process"].WPrintLn("Info: Initiative Pass # " + strconv.Itoa(InitiativePass))
 	for i := range CombatRooster.iconID {
 		id := CombatRooster.iconID[i]
 		in := CombatRooster.iconInit[i]
@@ -117,9 +117,9 @@ func trackCombat() {
 			status = "true"
 		}
 		if pickObjByID(id) != nil {
-			congo.WindowsMap.ByTitle["Process"].WPrintLn("Icon: "+pickObjByID(id).GetName()+" / "+strconv.Itoa(in)+" / "+status, congo.ColorDefault)
+			congo.WindowsMap.ByTitle["Process"].WPrintLn("Icon: " + pickObjByID(id).GetName() + " / " + strconv.Itoa(in) + " / " + status)
 		}
-		//congo.WindowsMap.ByTitle["Process"].WPrintLn("Icon: "+pickObjByID(id).GetName()+" / "+strconv.Itoa(in)+" / "+status, congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Process"].WPrintLn("Icon: "+pickObjByID(id).GetName()+" / "+strconv.Itoa(in)+" / "+status)
 	}
 }
 
@@ -203,14 +203,14 @@ func buildInitiativePassOrder() {
 }
 
 func checkTurn() bool {
-	//	printLog("Start checkTurn()", congo.ColorDefault)
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn("/Check END PASS", congo.ColorDefault)
+	//	printLog("Start checkTurn()")
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn("/Check END PASS")
 	if itIsEndPass() {
-		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("/TRUE", congo.ColorDefault)
+		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("/TRUE")
 		endInitiativePass()
 		InitiativePass++
 		if itIsEndCombatTurn() {
-			//congo.WindowsMap.ByTitle["Log"].WPrintLn(" end Turn by " + icon.GetName(), congo.ColorDefault)
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn(" end Turn by " + icon.GetName())
 			CombatTurn++
 			Turn++
 			InitiativePass = 1
@@ -221,12 +221,12 @@ func checkTurn() bool {
 			STime = forwardShadowrunTime()
 			if player.GetName() != "Unknown" {
 				drawLineInWindow("Log")
-				congo.WindowsMap.ByTitle["Log"].WPrintLn("SYSTEM TIME: "+STime, congo.ColorDefault)
+				congo.WindowsMap.ByTitle["Log"].WPrintLn("SYSTEM TIME: " + STime)
 			}
 			if STime == TimeMarker {
 				player.SetWaitFlag(false)
 			}
-			//congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime, congo.ColorDefault)
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn("//SYSTEM TIME: "+STime)
 			return true
 		}
 
@@ -243,7 +243,7 @@ func checkTurn() bool {
 	}
 	if CombatRooster.iconActed == nil {
 		//addIconToCombatRooster(player)
-		//	printLog("Creating CR...", congo.ColorDefault)
+		//	printLog("Creating CR...")
 		buildInitiativePassOrder()
 	}
 	//trackCombat()
@@ -257,7 +257,7 @@ func checkTurn() bool {
 	refreshEnviromentWin()
 	for i := range CombatRooster.iconActed {
 		if CombatRooster.iconActed[i] {
-			//printLog("3", congo.ColorDefault)
+			//printLog("3")
 			continue
 		} else {
 			if tryIcon, ok := pickObjByID(CombatRooster.iconID[i]).(IIcon); ok {
@@ -270,7 +270,7 @@ func checkTurn() bool {
 		//panic(1) //не заходит
 	}
 	if icon == nil {
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("CR is empty/all true = end pass", congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("CR is empty/all true = end pass")
 		endInitiativePass()
 	}
 	if icon != nil {
@@ -291,12 +291,12 @@ func checkTurn() bool {
 				mActionName = icDecide(ic) //нужен целеуказывающий механизм для айсов
 
 				/////////////////////////////////////////////////////////////////////
-				//printLog("--point DoAction", congo.ColorDefault)
-				//printLog(ic.GetName()+" / "+mActionName, congo.ColorDefault)
+				//printLog("--point DoAction")
+				//printLog(ic.GetName()+" / "+mActionName)
 				doAction(mActionName)
-				//printLog("Go ednActionforIC()", congo.ColorDefault)
+				//printLog("Go ednActionforIC()")
 				endActionPhase(ic)
-				//printLog("end checkTurn() 2", congo.ColorDefault)
+				//printLog("end checkTurn() 2")
 				return false
 			}
 
@@ -311,15 +311,15 @@ func checkTurn() bool {
 				//выбираем цель
 				TargetIcon = ObjByNames[tarStr]
 				//выбираем действие
-				printLog("Agent Protocol: "+agent.GetActionProtocol(), congo.ColorDefault)
+				printLog("Agent Protocol: " + agent.GetActionProtocol())
 				mActionName = actStr
 				/////////////////////////////////////////////////////////////////////
 				command = formatString(agent.GetName() + ">" + mActionName + ">" + tarStr)
-				printLog(command, congo.ColorDefault)
+				printLog(command)
 				doAction(mActionName)
-				//printLog("Agent: "+mActionName+", target: "+tarStr, congo.ColorDefault)
+				//printLog("Agent: "+mActionName+", target: "+tarStr)
 				endActionPhase(agent)
-				//printLog("end checkTurn() 2", congo.ColorDefault)
+				//printLog("end checkTurn() 2")
 				return false
 			}
 		}
@@ -461,7 +461,7 @@ func getICAttack() string {
 			return "unknown IC action"
 		}
 
-		/*congo.WindowsMap.ByTitle["Log"].WPrintLn("ACTION + "+src.GetName(), congo.ColorDefault)
+		/*congo.WindowsMap.ByTitle["Log"].WPrintLn("ACTION + "+src.GetName())
 		return src.GetName()*/
 	}
 	return "none"
@@ -492,10 +492,10 @@ func (ic *TIC) icChoseTarget() interface{} {
 					//congo.WindowsMap.ByTitle["Log"].WPrintLn(" len(potentialTargets) = "+strconv.Itoa(len(potentialTargets)), congo.ColorRed)
 					shuffleInt(potentialTargets)
 				} else {
-					//congo.WindowsMap.ByTitle["Log"].WPrintLn("Host can see:: "+host.canSee.KnownData[trg.GetID()][0], congo.ColorDefault)
+					//congo.WindowsMap.ByTitle["Log"].WPrintLn("Host can see:: "+host.canSee.KnownData[trg.GetID()][0])
 					if host.canSee.KnownData[trg.GetID()][0] == "Spotted" {
 						canSee[0] = "Spotted"
-						//	congo.WindowsMap.ByTitle["Log"].WPrintLn("************* "+host.canSee.KnownData[trg.GetID()][0], congo.ColorDefault)
+						//	congo.WindowsMap.ByTitle["Log"].WPrintLn("************* "+host.canSee.KnownData[trg.GetID()][0])
 						ic.SetFieldOfView(host.GetFieldOfView())
 					}
 				}
@@ -556,7 +556,7 @@ func hostAction() {
 
 				patrolIC := host.PickPatrolIC()
 				patrolIC.SetActionReady(patrolIC.GetActionReady() - 1)
-				//printLog("ActionReady = "+strconv.Itoa(patrolIC.GetActionReady()), congo.ColorDefault)
+				//printLog("ActionReady = "+strconv.Itoa(patrolIC.GetActionReady()))
 				//patrolIC.actionReady = patrolIC.actionReady - 1
 				if host.alert == "Passive Alert" || host.alert == "Active Alert" {
 					patrolIC.SetActionReady(-1)

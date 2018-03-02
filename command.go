@@ -12,7 +12,7 @@ import (
 
 //UserInput -
 func UserInput(input string) bool {
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn("Processing: '"+input+"'", congo.ColorGreen)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn("Processing: '"+input+"'")
 	var mActionName string
 	var actionIsGood bool
 	var comm []string
@@ -22,14 +22,14 @@ func UserInput(input string) bool {
 	text := formatString(input)
 	text = cleanText(text)
 	if text != "" {
-		printLog(text, congo.ColorDefault)
+		printLog(text)
 	}
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn(text, congo.ColorGreen)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(text)
 	//hold()
 
 	if len(comm) < 2 {
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format", congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!")
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format")
 		congo.WindowsMap.ByTitle["Log"].WDraw()
 		return false
 	}
@@ -37,10 +37,10 @@ func UserInput(input string) bool {
 	mAction := comm[1]
 	mAction = formatString(mAction)
 	mAction = cleanText(mAction)
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn(mAction, congo.ColorGreen)
-	//printLog(mAction, congo.ColorRed)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(mAction)
+	//printLog(mAction)
 	mActionName = mAction
-	//printLog(mActionName, congo.ColorRed)
+	//printLog(mActionName)
 	actionIsGood, mActionName = checkAction(mAction)
 	if actionIsGood == false {
 		//	congo.WindowsMap.ByTitle["Log"].WPrintLn("Action: "+mActionName+" is correct", congo.ColorYellow)
@@ -62,7 +62,7 @@ func UserInput(input string) bool {
 		TargetIcon = SourceIcon
 		if len(comm) < 4 {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not enough data...", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [ATTRIBUTE 1] > [ATTRIBUTE 2]' Format", congo.ColorDefault)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [ATTRIBUTE 1] > [ATTRIBUTE 2]' Format")
 			return false
 		} else if len(comm) == 4 {
 			TargetIcon = SourceIcon
@@ -75,14 +75,14 @@ func UserInput(input string) bool {
 		TargetIcon = SourceIcon
 		if len(comm) < 3 {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not enough data...", congo.ColorYellow)
-			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [ATTRIBUTE 1] > [ATTRIBUTE 2]' Format", congo.ColorDefault)
+			//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [ATTRIBUTE 1] > [ATTRIBUTE 2]' Format")
 			return false
-		} else if len(comm) == 3 {
-			TargetIcon = SourceIcon
-			doAction(mActionName)
-			return true
 		}
-		return false
+		TargetIcon = SourceIcon
+		doAction(mActionName)
+		return true
+
+		//return false
 	}
 	if mActionName == "MATRIX_PERCEPTION" {
 		if len(comm) > 2 {
@@ -101,16 +101,16 @@ func UserInput(input string) bool {
 		TargetIcon = SourceIcon
 		if len(comm) < 3 {
 			congo.WindowsMap.ByTitle["Log"].WPrintLn("Not enough data...", congo.ColorYellow)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET TYPE] > [TARGET NAME]' Format", congo.ColorDefault)
-			congo.WindowsMap.ByTitle["Log"].WPrintLn("[TARGET NAME] is optional, if left blank random name will be generated", congo.ColorDefault)
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET TYPE] > [TARGET NAME]' Format")
+			congo.WindowsMap.ByTitle["Log"].WPrintLn("[TARGET NAME] is optional, if left blank random name will be generated")
 			return false
 		}
 		doAction(mActionName)
 		return true
 	}
 	if len(comm) < 3 {
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!", congo.ColorRed)
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format", congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("WARNING! Sintax Error!")
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn("Use '[SOURCE] > [COMMAND] > [TARGET]' Format")
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Target not designated", congo.ColorYellow)
 		congo.WindowsMap.ByTitle["Log"].WDraw()
 		return false
@@ -120,7 +120,7 @@ func UserInput(input string) bool {
 	if checkTarget(comm[2], mActionName) == true {
 		doAction(mActionName)
 	} else {
-		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Unknown target", congo.ColorGreen)
+		congo.WindowsMap.ByTitle["Log"].WPrintLn("Error: Unknown target")
 
 	}
 	congo.WindowsMap.ByTitle["Log"].WDraw()
@@ -172,7 +172,7 @@ func checkTarget(target, mActionName string) bool {
 	if pickTarget(target, mActionName) {
 		return true
 	}
-	//printLog("Error: target not found", congo.ColorGreen)
+	//printLog("Error: target not found")
 	return false
 }
 
@@ -209,7 +209,7 @@ func cleanText(s string) string {
 	plain := hex.EncodeToString([]byte(s))
 	//plain = strings.Replace(plain, "10", "", -1)
 	char := strings.Split(plain, "1001")
-	//congo.WindowsMap.ByTitle["Log"].WPrintLn(plain, congo.ColorGreen)
+	//congo.WindowsMap.ByTitle["Log"].WPrintLn(plain)
 	for i := range char {
 
 		if char[i] == "10" {

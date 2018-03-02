@@ -2,8 +2,6 @@ package main
 
 import (
 	"strconv"
-
-	"github.com/Galdoba/ConGo/congo"
 )
 
 //TTechnom -
@@ -29,7 +27,8 @@ type ITechnomOnly interface {
 	GetSubmersion() int
 	GetSustainedForms() []ComplexForm
 	ResistFade(int, string)
-	NewSprite(spriteType string, level int) *TSprite 
+	NewSprite(spriteType string, level int) *TSprite
+	GetCompilingSkill() int
 }
 
 //NewTechnom -
@@ -102,13 +101,13 @@ func (t *TTechnom) GetDeviceRating() int {
 	return t.device.deviceRating
 }
 
-//GetSleazeRaw -
+/*//GetSleazeRaw -
 func (t *TTechnom) GetSleazeRaw() int {
 	if t.device.model == "Living Persona" {
 		return t.intuition
 	}
 	return t.device.sleaze
-}
+}*/
 
 //GetAttack -
 /*func (t *TTechnom) GetAttack() int {
@@ -172,14 +171,14 @@ func (t *TTechnom) ReceiveMatrixDamage(damage int) {
 	if t.CheckRunningProgram("Virtual Machine") && damage > 0 {
 		damage++
 		if t.GetFaction() == player.GetFaction() {
-			printLog("...WARNING! 1 additional Matrix Damage caused by Virtual Machine program", congo.ColorYellow)
+			printLog("...WARNING! 1 additional Matrix Damage caused by Virtual Machine program")
 			hold()
 		}
 	}
 	t.SetStunCM(t.GetStunCM() - damage)
 	if t.GetFaction() == player.GetFaction() {
-		printLog("..."+t.GetName()+" takes "+strconv.Itoa(damage)+" Matrix damage", congo.ColorYellow)
-		printLog("...Matrix damage converted to Stun", congo.ColorYellow)
+		printLog("..." + t.GetName() + " takes " + strconv.Itoa(damage) + " Matrix damage")
+		printLog("...Matrix damage converted to Stun")
 		hold()
 	}
 	if t.GetMatrixCM() < 1 {
@@ -220,27 +219,27 @@ func (t *TTechnom) ResistMatrixDamage(damage int) int {
 	resistDicePool := 0
 	resistDicePool = resistDicePool + t.GetDeviceRating()
 	resistDicePool = resistDicePool + t.GetFirewall()
-	printLog("...Incoming matrix damage detected", congo.ColorGreen)
+	printLog("...Incoming matrix damage detected")
 
 	if t.CheckRunningProgram("Shell") {
 		resistDicePool = resistDicePool + 1
 		if t.GetFaction() == player.GetFaction() {
-			printLog("Program Shell: add 1 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Shell: add 1 to resistPool - DEBUG")
 		}
 	}
 	if t.CheckRunningProgram("Armor") {
 		resistDicePool = resistDicePool + 2
 		if t.GetFaction() == player.GetFaction() {
-			printLog("Program Armor: add 2 to resistPool - DEBUG", congo.ColorDefault)
+			printLog("Program Armor: add 2 to resistPool - DEBUG")
 		}
 	}
-	printLog("...Evaluated Firewall resources: "+strconv.Itoa(resistDicePool)+" mp/p", congo.ColorGreen)
+	printLog("...Evaluated Firewall resources: " + strconv.Itoa(resistDicePool) + " mp/p")
 	damageSoak, gl, cgl := simpleTest(t.GetID(), resistDicePool, 1000, 0)
 	realDamage := damage - damageSoak
 	if gl {
 		if t.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
-			printLog(t.GetName()+": Firewall glitch detected!", congo.ColorYellow)
+			printLog(t.GetName() + ": Firewall glitch detected!")
 			hold()
 		}
 	}
@@ -248,7 +247,7 @@ func (t *TTechnom) ResistMatrixDamage(damage int) int {
 		if t.GetFaction() == player.GetFaction() {
 			realDamage = realDamage + 2
 			addOverwatchScoreToTarget(40)
-			printLog(t.GetName()+": Firewall critical failure!", congo.ColorRed)
+			printLog(t.GetName() + ": Firewall critical failure!")
 			hold()
 		}
 	}
@@ -257,7 +256,7 @@ func (t *TTechnom) ResistMatrixDamage(damage int) int {
 	}
 
 	if t.GetFaction() == player.GetFaction() {
-		printLog("..."+t.GetName()+": "+strconv.Itoa(damageSoak)+" Matrix damage soaked", congo.ColorGreen)
+		printLog("..." + t.GetName() + ": " + strconv.Itoa(damageSoak) + " Matrix damage soaked")
 		hold()
 	}
 	return realDamage
@@ -281,9 +280,9 @@ func (t *TTechnom) GetSustainedForms() []ComplexForm {
 
 //ResistFade -
 func (t *TTechnom) ResistFade(fade int, fadeType string) {
-	printLog("...Fading: "+strconv.Itoa(fade)+" "+fadeType, congo.ColorGreen)
+	printLog("...Fading: " + strconv.Itoa(fade) + " " + fadeType)
 	resDP := t.GetWillpower() + t.GetResonance()
-	printLog("...Fade resiting: "+strconv.Itoa(resDP)+" dice", congo.ColorGreen)
+	printLog("...Fade resiting: " + strconv.Itoa(resDP) + " dice")
 	resistedFadeV, gl, cgl := simpleTest(t.id, resDP, 1000, 0)
 	if gl == true {
 		fade = fade + (xd6Test(1) / 2)
@@ -302,4 +301,9 @@ func (t *TTechnom) ResistFade(fade int, fadeType string) {
 	if fadeType == "phys" {
 		t.ReceivePhysBiofeedbackDamage(fade)
 	}
+}
+
+//GetCompilingSkill -
+func (t *TTechnom) GetCompilingSkill() int {
+	return t.compilingSkill
 }

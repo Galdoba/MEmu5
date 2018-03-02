@@ -100,7 +100,10 @@ func NewGrid(name string, dr int) *TGrid {
 	g.name = name
 	g.deviceRating = dr
 	g.overwatchScore = 0
-	g.id = -999
+	g.id = 0
+	for _, r := range name {
+		g.id = g.id - (int(r))
+	}
 	gridList = append(gridList, &g)
 	ObjByNames[g.name] = &g
 	return &g

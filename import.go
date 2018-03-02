@@ -7,8 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/Galdoba/ConGo/congo"
 )
 
 func fileDBExists(name string) bool {
@@ -180,7 +178,7 @@ func ImportHostFromDB(hostName string) *THost {
 	player.GetFieldOfView().KnownData[h.id] = data
 	h.FillHostWithFiles()
 	h.LoadNextIC()
-	//printLog("Importing host: "+h.GetName(), congo.ColorDefault)
+	//printLog("Importing host: "+h.GetName())
 	gridList = append(gridList, &h)
 	ObjByNames[h.name] = &h
 	return &h
@@ -214,7 +212,7 @@ func ImportPlayerFromDB0(alias string) (IPersona, bool) {
 
 	}
 	if !found {
-		printLog("...Incorrect username or passcode", congo.ColorRed)
+		printLog("...Incorrect username or passcode")
 		return player, false
 	}
 	////////////////////////////////////////////
@@ -236,7 +234,7 @@ func ImportPlayerFromDB0(alias string) (IPersona, bool) {
 	}
 
 	if class == "Decker" {
-		printLog("Create Decker", congo.ColorDefault)
+		printLog("Create Decker")
 	}
 	var name string
 	var devName string
@@ -557,7 +555,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 
 	}
 	if !found {
-		printLog("...Incorrect username or passcode", congo.ColorRed)
+		printLog("...Incorrect username or passcode")
 		return player, false
 	}
 	lines := strings.Split(playerToImport, "\r\n")
@@ -573,16 +571,16 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 		parts[1] = strings.Trim(parts[1], SPACES)
 		val := parts[1]
 		charMAP[key] = val
-		//congo.WindowsMap.ByTitle["Log"].WPrintLn(key+":"+val, congo.ColorDefault)
+		//congo.WindowsMap.ByTitle["Log"].WPrintLn(key+":"+val)
 	}
 	var p IPersona
 	switch charMAP["Class"] {
 	case "Decker":
-		printLog("is Decker", congo.ColorDefault)
+		printLog("is Decker")
 		p = NewPersona(charMAP["Alias"], charMAP["Device"])
 		p.GetDevice()
 	case "Technomancer":
-		printLog("is TECH", congo.ColorDefault)
+		printLog("is TECH")
 		t := NewTechnom(charMAP["Alias"], charMAP["Device"])
 		p = t
 
@@ -638,7 +636,7 @@ func ImportPlayerFromDB(alias string) (IPersona, bool) {
 			prgName = availProgs[i]
 			prgRat = 0
 		}
-		//printLog(prgName+" // "+strconv.Itoa(prgRat), congo.ColorRed)
+		//printLog(prgName+" // "+strconv.Itoa(prgRat))
 		//store
 
 		for j := range p.GetDevice().software.programName {

@@ -32,7 +32,7 @@ Host_IC:
 #########################
           
 Host: Bravo3
-Grid: AzGrid
+Grid: Local Grid
 Host_Atributes:
   Rating: 3
   Attack: 3

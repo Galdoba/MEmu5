@@ -173,18 +173,75 @@ func AddDevice() TDeviceDB {
 	DB.DeviceDB["Living Persona"].software = preaparePrograms()
 
 	/////////////
-	DB.DeviceDB["Sprite Persona"] = &TDevice{}
-	DB.DeviceDB["Sprite Persona"].deviceType = "Sprite Persona"
-	DB.DeviceDB["Sprite Persona"].model = "Sprite Persona"
-	DB.DeviceDB["Sprite Persona"].deviceRating = 0
-	DB.DeviceDB["Sprite Persona"].attack = 0
-	DB.DeviceDB["Sprite Persona"].sleaze = 0
-	DB.DeviceDB["Sprite Persona"].dataProcessing = 0
-	DB.DeviceDB["Sprite Persona"].firewall = 0
-	DB.DeviceDB["Sprite Persona"].maxMatrixCM = 0
-	DB.DeviceDB["Sprite Persona"].matrixCM = 0
-	DB.DeviceDB["Sprite Persona"].canSwapAtt = false
-	DB.DeviceDB["Sprite Persona"].software = preaparePrograms()
+	DB.DeviceDB["Courier Sprite"] = &TDevice{}
+	DB.DeviceDB["Courier Sprite"].deviceType = "Courier Sprite"
+	DB.DeviceDB["Courier Sprite"].model = "Courier Sprite"
+	DB.DeviceDB["Courier Sprite"].deviceRating = 0
+	DB.DeviceDB["Courier Sprite"].attack = 0
+	DB.DeviceDB["Courier Sprite"].sleaze = 0
+	DB.DeviceDB["Courier Sprite"].dataProcessing = 0
+	DB.DeviceDB["Courier Sprite"].firewall = 0
+	DB.DeviceDB["Courier Sprite"].maxMatrixCM = 0
+	DB.DeviceDB["Courier Sprite"].matrixCM = 0
+	DB.DeviceDB["Courier Sprite"].canSwapAtt = false
+	DB.DeviceDB["Courier Sprite"].software = preaparePrograms()
+
+	DB.DeviceDB["Crack Sprite"] = &TDevice{}
+	DB.DeviceDB["Crack Sprite"].deviceType = "Crack Sprite"
+	DB.DeviceDB["Crack Sprite"].model = "Crack Sprite"
+	DB.DeviceDB["Crack Sprite"].deviceRating = 0
+	DB.DeviceDB["Crack Sprite"].attack = 0
+	DB.DeviceDB["Crack Sprite"].sleaze = 0
+	DB.DeviceDB["Crack Sprite"].dataProcessing = 0
+	DB.DeviceDB["Crack Sprite"].firewall = 0
+	DB.DeviceDB["Crack Sprite"].maxMatrixCM = 0
+	DB.DeviceDB["Crack Sprite"].matrixCM = 0
+	DB.DeviceDB["Crack Sprite"].canSwapAtt = false
+	DB.DeviceDB["Crack Sprite"].software = preaparePrograms()
+
+	DB.DeviceDB["Data Sprite"] = &TDevice{}
+	DB.DeviceDB["Data Sprite"].deviceType = "Data Sprite"
+	DB.DeviceDB["Data Sprite"].model = "Data Sprite"
+	DB.DeviceDB["Data Sprite"].deviceRating = 0
+	DB.DeviceDB["Data Sprite"].attack = 0
+	DB.DeviceDB["Data Sprite"].sleaze = 0
+	DB.DeviceDB["Data Sprite"].dataProcessing = 0
+	DB.DeviceDB["Data Sprite"].firewall = 0
+	DB.DeviceDB["Data Sprite"].maxMatrixCM = 0
+	DB.DeviceDB["Data Sprite"].matrixCM = 0
+	DB.DeviceDB["Data Sprite"].canSwapAtt = false
+	DB.DeviceDB["Data Sprite"].software = preaparePrograms()
+
+	DB.DeviceDB["Fault Sprite"] = &TDevice{}
+	DB.DeviceDB["Fault Sprite"].deviceType = "Fault Sprite"
+	DB.DeviceDB["Fault Sprite"].model = "Fault Sprite"
+	DB.DeviceDB["Fault Sprite"].deviceRating = 0
+	DB.DeviceDB["Fault Sprite"].attack = 0
+	DB.DeviceDB["Fault Sprite"].sleaze = 0
+	DB.DeviceDB["Fault Sprite"].dataProcessing = 0
+	DB.DeviceDB["Fault Sprite"].firewall = 0
+	DB.DeviceDB["Fault Sprite"].maxMatrixCM = 0
+	DB.DeviceDB["Fault Sprite"].matrixCM = 0
+	DB.DeviceDB["Fault Sprite"].canSwapAtt = false
+	DB.DeviceDB["Fault Sprite"].software = preaparePrograms()
+
+	DB.DeviceDB["Machine Sprite"] = &TDevice{}
+	DB.DeviceDB["Machine Sprite"].deviceType = "Machine Sprite"
+	DB.DeviceDB["Machine Sprite"].model = "Machine Sprite"
+	DB.DeviceDB["Machine Sprite"].deviceRating = 0
+	DB.DeviceDB["Machine Sprite"].attack = 0
+	DB.DeviceDB["Machine Sprite"].sleaze = 0
+	DB.DeviceDB["Machine Sprite"].dataProcessing = 0
+	DB.DeviceDB["Machine Sprite"].firewall = 0
+	DB.DeviceDB["Machine Sprite"].maxMatrixCM = 0
+	DB.DeviceDB["Machine Sprite"].matrixCM = 0
+	DB.DeviceDB["Machine Sprite"].canSwapAtt = false
+	DB.DeviceDB["Machine Sprite"].software = preaparePrograms()
+
+	DB.DeviceDB["Host"] = &TDevice{}
+	DB.DeviceDB["Host"].deviceType = "Standard Host"
+	DB.DeviceDB["Host"].model = "Standard Host"
+	DB.DeviceDB["Host"].canSwapAtt = false
 
 	/*	DB.DeviceDB["noDevice"].software.programName = append(DB.DeviceDB["noDevice"].software.programName, "Browse")
 		DB.DeviceDB["noDevice"].software.programStatus = append(DB.DeviceDB["noDevice"].software.programStatus, "notAvailable")
