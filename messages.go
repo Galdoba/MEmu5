@@ -529,8 +529,13 @@ func refreshEnviromentWin() {
 							//	prefix[1] = "  "
 							prefix[2] = "    "
 						}*/
+						stat := ""
+						if ice.Status().HaveName("Supressed") {
+							count := ice.Status().ByName["Supressed"].Counter()
+							stat = ":{red}Supressed for {default}" + iStr(count) + " {red}turns{default}"
+						}
 						if whatCanSee[0] != "Unknown" || ice.GetMarkSet().MarksFrom[player.GetID()] == 4 {
-							WMap["Enviroment"].WPrintLn(strings.Join(prefix, "") + "{yellow}" + ice.GetName() + "{default}")
+							WMap["Enviroment"].WPrintLn(strings.Join(prefix, "") + "{yellow}" + ice.GetName() + "{default} " + stat + " Status?")
 						}
 						prefix[2] = "│ "
 						if whatCanSee[2] != "Unknown" || ice.GetMarkSet().MarksFrom[player.GetID()] == 4 {

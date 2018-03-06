@@ -1701,6 +1701,7 @@ func doAction(mActionName string) bool {
 		congo.WindowsMap.ByTitle["Log"].WPrintLn("{RED}--DEBUG-- {YELLOW}Error: SourceIcon = nil. Try again")
 		return false
 	}
+	//printLog("SourceIcon = " + SourceIcon.GetName() + " status:{red}" + Status(SourceIcon.GetID()).GetStatusName() + "{green}")
 	//	player.RevealDataTo(player.GetID(), 7)
 	if val, ok := MActions.MActionMap[mActionName]; ok { // if s string match any Matrix Action than execute action
 		if mActionName != "ICWAIT" {
@@ -3364,6 +3365,19 @@ func Command(src IObj, trg IObj) bool {
 					agent.SetActionProtocol("Overwatch")
 				}
 			}
+			if sprite, ok := targetList[i].(ISprite); ok {
+				if comm[3] == "USE_POWER" {
+					if len(comm) < 5 {
+						printLog("...Error: Power Unspecified")
+						printLog("Use '[SEND MESSAGE]>[TARGET]>[USE_POWER]>[POWERNAME]' format")
+						return false
+					}
+					if comm[4] == "SUPRESSION" {
+						sprite.ActivatePower("Supression")
+						printLog(sprite.GetName() + " activated Supression")
+					}
+				}
+			}
 		}
 	}
 
@@ -3453,6 +3467,13 @@ func Wait(src IObj, trg IObj) bool {
 	/*testPrint("Status name: " + Status(player.GetID()).GetStatusName())
 	for _, obj := range ObjByNames {
 		printLog("Obj = "+obj.GetName()+" Status: "+Status(obj.GetID()).GetStatusName())
+	}*/
+	/*stats := AllStatuses(player)
+	for i := range stats {
+		//printLog("{default}Status: " + player.Status().ByName[stats[i]].Name() + " Counter: " + iStr(player.Status().ByName[stats[i]].Counter()))
+		player.Status().ByName[stats[i]].Update()
+		printLog("{Yellow}Status: " + player.Status().ByName[stats[i]].Name() + " Counter: " + iStr(player.Status().ByName[stats[i]].Counter()))
+		//printLog("{Green}Status: " + iconStatus.ByName[stats[i]].Name() + " Counter: " + iStr(iconStatus.ByName[stats[i]].Counter()))
 	}*/
 	return true
 }

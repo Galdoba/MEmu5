@@ -24,7 +24,7 @@ type ISprite interface {
 //IAgentOnly -
 type ISpriteOnly interface {
 	GetSprLevel() int
-	Supression() bool
+	ActivatePower(s string) bool
 }
 
 var _ ISprite = (*TSprite)(nil)
@@ -273,6 +273,42 @@ func (s *TSprite) Supression() bool {
 	SPNumber++
 	SPowerMap[SPNumber] = SpritePower{
 		"Supression",
+		s,
+		s.GetHost(),
+		nil,
+	}
+	return true
+}
+
+func checkActivePower(icon IIcon, powerName string) bool {
+	for _, val := range SPowerMap {
+		if val.powerName == powerName {
+			if val.activeEnviroment == icon.GetHost() {
+				return true
+			}
+			if val.activeTarget == icon {
+				return true
+			}
+		}
+	}
+	/*_, ok := SPowerMap[id]
+	if ok {
+		return true
+	}*/
+	return false
+}
+
+func (s *TSprite) ActivatePower(powerName string) bool {
+	var validPowers []string
+	switch s.uDevice {
+	case "Crack Sprite":
+		validPowers = append(validPowers, "Supression")
+	default:
+		return false
+	}
+	SPNumber++
+	SPowerMap[SPNumber] = SpritePower{
+		powerName,
 		s,
 		s.GetHost(),
 		nil,

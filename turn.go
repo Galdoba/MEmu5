@@ -215,6 +215,7 @@ func checkTurn() bool {
 			Turn++
 			InitiativePass = 1
 			hostAction()
+			UpdateStatusesForAll()
 			rollInitiativeALL()
 			//	resetCombatRooster()
 			buildInitiativePassOrder()

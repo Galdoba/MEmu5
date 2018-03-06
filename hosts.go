@@ -256,8 +256,14 @@ func (h *THost) LoadNextIC() bool {
 			//congo.WindowsMap.ByTitle["Log"].WPrintLn(h.icState.icName[i]+" was loaded...", congo.ColorRed)
 			//congo.WindowsMap.ByTitle["Process"].WPrint(".", congo.ColorGreen)
 			////ObjByNames[h.icState.icName[i]] =
-			h.NewIC(h.icState.icName[i])
+			newic := h.NewIC(h.icState.icName[i])
 			h.icState.icStatus[i] = true
+			if checkActivePower(newic, "Supression") {
+				//icStatus := i.Status()
+				newic.Status().ByName["Supressed"] = NewStatus("Supressed", 3, newic)
+				printLog("DEBUG: {yellow}" + newic.name + " is Supressed for " + iStr(3) + " turns")
+				printLog(newic.Status().ByName["Supressed"].Name() + "{red} is new status{green}")
+			}
 			//ObjByNames[h.icState.icName[i]] = &i
 			//h.icState.icID[i] = true
 

@@ -17,6 +17,10 @@ type MarkSet struct {
 	MarksFrom map[int]int
 }
 
+type StatusMap struct {
+	ByName map[string]IStatus
+}
+
 //Locked -
 type Locked struct {
 	LockedByID map[int]bool
@@ -53,6 +57,7 @@ type TObj struct {
 	linklocked   Locked
 	faction      string
 	deviceRating int
+	statusMap    StatusMap
 }
 
 //IObj -
@@ -75,6 +80,16 @@ type IObj interface {
 	SetDeviceRating(int)
 	GetPing() string
 	CheckThreadedForm(string) (bool, int)
+	Status() StatusMap
+}
+
+func (o *TObj) Status() StatusMap {
+	if o.statusMap.ByName == nil {
+		o.statusMap.ByName = make(map[string]IStatus)
+		o.statusMap.ByName["Nominal"] = &TStatus{target: o, name: "Nominal", counter: 1}
+	}
+	//printLog(o.statusMap.ByName["Nominal"].Name())
+	return o.statusMap
 }
 
 //CheckThreadedForm -
@@ -1019,6 +1034,7 @@ func (h *THost) NewIC(name string) *TIC {
 			//h.icState.icID[n] = i.id
 		}
 	}
+
 	i.markSet.MarksFrom = make(map[int]int)
 	//f.markSet.MarksFrom[f.id] = 4
 	i.markSet.MarksFrom[i.GetID()] = 4
@@ -1044,11 +1060,20 @@ func (h *THost) NewIC(name string) *TIC {
 	} else {
 		i.actionReady = -1
 	}
+	if i.GetHost() == player.GetHost() {
+		player.ChangeFOWParametr(i.id, 0, "Spotted")
+	}
 	i.freeActionsCount = 0
 	i.simpleActionsCount = 2
 	//objectList = append(objectList, &i)
 	id = id + xd6Test(3)
 	ObjByNames[i.name] = &i
+	/*if checkActivePower(&i, "Supression") {
+		//icStatus := i.Status()
+		i.Status().ByName["Supressed"] = NewStatus("Supressed", 2, &i)
+		printLog("DEBUG: {yellow}" + i.name + " is Supressed for " + iStr(2) + " turns")
+		printLog(i.Status().ByName["Supressed"].Name() + "{red} is new status{green}")
+	}*/
 	return &i
 }
 

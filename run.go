@@ -435,6 +435,19 @@ func main() {
 	WMap["Log"].WPrintLn(colortag + "...Encryption keys generated")
 	WMap["Log"].WPrintLn(colortag + "...Connected to onion routers")
 	WMap["Log"].WPrintLn(colortag + "...Enter Login:")
+	iconStatus := player.Status()
+	//printLog(player.Status().ByName["Nominal"].RunTest())
+	//iconStatus.ByName["Nominal"] = &TStatus{source: player, name: "Nominal", counter: -1}
+	//iconStatus.ByName["Cripled"] = &TStatus{source: player, name: "Crippled99", counter: 10}
+	//iconStatus.ByName["Cripled2"] = NewStatus("Cripled2", 5, player)
+	//printLog(player.Status().ByName["Cripled"].RunTest())
+	//printLog(iconStatus.CheckActive)
+	stats := AllStatuses(player)
+	for i := range stats {
+		//printLog("{default}Status: " + player.Status().ByName[stats[i]].Name() + " Counter: " + iStr(player.Status().ByName[stats[i]].Counter()))
+		printLog("{Green}Status: " + iconStatus.ByName[stats[i]].Name() + " Counter: " + iStr(iconStatus.ByName[stats[i]].Counter()))
+
+	}
 
 	refreshEnviromentWin()
 	refreshPersonaWin()
